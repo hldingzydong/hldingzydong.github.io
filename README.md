@@ -1,3 +1,2 @@
-# jekyll-true-minimal
-Minimal and ascetic theme for jekyll.
-Live demo: https://cyevgeniy.github.io/jekyll-true-minimal/
+# come on and read my blogs
+https://hldingzydong.github.io/

@@ -1,7 +1,7 @@
 name: "hldingzydong"
 description: "haoling blog"
 
-url: '' 
+url: 'https://hldingzydong.github.io/' 
 baseurl: ''
 
 markdown: kramdown
