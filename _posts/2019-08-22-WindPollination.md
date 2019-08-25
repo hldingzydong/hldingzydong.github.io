@@ -3,42 +3,68 @@ layout: post
 title:  Wind pollination
 date:   2019-08-22
 ---
-#### substance(physical entity) & reproductive(生殖的)
+#### test
+- [substance](#sr)
+- [reproductive](#sr)
+- [primitive](#pl)
+- [latitude](#pl)
+- [drawback](#drawback)
+- [gamble](#gamble)
+- [by contrast](#css)
+- [scatter](#css)
+- [slim](#css)
+- [despite](#dws)
+- [windy](#dws)
+- [solitary](#dws)
+- [impediment](#impediment)
+- [grain](#gr)
+- [respectively](#gr)
+- [stick](#sdkw)
+- [dry](#sdkw)
+- [knock](#sdkw)
+- [wet](#sdkw)
+- [significant](#sq)
+- [quantity](#sq)
+- [snatch](#snatch)
+- [objection](#objection)
+- [damp](#damp)
+
+#### <span id="sr">substance(physical entity) & reproductive(生殖的)</span>
 > Pollen(花粉), a powdery(粉状的) **substance**, which is produced by flowering plants and contains male **reproductive** cells.
 
-#### primitive(粗糙的) & latitude(纬度)
+#### <span id="pl">primitive(粗糙的) & latitude(纬度)</span>
 > Wind pollination(授粉) is often seen as being **primitive** and wasteful in costly pollen and yet it is surprisingly common, especially in higher **latitudes**.
 
-#### drawback(disadvantage、problem)
+#### <span id="drawback">drawback(disadvantage、problem)</span>
 > The **drawback** is that wind is obviously unspecific as to where it takes the pollen.
 
-#### gamble(打赌、风险)
+#### <span id="gamble">gamble(打赌、风险)</span>
 > This is a quite a safe **gamble**.
 
-#### by contrast(相比之下) & scatter(装点、装饰) & slim(small,little)
+#### <span id="css">by contrast(相比之下) & scatter(装点、装饰) & slim(small,little)</span>
 > **By contrast**, in the tropics(热带地区), where each tree species has few, widely **scattered** individuals, the chance of wind blowing pollen to another individual is sufficiently **slim** that animals are a safer bet as transporters of pollen. 
 
-#### despite(尽管) & windy(多风的) & solitary(loner,alone)
+#### <span id="dws">despite(尽管) & windy(多风的) & solitary(loner,alone)</span>
 > Even tall trees in the tropics are usually not wind pollinated **despite** being in **windy** conditions. In a similar way, trees in temperate(温带的) forests that are insect pollinated tend to grow as **solitary**, widely spread individuals.
 
-#### impediment(妨碍)
+#### <span id="impediment">impediment(妨碍)</span>
 > There are at best a waste and a worst an **impediment** to the transfer of pollen in the air.
 
-#### grain(肉眼可见的粒子) & respectively(separately)
+#### <span id="gr">grain(肉眼可见的粒子) & respectively(separately)</span>
 > Birch and hazel trees can produce 5.5 and 4 million **grains** per catkin, **respectively**.
 
-#### stick(粘住) & dry(干燥的) & knock(敲、打) & wet(潮湿的)
+#### <span id="sdkw">stick(粘住) & dry(干燥的) & knock(敲、打) & wet(潮湿的)</span>
 > Pollen is shed(脱落) primarily when the air is **dry** to prevent too much **sticking** to **wet** surfaces or being **koncked** out of the air by rain.
 
-#### significant(considerable 相当大的) quantity(量)
+#### <span id="sq">significant(considerable 相当大的) quantity(量)</span>
 > But once this far, **significant quantities** can go a kilometer or more.
 
-#### snatch(突然抢走)
+#### <span id="snatch">snatch(突然抢走)</span>
 > Once the pollen has been **snatched** by the wind, but not everything is left to chance. 
  
-#### objection(resistance 反对)
+#### <span id="objection">objection(resistance 反对)</span>
 
-#### damp(wet)
+#### <span id="damp">damp(wet)</span>
 
 #### 译文
 
