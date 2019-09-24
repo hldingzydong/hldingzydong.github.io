@@ -3,14 +3,14 @@ layout: post
 title:  recursion
 date:   2019-09-24
 ---
-##### principle
+##### [principle](https://leetcode.com/explore/learn/card/recursion-i/250/principle-of-recursion/1439/)
 - base case
 - recurrence relation
 
-##### memoization
+##### [memoization](https://leetcode.com/explore/learn/card/recursion-i/255/recursion-memoization/1495/)
 - Fibonacci Number
 
-##### time complexity
+##### [time complexity](https://leetcode.com/explore/learn/card/recursion-i/256/complexity-analysis/1669/)
 > O(T)= R * O(s)	
 > R: the number of recursion invocations
 > O(s): the time complexity of calcultion

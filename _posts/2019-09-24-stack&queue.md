@@ -5,7 +5,7 @@ date:   2019-09-24
 ---
 #### Queue
 
-##### usage in Java
+##### [usage in Java](https://leetcode.com/explore/learn/card/queue-stack/228/first-in-first-out-data-structure/1367/)
 ```java
 	//1. Initialize a queue
 	Queue<Integer> q = new LinkedList<>();
