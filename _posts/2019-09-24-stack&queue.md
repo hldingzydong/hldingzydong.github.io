@@ -57,7 +57,6 @@ int BFS(Node root, Node target) {
     return -1;          // there is no path from root to target
 }
 ```
-<br>
 2. Template II
 ```java
 /**
