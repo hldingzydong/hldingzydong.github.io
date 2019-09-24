@@ -11,8 +11,8 @@ date:   2019-09-24
 - Fibonacci Number
 
 ##### [time complexity](https://leetcode.com/explore/learn/card/recursion-i/256/complexity-analysis/1669/)
-> O(T)= R * O(s)	
-> R: the number of recursion invocations
+> O(T)= R * O(s)<br>
+> R: the number of recursion invocations<br>
 > O(s): the time complexity of calcultion
 
 ##### [space complexity](https://leetcode.com/explore/learn/card/recursion-i/256/complexity-analysis/1671/)
@@ -20,7 +20,7 @@ date:   2019-09-24
 2. non-recursion related space
 
 ##### [tail recursion](https://leetcode.com/explore/learn/card/recursion-i/256/complexity-analysis/2374/)
-a recursion where the recursive call is the final instruction in the recursion function.
+&nbsp;a recursion where the recursive call is the final instruction in the recursion function.
 
 
 
