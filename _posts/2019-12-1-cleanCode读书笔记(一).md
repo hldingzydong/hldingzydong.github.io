@@ -13,7 +13,7 @@ date:   2019-12-1
    - 不应当用accountList指明一组账号，除非真的是List类型  
      eg: accountList  ->  accountGroup || bunchOfAccounts
    - 不要使用不同处较小的名称  
-     eg:  XYZControllerForEfficientHandlingOfStrings & XYZControllerForEfficientStorageOfStrings  
+     eg:  XYZControllerForEfficientHandlingOfStrings & XYZControllerForEfficientStorageOfStrings   
 
 3. 有意义的区分
    ```java
@@ -175,6 +175,7 @@ date:   2019-12-1
 
 12. 消灭重复
 13. 如何写出好的函数？ **不断重构与思考**
+
 
 
 
