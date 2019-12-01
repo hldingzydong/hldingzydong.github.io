@@ -178,6 +178,75 @@ date:   2019-12-1
 
 
 
+### 注释
+1. 哪些注释应该写呢？  
+  - 法律信息
+  - 提供基本信息，如解释某个抽象方法的返回值,但还是尽量用函数名称传达信息
+    ```java
+    // Return an instance of the Responder being tested
+    protected abstract Responder responderInstance(); 
+    //but above could writen in
+    protected abstract Responder responderBeingTested();
+
+    //format matched kk:mm:ss EEE, MMM dd, yyyy
+    Pattern timeMatcher = Pattern.compile("\\d*:\\d*:\\d*: \\w*, \\w* \\d*, \\d*");
+    ```
+  - 将某些难懂的参数或返回值的意义翻译成某种可读形式
+  - 警示
+  - TODO注释  
+  表示程序员认为应该做，但由于某些原因目前还没法完成，应当定期查看这些注释，删除不再需要的
+  - 放大某种开来不合理之物的重要性  
+
+2. 哪些注释不好？
+  - 非本地信息(与当前函数无关的信息)
+  - 没有明显联系
+  - 注释掉的代码
+  - 位置标记   
+
+
+### 格式
+1. 向报纸学习，源文件最顶部给出高层次的概念和算法，细节向下依次展开，被调用的函数应放在调用它的下方
+
+2. **紧密相关的代码**和**关系密切的概念**应相互靠近  
+
+3. 变量声明应尽可能靠近其使用位置，局部变量应在函数的顶部出现，实体变量应在类的顶部声明  
+
+4. 相关函数: 若某函数调用了另外一个，应该将它们放在一起，调用者应放在被调用者的上方
+  
+5. 水平隔离:
+  - 赋值操作
+  ```java
+  totalChars += lineSize;
+  ```  
+  - 函数
+  ```java
+  public static double root(double a, double b, double c);
+  ```
+
+
+### 对象和数据结构
+1. 对象与数据结构的反对称性
+  - 对象将数据隐藏于抽象之后，曝露操作数据的函数，
+  - 数据结构曝露其数据，没有提供有意义的函数  
+
+2. 过程式代码(使用数据结构的代码)便于在不改动既有数据结构的前提下添加新函数，面向对象代码便于在不改动既有函数的前提下添加新类  
+3. 过程式代码难以添加新的数据结构，因为必须修改所有函数，面向对象代码难以添加新函数，因为必须修改所有类  
+
+4. **得墨忒耳律**  
+    模块不应该了解它所操作的对象的内部情形，即对象不应通过get/set方法曝露其内部结构
+  ```java
+  //违反了得墨忒耳律
+  final String outputDir = ctxt.getOptions().getScratchDir().getAbsolutePath();
+  //火车失事
+  Options opts = ctxt.getOptions();
+  File scratchDir = opts.getScratchDir();
+  final String outputDir = scratchDir.getAbsolutePath();
+  //单纯使用数据结构
+  final String outputDir = ctxt.options.scratchDir.absolutePath;
+  ```
+
+
+
 
 
 
