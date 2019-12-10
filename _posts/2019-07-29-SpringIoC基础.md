@@ -1,7 +1,11 @@
 ﻿---
-layout: post
-title:  SpringIoC基础
-date:   2019-07-29
+layout:  post
+title:   SpringIoC基础
+date:    2019-07-29
+author:  hling
+catalog: true
+tags:
+	-Spring
 ---
 ## 阅读官方文档
 1. Inversion of Control (**IoC**)  ==   dependency injection (**DI**)  
