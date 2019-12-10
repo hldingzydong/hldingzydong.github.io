@@ -2,6 +2,10 @@
 layout: post
 title:  AnimalBehavior
 date:   2019-08-20
+author: hding
+catalog: true
+tags:
+   - 托福
 ---
 #### <span id="top">test</span>
 - [striking](#striking)
