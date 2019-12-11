@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  Wind pollination
+title:  Wind Pollination
 date:   2019-08-22
 author: hding
 catalog: true

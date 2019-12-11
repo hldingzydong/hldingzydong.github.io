@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  cleanCode读书笔记(一)
+title:  CleanCode读书笔记(一)
 date:   2019-12-1
 author: hding
 catalog: true

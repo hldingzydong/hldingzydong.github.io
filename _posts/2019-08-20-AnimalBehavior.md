@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  AnimalBehavior
+title:  Animal Behavior
 date:   2019-08-20
 author: hding
 catalog: true

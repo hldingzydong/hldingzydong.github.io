@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  stack&queue
+title:  Stack&Queue
 date:   2019-09-24
 author: hding
 catalog: true

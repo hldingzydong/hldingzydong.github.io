@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  recursion
+title:  Recursion
 date:   2019-09-24
 author: hding
 catalog: true
