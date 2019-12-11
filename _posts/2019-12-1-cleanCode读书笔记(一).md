@@ -2,6 +2,10 @@
 layout: post
 title:  cleanCode读书笔记(一)
 date:   2019-12-1
+author: hding
+catalog: true
+tags:
+   - code
 ---
 ### 命名
 1. 名称为什么会存在，做什么事，应该怎么用  

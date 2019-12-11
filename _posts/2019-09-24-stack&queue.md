@@ -2,6 +2,10 @@
 layout: post
 title:  stack&queue
 date:   2019-09-24
+author: hding
+catalog: true
+tags:
+   - algorithm
 ---
 #### Queue
 

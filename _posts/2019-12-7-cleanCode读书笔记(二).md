@@ -2,6 +2,10 @@
 layout: post
 title:  cleanCode读书笔记(二)
 date:   2019-12-7
+author: hding
+catalog: true
+tags:
+   - code
 ---
 ### 错误处理
 1. 遇到错误时，最好抛出异常  

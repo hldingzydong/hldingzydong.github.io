@@ -2,11 +2,11 @@
 layout:  post
 title:   SpringIoC基础
 date:    2019-07-29
-author:  hling
+author: hding
 catalog: true
 tags:
-	-Spring
----
+   - Spring
+---  
 ## 阅读官方文档
 1. Inversion of Control (**IoC**)  ==   dependency injection (**DI**)  
 It is a process whereby objects define their dependencies (that is, the other objects they work with) only through **constructor arguments**, **arguments to a factory method**, or **properties that are set on the object instance after it is constructed or returned from a factory method**. 

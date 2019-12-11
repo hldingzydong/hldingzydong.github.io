@@ -2,6 +2,10 @@
 layout: post
 title:  recursion
 date:   2019-09-24
+author: hding
+catalog: true
+tags:
+   - algorithm
 ---
 ##### [principle](https://leetcode.com/explore/learn/card/recursion-i/250/principle-of-recursion/1439/)
 - base case

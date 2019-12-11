@@ -2,6 +2,10 @@
 layout: post
 title:  tlsHandshake
 date:   2019-10-10
+author: hding
+catalog: true
+tags:
+   - 网络
 ---
 #### [What is a TLS handshake?](https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/)
 
