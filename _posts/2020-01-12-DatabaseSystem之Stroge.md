@@ -7,9 +7,10 @@ catalog: true
 tags:
    - database
 ---
-### 面向disk的architecture  
+### [面向disk的architecture](https://15445.courses.cs.cmu.edu/fall2019/slides/03-storage1.pdf)
 首先查看storage hierarchy:
 ![storage hierarchy](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LMjQD5UezC9P8miypMG%2F-LY_HB8UaEfE1efciC8V%2F-LY_K0SNgM4yb-lsVBlJ%2FScreen%20Shot%202019-02-13%20at%201.28.29%20PM.jpg?alt=media&token=8cd28260-ebb5-4729-8a41-732675a64afc)
+
 ![access times](https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LMjQD5UezC9P8miypMG%2F-LY_HB8UaEfE1efciC8V%2F-LY_Kgs6xp4XVNA9n-FF%2FScreen%20Shot%202019-02-13%20at%201.31.21%20PM.jpg?alt=media&token=f4dade9f-4870-4c87-83bb-bd419e087ce1)
 
 
@@ -34,8 +35,10 @@ A **page** is a fixed-size block of data. Each page is given a unique identifier
 	- Database Page(512B-16KB)
 5. Different DBMSs manage pages in files on disk in different ways:
 	- **Heap File Organization**
-	  A heap file is an unordered collection of pages where tuples that are stored in random order. Need meta-data to keep track of what pages exist and which ones have free space. Two ways to represent a heap file: Linked List || Page Directory.
+	  A heap file is an unordered collection of pages where tuples that are stored in random order. Need meta-data to keep track of what pages exist and which ones have free space. Two ways to represent a heap file:   
+	  **Linked List** || **Page Directory**
 	  ![Linked List](/img/LinkedList.jpeg)
+
 	  ![Page Directory](/img/PageDirectory.jpeg)
 
 	- Sequential / Sorted File Organization
@@ -52,10 +55,10 @@ Every page contains a **header** of metadata about the page's contents:
 Some systems require pages to be **self-contained** (e.g., Oracle).
 
 Assuming we only store tuples, let's discuss how to organize the data stored inside of page.
-- Tuple oriented
+- **Tuple oriented**
 	![Tuple Storage](/img/TupleStorage.jpeg)
-	![Slotted Pages](/img/SlottedPages.jpeg)Log
-- Log-structured
+	![Slotted Pages](/img/SlottedPages.jpeg)
+- **Log-structured**
 	![Log-Structured File Organization I](/img/LogStructured1.jpeg)
 	![Log-Structured File Organization II](/img/LogStructured2.jpeg)
 
@@ -63,6 +66,23 @@ Assuming we only store tuples, let's discuss how to organize the data stored ins
 
 ##### Tuple Layout 
 A tuple is essentially a sequence of bytes. It's the job of the DBMS to interpret(解释、说明) those bytes into attribute types and values.
+
+Each tuple is prefixed with a header that contains meta-data about it:
+- Visibility info (concurrency control)
+- Bit Map for **NULL** values
+We do not need to store meta-data about the schema. Attribute are typically stored in the order that you specify them when you create the table.
+![Tuple Data](/img/TupleData.jpeg)  
+
+###### Denormalized Tuple Data
+Can physically denormalize (e.g., "prejoin") related tuples and store them together in the same page. Potentially reduces the amount of I/O for common workload patterns. Can make updates more expensive.
+![Denormalized Tuple Data 1](/img/DenormalizedTupleData1.jpeg)
+
+![Denormalized Tuple Data 2](/img/DenormalizedTupleData2.jpeg)
+
+###### Record Ids
+DBMS needs a way to keep track of individual tuples. Each tuple is assigned a unique record identifier. Most common: **page_id + offset/slot**. Can also contain file location info.
+
+
 
 
 
