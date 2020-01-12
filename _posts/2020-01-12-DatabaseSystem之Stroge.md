@@ -17,9 +17,9 @@ DBMS(DataBase Manage System)数据的首要存储位置在non-volatile的disk(SS
 
 
 ### DBMS是如何在non-volatile的disk上存储数据呢？
-![get a page](../img/DisOrientedDBMS.png)
+![get a page](../img/DiskOrientedDBMS.png)
 
-###### File Storage  
+##### File Storage  
 **The DBMS stores a database as one or more files on disk**. The OS doesn't know anything about the contents of these files.  
 
 The **storage manager** is responsible for maintaining a database's files.It organizes the files as a collection of **pages**.(tracks data read/writtenm to pages and tracks the available space).
@@ -28,9 +28,9 @@ The **storage manager** is responsible for maintaining a database's files.It org
 
 
 
-###### Page Layout
+##### Page Layout
 
-###### Tuple Layout 
+##### Tuple Layout 
 
 
 
