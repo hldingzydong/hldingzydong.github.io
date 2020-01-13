@@ -166,11 +166,11 @@ EXTRACT(month FROM U.lastLogin)
 The DBMS can store tuples in different ways that are better for either OLTP or OLAP workloads.
 ###### N-ary Storage Model(aka "row storage") (NSM)
 The DBMS stores all attributes for a single tuple contiguously in a page.
-![NSM](/img/NSM.jepg)
+![NSM](/img/NSM.jpeg)
 
 Advantage: 
 1. Fast inserts, updates, and deletes;
-2. Good for queries that need the **entire** tuple.
+2. Good for queries that need the **entire** tuple.  
 Disadvantage:
 1. Not good for scanning large portions of the table and/or a subset of the attributes.
 ![DisNSM](/img/DisNSM.jpeg)
@@ -184,7 +184,7 @@ The DBMS stores the values of a single attribute for all tuples contiguously in 
 
 Advantage: 
 1. Reduces the amount wasted I/O because the DBMS only reads the data that it needs.
-2. Better query processing and data compression.
+2. Better query processing and data compression.  
 Disadvantage:
 1. Slow for point queries, inserts, updates, and deletes because of tuple splitting/stitching.
 
