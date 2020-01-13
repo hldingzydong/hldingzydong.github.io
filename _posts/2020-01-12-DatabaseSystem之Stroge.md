@@ -83,6 +83,114 @@ Can physically denormalize (e.g., "prejoin") related tuples and store them toget
 DBMS needs a way to keep track of individual tuples. Each tuple is assigned a unique record identifier. Most common: **page_id + offset/slot**. Can also contain file location info.
 
 
+##### Data Representation 
+- INTEGER/BIGINT/SMALLINT/TINYINT (C/C++ Representation)
+- FLOAT/REAL vs NUMERIC/DECIMAL   (IEEE-754 Standard/Fixed-point Decimals)
+	- Variable-precision numberic type that uses the "native" C/C++ types, eg: **FLOAT**,**REAL/DOUBLE**, stored directly as specified by IEEE-754, typically **faster** than arbitary precision numbers but can have **rounding errors**. (使用原生的C/C++类型，不需要具体的精度，非常快，但是会有微小的误差)
+	```c++
+	int main(int argc, char* argv[]) {
+		float x = 0.1;
+		float y = 0.2;
+		printf("x+y = %f\n", x+y);  	// x+y = 0.300000
+		printf("0.3 = %f\n", 0.3);  	// 0.3 = 0.300000
+		printf("x+y = %.20f\n", x+y);   // x+y = 0.30000001192092895508
+		printf("0.3 = %.20f\n", 0.3);   // 0,3 = 0.29999999999999998890
+	}
+	``` 
+
+	- Numeric data types with arbitrary precision and scale. Used when round errors are unacceptable, eg: **NUMERIC**, **DECIMAL**, Typically stored in a exact, variable-length binary representation with additional meta-data. (Like a **VARCHAR** but not stored as a string). (这种类型需指明具体的精度是多少，存储时需带有额外的元数据)
+	```c++
+	typedef unsigned char NumericDigit;
+	typedef struct {
+		int ndigits; 			// # of Digits
+		int weight;  			// Weight of 1st Digit
+		int scale;   			// Scale Factor
+		int sign;    			// Positive/Negative/NaN
+		NumericDigit *digits;   // Digit Storage
+	} numeric;
+	```
+
+- VARCHAR/VARBINARY/TEXT/BLOB     (Header with length, followed by data bytes)
+	- Large Values
+	  Most DBMSs don't allow a tuple to exceed the size of a single page. To store values that are larger than a page, the DBMS uses separate **overflow** storage pages.
+	  ![LARGE VALUES](/img/LargeValues.jpeg)
+
+	  Some systems allow you to store a really large value in an external file. Treated as a **BLOB** type. The DBMS **cannot** manipulate the contents of an external file.
+	  ![External Value Storage](/img/ExternalValueStorage.jpeg)
+
+- TIME/DATE/TIMESTAMP			  (32/64-bit integer of (micro)seconds since Unix epoch)
+
+
+
+##### System Catalogs
+A DBMS stores meta-data about databases in its internal catalogs:
+- Tables, columns, indexes, views
+- Users, permissions
+- Internal statistics
+You can query the DBMS’s internal **INFORMATION_SCHEMA** catalog to get info about the database.
+```sql
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_catalog = '<db name>';
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_name = 'student';
+```
+
+
+
+##### Storage Models
+
+###### OLTP(On-line Transaction Processing)
+Simple queries that read/update **a small amount** of data that is related to a single entity in the database.(平时做web后端的对DB的CRUD) 
+```sql
+SELECT P.*, R.*
+FROM pages AS P
+INNER JOIN revisions AS R
+ON P.latest = R.revID
+WHERE P.pageID = ?
+```
+```sql
+UPDATE useracct
+SET lastLogin = NOW(),
+hostname = ?
+WHERE userID = ?
+```
+
+###### OLAP(On-line Analytical Processing)
+Complex queries that read **large** portions of the database spanning multiple entities.(类似于大数据)
+```sql
+SELECT COUNT(U.lastLogin), EXTRACT(month FROM U.lastLogin) AS month
+FROM useracct AS U
+WHERE U.hostname LIKE '%.gov'
+GROUP BY
+EXTRACT(month FROM U.lastLogin)
+```
+
+The DBMS can store tuples in different ways that are better for either OLTP or OLAP workloads.
+###### N-ary Storage Model(aka "row storage") (NSM)
+The DBMS stores all attributes for a single tuple contiguously in a page.
+![NSM](/img/NSM.jepg)
+
+Advantage: 
+1. Fast inserts, updates, and deletes;
+2. Good for queries that need the **entire** tuple.
+Disadvantage:
+1. Not good for scanning large portions of the table and/or a subset of the attributes.
+![DisNSM](/img/DisNSM.jpeg)
+
+
+###### Decomposition(分解) Storage Model(aka "column store") (DSM)
+The DBMS stores the values of a single attribute for all tuples contiguously in a page.
+![DSM](/img/DSM.jpeg)
+
+![Tuple Identification](/img/TupleIdentification.jpeg)
+
+Advantage: 
+1. Reduces the amount wasted I/O because the DBMS only reads the data that it needs.
+2. Better query processing and data compression.
+Disadvantage:
+1. Slow for point queries, inserts, updates, and deletes because of tuple splitting/stitching.
+
+
+
+
 
 
 
