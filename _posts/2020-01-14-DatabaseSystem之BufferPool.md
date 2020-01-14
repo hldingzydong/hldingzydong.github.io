@@ -21,7 +21,7 @@ DataBase存储需要做到空间和时间上的控制。
 ### Buffer Pool Manager(BPM)
 是一块内存区域，由一组大小固定的page组成。每一页page被叫做**frame**。当DBMS请求某一page时，该page的copy就被放置于某一frame中。  
 同时还有一张page table， 用来记录page_id与frame_id的映射关系。同时还包含每个page的元数据，如Dirty Flag, Pin/Refere Counter.  
-![Buffer Pool Manager](/img/BufferPoolManager.jpeg)
+![Buffer Pool Manager](/img/DataBase/BufferPoolManager.jpeg)
 
 有两种分配BPM的政策:  
 Global Policies: Make decisions for all active txns(事务).   
@@ -50,11 +50,11 @@ Page Directory是在DB files中用来根据page_id找到page对应的disk上位�
 
 ###### Pre-Fetching
 DBMS可以根据query plan， pre-fetch一些page.
-![Pre-Fetch](/img/PreFetch.jpeg)
+![Pre-Fetch](/img/DataBase/PreFetch.jpeg)
 
 ###### Scan Sharing
 当query时，可以重用storage或Operator Computations的结果，这不同于result caching。这样就允许很多query都attach到同一个cursor(光标)来扫描一个table。这里的多个query不一定是一样的，它们可以share一些中间结果。
-![Scan Sharing](/img/ScanShare.jpeg)
+![Scan Sharing](/img/DataBase/ScanShare.jpeg)
 
 如果某一query开始scan，但是已经有一个query正在scan，DBMS将把新开始的query的cursor，attach到ing的query的cursor上，DBMS也将track新加入的query是在哪里和之前的query attach到一起的，这样当原来的query scan之后，新加入的query也知道自己该在哪里结束scan。
 
@@ -69,10 +69,10 @@ DBMS可以根据query plan， pre-fetch一些page.
 记录每一page上次被获取的时间，每次选oldest的page，让它滚蛋，这样政策下，保持page有序性可以减少serach time on eviction。
 
 ###### Clock
-![Clock](/img/Clock.jpeg)
+![Clock](/img/DataBase/Clock.jpeg)
 
 以上这两种置换政策很容易被sequential flooding影响。在sequential flooding下, 一次query只对每一page进行一次sequential scan, 这样就污染了BP，其中的page只会被使用一次，再也不会被使用了。
-![Sequential Scan](/img/SequentialScan.jpeg)
+![Sequential Scan](/img/DataBase/SequentialScan.jpeg)
 
 
 ###### LRU-K
@@ -84,7 +84,7 @@ DBMS 基于每次执行的事务/query来选择哪一个page被置换出去。�
 
 ###### Priority Hints
 DBMS知道每一page的内容(比如知道某一page存储的是index)，这样可以给BP一些提示哪些page比较重要。
-![Priority Hints](/img/PriorityHints.jpeg)
+![Priority Hints](/img/DataBase/PriorityHints.jpeg)
 
 
 ##### Dirty Page

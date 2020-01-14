@@ -18,7 +18,7 @@ DBMS(DataBase Manage System)数据的首要存储位置在non-volatile的disk(SS
 
 
 ### DBMS是如何在non-volatile的disk上存储数据呢？
-![get a page](/img/DiskOrientedDBMS.jpeg)
+![get a page](/img/DataBase/DiskOrientedDBMS.jpeg)
 
 ##### File Storage  
 **The DBMS stores a database as one or more files on disk**. The OS doesn't know anything about the contents of these files.
@@ -37,9 +37,9 @@ A **page** is a fixed-size block of data. Each page is given a unique identifier
 	- **Heap File Organization**
 	  A heap file is an unordered collection of pages where tuples that are stored in random order. Need meta-data to keep track of what pages exist and which ones have free space. Two ways to represent a heap file:   
 	  **Linked List** || **Page Directory**
-	  ![Linked List](/img/LinkedList.jpeg)
+	  ![Linked List](/img/DataBase/LinkedList.jpeg)
 
-	  ![Page Directory](/img/PageDirectory.jpeg)
+	  ![Page Directory](/img/DataBase/PageDirectory.jpeg)
 
 	- Sequential / Sorted File Organization
 	- Hashing File Organization
@@ -56,11 +56,11 @@ Some systems require pages to be **self-contained** (e.g., Oracle).
 
 Assuming we only store tuples, let's discuss how to organize the data stored inside of page.
 - **Tuple oriented**
-	![Tuple Storage](/img/TupleStorage.jpeg)
-	![Slotted Pages](/img/SlottedPages.jpeg)
+	![Tuple Storage](/img/DataBase/TupleStorage.jpeg)
+	![Slotted Pages](/img/DataBase/SlottedPages.jpeg)
 - **Log-structured**
-	![Log-Structured File Organization I](/img/LogStructured1.jpeg)
-	![Log-Structured File Organization II](/img/LogStructured2.jpeg)
+	![Log-Structured File Organization I](/img/DataBase/LogStructured1.jpeg)
+	![Log-Structured File Organization II](/img/DataBase/LogStructured2.jpeg)
 
 
 
@@ -71,13 +71,13 @@ Each tuple is prefixed with a header that contains meta-data about it:
 - Visibility info (concurrency control)
 - Bit Map for **NULL** values
 We do not need to store meta-data about the schema. Attribute are typically stored in the order that you specify them when you create the table.
-![Tuple Data](/img/TupleData.jpeg)  
+![Tuple Data](/img/DataBase/TupleData.jpeg)  
 
 ###### Denormalized Tuple Data
 Can physically denormalize (e.g., "prejoin") related tuples and store them together in the same page. Potentially reduces the amount of I/O for common workload patterns. Can make updates more expensive.
-![Denormalized Tuple Data 1](/img/DenormalizedTupleData1.jpeg)
+![Denormalized Tuple Data 1](/img/DataBase/DenormalizedTupleData1.jpeg)
 
-![Denormalized Tuple Data 2](/img/DenormalizedTupleData2.jpeg)
+![Denormalized Tuple Data 2](/img/DataBase/DenormalizedTupleData2.jpeg)
 
 ###### Record Ids
 DBMS needs a way to keep track of individual tuples. Each tuple is assigned a unique record identifier. Most common: **page_id + offset/slot**. Can also contain file location info.
@@ -113,10 +113,10 @@ DBMS needs a way to keep track of individual tuples. Each tuple is assigned a un
 - VARCHAR/VARBINARY/TEXT/BLOB     (Header with length, followed by data bytes)
 	- Large Values
 	  Most DBMSs don't allow a tuple to exceed the size of a single page. To store values that are larger than a page, the DBMS uses separate **overflow** storage pages.
-	  ![LARGE VALUES](/img/LargeValues.jpeg)
+	  ![LARGE VALUES](/img/DataBase/LargeValues.jpeg)
 
 	  Some systems allow you to store a really large value in an external file. Treated as a **BLOB** type. The DBMS **cannot** manipulate the contents of an external file.
-	  ![External Value Storage](/img/ExternalValueStorage.jpeg)
+	  ![External Value Storage](/img/DataBase/ExternalValueStorage.jpeg)
 
 - TIME/DATE/TIMESTAMP			  (32/64-bit integer of (micro)seconds since Unix epoch)
 
@@ -166,7 +166,7 @@ EXTRACT(month FROM U.lastLogin)
 The DBMS can store tuples in different ways that are better for either OLTP or OLAP workloads.
 ###### N-ary Storage Model(aka "row storage") (NSM)
 The DBMS stores all attributes for a single tuple contiguously in a page.
-![NSM](/img/NSM.jpeg)
+![NSM](/img/DataBase/NSM.jpeg)
 
 Advantage: 
 1. Fast inserts, updates, and deletes;
@@ -174,14 +174,14 @@ Advantage:
 
 Disadvantage:
 1. Not good for scanning large portions of the table and/or a subset of the attributes.
-![DisNSM](/img/DisNSM.jpeg)
+![DisNSM](/img/DataBase/DisNSM.jpeg)
 
 
 ###### Decomposition(分解) Storage Model(aka "column store") (DSM)
 The DBMS stores the values of a single attribute for all tuples contiguously in a page.
-![DSM](/img/DSM.jpeg)
+![DSM](/img/DataBase/DSM.jpeg)
 
-![Tuple Identification](/img/TupleIdentification.jpeg)
+![Tuple Identification](/img/DataBase/TupleIdentification.jpeg)
 
 Advantage: 
 1. Reduces the amount wasted I/O because the DBMS only reads the data that it needs.
