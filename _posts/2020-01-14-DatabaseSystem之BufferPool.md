@@ -23,8 +23,8 @@ DataBase存储需要做到空间和时间上的控制。
 同时还有一张page table， 用来记录page_id与frame_id的映射关系。同时还包含每个page的元数据，如Dirty Flag, Pin/Refere Counter.  
 ![Buffer Pool Manager](/img/BufferPoolManager.jpeg)
 
-有两种分配BPM的政策:
-Global Policies: Make decisions for all active txns(事务). 
+有两种分配BPM的政策:  
+Global Policies: Make decisions for all active txns(事务).   
 Local Policies: Allocate frames to a specific txn without considering the behavior of concurrent txns.Still need to support sharing pages.
 
 
@@ -33,6 +33,7 @@ locks:
 - 使DB的逻辑上的内容远离其他事务
 - 在事务持久期间被持有
 - 需要支持回滚  
+
 latches:
 - 保护DBMS内部的数据结构远离其他线程(mutex)
 - 在数据被操作的期间被持有
@@ -40,7 +41,7 @@ latches:
 
 ##### Page Table VS Page Directory  
 Page Table是在BufferPool中用来完成从page_id到frame_id的映射,即可以根据page_id找到该page在BufferPool中对应的copy(在某个frame中)。这是一个位于memory中的数据结构，不需要被存储在disk中。  
-Page Directory是在DB files中用来根据page_id找到page对应的位置.他所有的变化必须被记录在disk上以允许DBMS在restart后可以找到每个page的位置。
+Page Directory是在DB files中用来根据page_id找到page对应的disk上位置。他所有的变化必须被记录在disk上以允许DBMS在restart后可以找到每个page的位置。
 
 
 #### BP 优化
@@ -58,16 +59,16 @@ DBMS可以根据query plan， pre-fetch一些page.
 如果某一query开始scan，但是已经有一个query正在scan，DBMS将把新开始的query的cursor，attach到ing的query的cursor上，DBMS也将track新加入的query是在哪里和之前的query attach到一起的，这样当原来的query scan之后，新加入的query也知道自己该在哪里结束scan。
 
 ###### BP Bypass()
-对于sequential scan， 不会讲fetch到的page存储在BP中， 来避免BP溢出。当operator需要读一大块连续的page时work well， 也可used for临时数据，如sorting和joins。
+对于sequential scan， 不会将fetch到的page存储在BP中， 来避免BP溢出。当operator需要读一大块连续的page时work well， 也可used for临时数据，如sorting和joins。
 
 
 #### Buffer Replacement Policies
 当DBMS必须从BP中选一个page来evict中时，如何决策呢?  
 
-###### least-recently used
+###### Least-Recently Used(LRU)
 记录每一page上次被获取的时间，每次选oldest的page，让它滚蛋，这样政策下，保持page有序性可以减少serach time on eviction。
 
-###### clock
+###### Clock
 ![Clock](/img/Clock.jpeg)
 
 以上这两种置换政策很容易被sequential flooding影响。在sequential flooding下, 一次query只对每一page进行一次sequential scan, 这样就污染了BP，其中的page只会被使用一次，再也不会被使用了。
@@ -83,7 +84,7 @@ DBMS 基于每次执行的事务/query来选择哪一个page被置换出去。�
 
 ###### Priority Hints
 DBMS知道每一page的内容(比如知道某一page存储的是index)，这样可以给BP一些提示哪些page比较重要。
-![Priority Hints](PriorityHints.jpeg)
+![Priority Hints](/img/PriorityHints.jpeg)
 
 
 ##### Dirty Page
