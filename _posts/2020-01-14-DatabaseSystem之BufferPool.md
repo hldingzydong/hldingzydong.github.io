@@ -7,7 +7,7 @@ catalog: true
 tags:
    - database
 ---
-### DBMS是如何管理在memory和dish之间的数据移动？
+### DBMS是如何管理在memory和disk之间的数据移动？
 DataBase存储需要做到空间和时间上的控制。
 
 > 空间控制是指，where to write pages on disk.   
@@ -41,7 +41,7 @@ latches:
 
 ##### Page Table VS Page Directory  
 Page Table是在BufferPool中用来完成从page_id到frame_id的映射,即可以根据page_id找到该page在BufferPool中对应的copy(在某个frame中)。这是一个位于memory中的数据结构，不需要被存储在disk中。  
-Page Directory是在DB files中用来根据page_id找到page对应的disk上位置。他所有的变化必须被记录在disk上以允许DBMS在restart后可以找到每个page的位置。
+Page Directory是在DB files中用来根据page_id找到该page在disk上的位置。他所有的变化必须被记录在disk上以允许DBMS在restart后可以找到每个page的位置。
 
 
 #### BP 优化
@@ -56,7 +56,7 @@ DBMS可以根据query plan， pre-fetch一些page.
 当query时，可以重用storage或Operator Computations的结果，这不同于result caching。这样就允许很多query都attach到同一个cursor(光标)来扫描一个table。这里的多个query不一定是一样的，它们可以share一些中间结果。
 ![Scan Sharing](/img/DataBase/ScanShare.jpeg)
 
-如果某一query开始scan，但是已经有一个query正在scan，DBMS将把新开始的query的cursor，attach到ing的query的cursor上，DBMS也将track新加入的query是在哪里和之前的query attach到一起的，这样当原来的query scan之后，新加入的query也知道自己该在哪里结束scan。
+如果某一query开始scan，但是已经有一个query正在scan，DBMS将把新开始的query的cursor，attach到ing的query的cursor上，DBMS也将track新加入的query是在哪里和之前的query attach到一起的，这样当原来的query scan完成之后，新加入的query也知道自己该在哪里结束scan。
 
 ###### BP Bypass()
 对于sequential scan， 不会将fetch到的page存储在BP中， 来避免BP溢出。当operator需要读一大块连续的page时work well， 也可used for临时数据，如sorting和joins。
@@ -66,7 +66,7 @@ DBMS可以根据query plan， pre-fetch一些page.
 当DBMS必须从BP中选一个page来evict中时，如何决策呢?  
 
 ###### Least-Recently Used(LRU)
-记录每一page上次被获取的时间，每次选oldest的page，让它滚蛋，这样政策下，保持page有序性可以减少serach time on eviction。
+记录每一page上次被获取的时间，每次选oldest的page，让它滚蛋，在这样政策下，保持page有序性可以减少serach time on eviction。
 
 ###### Clock
 ![Clock](/img/DataBase/Clock.jpeg)
