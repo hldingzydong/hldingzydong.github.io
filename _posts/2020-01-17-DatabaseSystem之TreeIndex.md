@@ -8,7 +8,7 @@ tags:
    - database
 ---
 ## Table Indexes
-Table Index是一张表的属性的被排序子集，为了更高效得访问。DBMS确保table的内容和index在逻辑上是同步的。DBMS还负责在执行每个query时选择最好的index。当为每个DB创建一定数量的index时，需要考虑为之存储付出的代价和为了维持这些index(每次insert时需要更新index)所付出的代价。
+Table Index是一张表的属性的被排序的子集，被创建为了更高效得访问这些attribute的子集。DBMS确保table的内容和index在逻辑上是同步的。DBMS还负责在执行每个query时选择最好的index。当为每个DB创建一定数量的index时，需要考虑为之存储付出的代价和为了维持这些index(每次insert时需要更新index)所付出的代价。
 
 ### B+ Tree Overview
 B+树是一种自平衡的树结构，保持数据有序性，保证search、sequential access、insertion和deletion以O(logN)的时间复杂度进行。  
@@ -34,13 +34,13 @@ Ps: B-Tree是所有的node存储的KV的V永远是实际的value(Record Ids or T
 
 ##### B+Tree的delete
 找到对应的叶结点L，如果L至少是half-full的就OK。  
-如果L只有M/2 - 1个entries,尝试重新分配，从相邻的结点借一些KV。  
-如果重新分配失败，就merge L和它的兄弟姐妹.如果merge发生了,就必须删除L的parent中指向L或其兄弟姐妹的pointer。
+如果L只有M/2 - 1个entries,尝试重新分配,从相邻的结点借一些KV。  
+如果重新分配失败,就merge L和它的兄弟姐妹.如果merge发生了,就必须删除L的parent中指向L或其兄弟姐妹的pointer.
 
 
 ##### Clustered Index(聚簇索引)
 **The table is stored in the sort order specified by the primary key.**可以以heap-或者index-organized的形式存储。即table中的tuples就是按照Clustered Index存放的。  
-如果一张table没有一个primary key，有些DBMS会自动帮其生成一个隐藏起来的row id primary key。
+如果一张table没有一个primary key，**有些**DBMS会自动帮其生成一个隐藏起来的row id primary key。
 
 
 ##### Selection Conditions
@@ -53,7 +53,7 @@ Ps: B-Tree是所有的node存储的KV的V永远是实际的value(Record Ids or T
 **Leaf Node Scan** vs **Root-to-Leaf Traversals** 
 
 ##### Merge Threshold
-当node时半空时,一些DBMS并不总是merge nodes,它会delay merge操作来减少reorganization的次数. 让这样的下溢存在，定时得rebuild tree可能会更好。
+当node是half-full时,一些DBMS并不总是merge nodes,它会delay merge操作来减少reorganization的次数. 让这样的下溢存在，定时地rebuild tree可能会更好。
 
 ##### Variable Length Keys
 - Pointers: key为指向tuple的attribute的pointer
@@ -79,7 +79,7 @@ Ps: B-Tree是所有的node存储的KV的V永远是实际的value(Record Ids or T
 ### Optimizations
 
 ##### Prefix Compression
-存储在用一个leaf node中的keys,可能会有同样的前缀。因此我们不store完整的key,可以抽出公共的前缀,存储每个key的唯一的suffix.
+存储在同一个leaf node中的keys,可能会有同样的前缀。因此我们不store完整的key,可以抽出公共的前缀,存储每个key的唯一的suffix.
 ![Prefix Compression](/img/DataBase/PrefixCompression.jpeg)
 
 
@@ -91,7 +91,7 @@ Ps: B-Tree是所有的node存储的KV的V永远是实际的value(Record Ids or T
 
 
 ##### Bulk Insert
-最快去build一个B+Tree的方法是,首先排序keys,在从bottom至up来建立B+Tree.
+最快去build一个B+Tree的方法是,首先排序keys,再从bottom至up来建立B+Tree.
 ![Bulk Insert](/img/DataBase/BulkInsert.jpeg)
 
 
