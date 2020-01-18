@@ -70,11 +70,11 @@ Ps: B-Tree是所有的node存储的KV的V永远是实际的value(Record Ids or T
 - Duplicate Keys: 使用同样的叶结点的布局，但是存储duplicate keys多次
 	![Duplicate Keys](/img/DataBase/DuplicateKeys.jpeg)
 	- Append Record Id  
-	将tuple的unique record_id作为key的一部分作保所有的key是unique的,这样DBMS可以使用partial key来查找tuple.
+	将tuple的unique record_id作为key的一部分,确保所有的key是unique的,这样DBMS可以使用partial key来查找tuple.
 	![Append Record Id](/img/DataBase/AppendRecordId.jpeg)
 
 	- Overflow Leaf Nodes  
-	将叶结点spill为包含duplicate keys的overflow nodes,但这更难maintain和modify.
+	将叶结点spill为包含duplicate keys的overflow nodes,但这样更难maintain和modify.
 	![Overflow Leaf Nodes](/img/DataBase/OverflowLeafNodes.jpeg)
 
 - Value Lists: 只存储key一次,但是维持一个unique values的linked list
@@ -120,7 +120,7 @@ Nodes使用page_id来引用其他index中的node。DBMS在traversal中必须从p
 
 
 ##### Implicit(暗示的) Index
-许多DBMS自动得创建index来加强integrity(完整的) constraints,但并不是referential constraints(外键). 如Primary Keys, Unique Constraints:
+许多DBMS自动得创建index来加强integrity(完整的) constraints,如Primary Keys, Unique Constraints, 但并不包括referential constraints(外键):
 ```sql
 CREATE TABLE foo(
 	id SERIAL PRIMARY KEY,
@@ -182,12 +182,12 @@ CREATE INDEX idx_user_login ON users(login) WHERE EXTRACT(dow FROM login) = 2;
 
 ##### Trie Index
 在B+Tree中的非叶结点无法告知我们某个key是否存在于index中，我们总是必须遍历至叶结点才知道。这意味着one buffer pool page miss per level in the tree 才能知道某个key是否存在于index中.  
-使用a digital representation of keys来一个个检测prefixes而不是比较整个key.
+Trie Index使用a digital representation of keys来一个个检测prefixes而不是比较整个key.
 ![Trie Index](/img/DataBase/TrieIndex.jpeg)
 
 ###### Trie Index Properties
 大小取决于key的space和length,不取决于已存在的keys和插入顺序,也不需要rebalancing的操作。  
-所有的operation是O(k)的复杂度,k是key的长度.通向一个叶结点的路径代表着这个leaf对应的key，keys在暗中隐藏着，可以由path被restructured.
+所有的operation是O(k)的复杂度,k是key的长度.通向一个叶结点的路径代表着这个leaf对应的key，keys在暗中隐藏着，可以根据path被restructured.
 
 ###### Trie Key Span(跨度、跨越)
 每个trie level的span取决于the number of bits that each partial key / digit represents，如果该digit存在于keys中，那么store一个pointer指向trie的下一个level。否则存储null。  
@@ -200,7 +200,7 @@ CREATE INDEX idx_user_login ON users(login) WHERE EXTRACT(dow FROM login) = 2;
 ![Radix Tree](/img/DataBase/RadixTree.jpeg)
 
 
-至今为止,我们所讨论的index，对于"point"和"range"query是有用的，比如找出所有code为15217的customer,找到在2018年至2019年期间的多有订单。但是它们不适用于keyword查找,比如找出wikipedia中所有包含“Haoling”的article。这就是引出了:  
+至今为止,我们所讨论的index，对于"point"和"range"query是有用的，比如找出所有code为15217的customer,找到在2018年至2019年期间的所有订单。但是它们不适用于keyword查找,比如找出wikipedia中所有包含“Haoling”的article。这就引出了:  
 > Inverted Index
 
 Inverted Index存储了words到records的映射，这些records在目标attribute中包含了对应的word。  
@@ -210,7 +210,7 @@ query的类型有:
 - Wildcard(通配符) Search: 找到 contain words that match some pattern(如正则表达式)的records
 
 
-在design时要考虑:
+在design index时要考虑:
 - what to store: index至少需要存储包含在每个record中的words,也可以存储frequency,position和其他meta-data
 - when to update: 维持辅助的数据结构来进行update
 
