@@ -33,7 +33,7 @@ We are going use on the buffer pool to implement algorithms that need to spill t
 #### 算法分析
 但是在DBMS中，大量的时间消耗在I/O上，因此我们对时间复杂度分析更着重于对I/O分析.   
 - 二路归并排序分析(假设我们有N页page):  
-Number of passes: 1 + [log2(N)](1是第一遍对每页page内部排序,需要全部扫描一遍)  
+Number of passes: 1 + ⌈log2(N)⌉(1是第一遍对每页page内部排序,需要全部扫描一遍)  
 Total I/O cost: 2N(# of passes)(2是I+O)
 - k路归并排序分析
 ![External Merge Sort](/img/DataBase/ExternalMergeSort.jpeg)
