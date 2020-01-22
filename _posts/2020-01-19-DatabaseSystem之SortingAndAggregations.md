@@ -17,7 +17,7 @@ We are going use on the buffer pool to implement algorithms that need to spill t
 
 ## External Sort(外排序)
 
-> 引自[Wikipedia](https://zh.wikipedia.org/wiki/%E5%A4%96%E6%8E%92%E5%BA%8F)  
+引自[Wikipedia](https://zh.wikipedia.org/wiki/%E5%A4%96%E6%8E%92%E5%BA%8F)  
 > **外排序**是指能够处理**极大量数据**的排序算法。通常来说，外排序处理的数据不能一次装入内存，只能放在读写较慢的外存储器（通常是硬盘）上。外排序通常采用的是一种**“排序-归并”**的策略。  
 > 在**排序阶段**，先读入能放在内存中的数据量，将其排序输出到一个临时文件，依此进行，将待排序数据组织为多个有序的临时文件。  
 > 在**归并阶段**将这些临时文件组合为一个大的有序文件，也即排序结果。

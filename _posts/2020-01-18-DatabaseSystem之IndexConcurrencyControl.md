@@ -44,20 +44,20 @@ m.unlock();
 
 - Test-and-Set Spin Latch(TAS)
 
-> 引自[Wikipedia](https://zh.wikipedia.org/wiki/%E6%A3%80%E6%9F%A5%E5%B9%B6%E8%AE%BE%E7%BD%AE):  
+引自[Wikipedia](https://zh.wikipedia.org/wiki/%E6%A3%80%E6%9F%A5%E5%B9%B6%E8%AE%BE%E7%BD%AE):  
 > 在计算机科学中，检查并设置（test-and-set-lock，TSL）是一种不可中断的原子运算。TSL对某个存储器位置写入1（set）并返回其旧值。  
-> 在多个进程可同时访问存储器同个地址时，如果一个程序正在运行TSL，其他程序在它运行完成前不能运行TSL。
+> 在多个进程可同时访问存储器同个地址时，如果一个程序正在运行 TSL，其他程序在它运行完成前不能运行 TSL。
 ```c++
 function Lock(boolean *lock) {
     while (test_and_set(lock) == 1)
       ;
 }
 ```
-> 上述述为一种利用TSL指令来实现**自旋锁**,当旧值为0时，这程序可以得到锁。否则的话，它会一直尝试将1写入存储器位置，直到旧值为0。
+> 上述述为一种利用 TSL 指令来实现**自旋锁**,当旧值为0时，这程序可以得到锁。否则的话，它会一直尝试将1写入存储器位置，直到旧值为0。
 
-> 锁(lock)的状态一般是0(未锁)与1(已锁)。因此下列test_and_set的实现是等价的：  
+> 锁(lock)的状态一般是0(未锁)与1(已锁)。因此下列 test_and_set 的实现是等价的：  
 > if (lock==0) then 置锁, 进入临界区; else 忙等待, 重新测试; endif  
-> 读取lock状态; lock被置为1; 测试读出的lock状态，判断进入临界区还是忙等待;
+> 读取 lock 状态; lock 被置为1; 测试读出的 lock 状态，判断进入临界区还是忙等待;
 
 
 - Reader-Writer Latch
