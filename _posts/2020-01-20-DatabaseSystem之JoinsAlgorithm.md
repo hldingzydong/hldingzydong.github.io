@@ -18,14 +18,14 @@ tags:
 
 #### Join Operators
 - Output: 在query plan中,join operator 向parent给出什么样的data?  
-For a tuple **r ∈ R** and a tuple **s ∈ S** that match on join attributes, concatenate rand s together into a new tuple.  
+For a tuple **r ∈ R** and a tuple **s ∈ S** that match on join attributes, concatenate r and s together into a new tuple.  
 内容会随着**处理模型、存储模型和query**而变化.
-	- Join Operator Output: Data
+	- Join Operator Output: **Data**  
 	copy在outer和inner tuples的attributes,生成一个新的output tuple. 后续的operators不需要回到base tables
 	来获得more data。 
 	![Join Operator Output Data](/img/DataBase/JoinOperatorOutputData.jpeg)
 
-	- Join Operator output: Record Ids
+	- Join Operator output: **Record Ids**  
 	只copy join keys和匹配的tuples的record ids. Ideal for column stores因为DBMS不需要copy对此次query无用的数据。 
 	![Join Operator Output Record Ids](/img/DataBase/JoinOperatorOutputRecordIds.jpeg)
 
@@ -65,7 +65,7 @@ foreach B-2 blocks bR  ∈R:
 			foreach tuple s ∈ bs:
 				emit, if r and s match
 ```
-I/O cost: M + (⌈M / (B-2)⌉ · N)  
+I/O cost: M + ([M / (B-2)] · N)  
 if B-2 > M 呢？ Cost: M + N
 
 
@@ -111,14 +111,14 @@ while cursorR and cursorS:
 
 ###### 什么时候 Sort-Merge Join 是 useful 呢？  
 One or both tables 已经基于join key排序;  
-Output必须基于join key排序.  
+Output 必须基于join key排序.  
 Input relations 可能已经被一个explicit的sort operator排序,或者使用一个基于join key的index.
 
 
 
 #### Hash Join
 如果tuple r ∈ R 和tuple s ∈ S 满足join condition,那么它们对于join attributes有同样的value. 如果这个value被hash到了partition i，那么R tuple一定在 ri , S
-tuple 一定在 si。因此, 在 ri 中的tuples只会跟在 si 中的tuples比较.
+tuple 一定在 si。因此, 我们只对在 ri 中的tuples跟在 si 中的tuples进行比较.
 
 ###### Process
 - Phase#1:Build  
@@ -142,14 +142,14 @@ Value: 依据implementation变化, Depends on what the operators above the join 
 - Approach #1: Full Tuple  
 这样就免于在一次match中需要retrieve outer relation's tuple,但是在内存中会占更多的空间.
 
-- Approach #2: Tuple Indetifier
+- Approach #2: Tuple Indetifier  
 Ideal for column stores,DBMS无需从disk中fetch无用的数据。
 
 
 ###### Probe Phase Optimization
 Bloom Filter,引自[Wikipedia](https://zh.wikipedia.org/wiki/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8)
-> 当一个元素被加入集合时，通过K个散列函数将这个元素映射成一个**bit array**中的K个点，把它们置为1。  
-> 检索时，我们只要看看这些点是不是都是1就（大约）知道集合中有没有它了:如果这些点有任何一个0，则被检元素一定不在；如果都是1，则被检元素**很可能**在,但也可能不在，需要到origin table中去验证。
+> 当一个元素被加入集合时，通过K个散列函数将这个元素映射成一个 **bit array** 中的K个点，把它们置为1。  
+> 检索时，我们只要看看这些点是不是都是1就（大约）知道集合中有没有它了:如果这些点有任何一个0，则被检元素一定不在；如果都是1，则被检元素**很可能**在,但也可能不在，需要到 origin table 中去验证。
 
 
 当key很可能不会存在于hash table中时,我们可以在build的过程中创建一个Bloom Filter。  
@@ -178,7 +178,7 @@ foreach tuple r ∈ bucketR,0:
 
 
 ###### 算法分析:  
-假设我们有足够的buffers, Cost = 3(M + N);
+假设我们有足够的buffers, Cost = 3(M + N);  
 Partition Phase: Read + Write 两张表 -> 2(M + N) IOs  
 Probing Phase: Read 两张表 -> (M + N) IOs  
 
@@ -194,7 +194,7 @@ Probing Phase: Read 两张表 -> (M + N) IOs
 | Hash Join | 3(M + N) | 0.45 seconds |
 
 ## Conclusion
-对于operator execution, hashing总是比sorting好。但是对于不一致的data或者当结果需要被sorted时,sorting更好.  
+对于operator execution, hashing总是比sorting好。但是对于分散的data或者当结果需要被sorted时,sorting更好.  
 好的DBMS使用其中一个或者全都用.
 
 
