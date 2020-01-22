@@ -16,6 +16,7 @@ tags:
 #### Latches Overview
 
 ###### Locks vs Latches
+
 |      | Locks | Latches |
 | :-----: | :-----: | :-----: |
 | Seperate | 用户的事务 | 线程 |
@@ -43,7 +44,7 @@ m.unlock();
 
 - Test-and-Set Spin Latch(TAS)
 
-> wiki:  
+> 引自[Wikipedia](https://zh.wikipedia.org/wiki/%E6%A3%80%E6%9F%A5%E5%B9%B6%E8%AE%BE%E7%BD%AE):  
 > 在计算机科学中，检查并设置（test-and-set-lock，TSL）是一种不可中断的原子运算。TSL对某个存储器位置写入1（set）并返回其旧值。  
 > 在多个进程可同时访问存储器同个地址时，如果一个程序正在运行TSL，其他程序在它运行完成前不能运行TSL。
 ```c++
@@ -84,11 +85,11 @@ computational overhead.
 
 ###### Latch Crabbing/Coupling
 允许多线程在同一时间access/modify B+Tree。大致思路为:
-> 给parent拿把latch
-> 给child拿把latch  
-> 如果"safe"的话,就release掉parent的latch
+> 给 parent 拿把 latch
+> 给 child 拿把 latch  
+> 如果"safe"的话,就 release 掉 parent 的 latch
 >
-> safe node是指当被update时,不会发生split或merge的node(insert时Not full,delete时超过half-full)
+> safe node是指当被 update 时,不会发生 split 或 merge 的 node (insert时 Not full, delete 时超过 half-full)
 
 Find: 从root开始往下找，重复如此.  
 	  在child上拿一把 Read latch，再release掉parent的latch。  
@@ -122,7 +123,6 @@ Insert/Delete: 就像search一样set latch，到达leaf时，对其set Write lat
 Latches不支持deadlock 探测或避免。想要解决上述问题，我们只能靠我们的代码discipline.  
 叶结点的兄弟姐妹获取latches的政策，必须支持"no-wait" mode。DBMS的数据结构必须可以应对latches获取失败的case.  
 
-
 因此我们有了"Delayed Parent Updates"策略。  
 每当有一个叶结点overflow时，我们必须更新至少三个nodes:
 - 被分裂的叶结点
@@ -130,7 +130,7 @@ Latches不支持deadlock 探测或避免。想要解决上述问题，我们只�
 - parent node
 
 Blink-Tree Optimization: 当一个叶结点overflow时,延迟更新其parent node
-见[slide]()
+见[slide](https://15445.courses.cs.cmu.edu/fall2019/slides/09-indexconcurrency.pdf)
 
 
 

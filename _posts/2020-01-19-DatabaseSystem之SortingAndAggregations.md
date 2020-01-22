@@ -17,12 +17,12 @@ We are going use on the buffer pool to implement algorithms that need to spill t
 
 ## External Sort(外排序)
 
-> wiki  
+> 引自[Wikipedia](https://zh.wikipedia.org/wiki/%E5%A4%96%E6%8E%92%E5%BA%8F)  
 > **外排序**是指能够处理**极大量数据**的排序算法。通常来说，外排序处理的数据不能一次装入内存，只能放在读写较慢的外存储器（通常是硬盘）上。外排序通常采用的是一种**“排序-归并”**的策略。  
-> 在排序阶段，先读入能放在内存中的数据量，将其排序输出到一个临时文件，依此进行，将待排序数据组织为多个有序的临时文件。  
-> 而后在归并阶段将这些临时文件组合为一个大的有序文件，也即排序结果。
+> 在**排序阶段**，先读入能放在内存中的数据量，将其排序输出到一个临时文件，依此进行，将待排序数据组织为多个有序的临时文件。  
+> 在**归并阶段**将这些临时文件组合为一个大的有序文件，也即排序结果。
 
-#### External Merge Sort(外归并排序，引自wiki)
+#### External Merge Sort(外归并排序)
 外排序的一个例子是**外归并排序**，它读入一些能放在内存内的数据量，在内存中排序后输出为一个顺串（即是内部数据有序的临时文件），处理完所有的数据后再进行归并。比如，要对900 MB的数据进行排序，但机器上只有100 MB的可用内存时，外归并排序按如下方法操作:
 1. 读入100 MB的数据至内存中，用某种常规方式（如快速排序、堆排序、归并排序等方法）在内存中完成排序。  
 2. 将排序完成的数据写入磁盘。
@@ -32,8 +32,8 @@ We are going use on the buffer pool to implement algorithms that need to spill t
 
 #### 算法分析
 但是在DBMS中，大量的时间消耗在I/O上，因此我们对时间复杂度分析更着重于对I/O分析.   
-- 二路归并排序分析(我们有N页page):  
-Number of passes: 1 + [log2(N)](1是第一遍对每页page内部排序,需要全部扫描一遍)
+- 二路归并排序分析(假设我们有N页page):  
+Number of passes: 1 + [log2(N)](1是第一遍对每页page内部排序,需要全部扫描一遍)  
 Total I/O cost: 2N(# of passes)(2是I+O)
 - k路归并排序分析
 ![External Merge Sort](/img/DataBase/ExternalMergeSort.jpeg)
@@ -44,13 +44,14 @@ Total I/O cost: 2N(# of passes)(2是I+O)
 
 #### 堆 vs 胜者树 vs 败者树
 时间复杂度都是O(logN)，不同点在于比较次数.  
-堆:每次排序时需要先将两个child进行比较,从中取出一个最值,再将parent与取出来的child进行比较,决定是否将parent下沉。  
 
-胜者树:叶结点是candidate,非叶结点是每次比赛(比较大小)的胜者。相对于堆的优势在于,candidate每次只需要和自己的兄弟结点进行比较。
+**堆**:每次排序时需要先将两个child进行比较,从中取出一个最值,再将parent与取出来的child进行比较,决定是否将parent下沉。  
+
+**胜者树**:叶结点是candidate,非叶结点是每次比赛(比较大小)的胜者。相对于堆的优势在于,candidate每次只需要和自己的兄弟结点进行比较。
 ![胜者树origin](https://s.iteblog.com/pic/old/winTree1.jpg)
 ![胜者树final](https://s.iteblog.com/pic/old/winTree2.jpg)
 
-败者树:叶结点是candidate,非叶结点是每次比赛(比较大小)的败者。相对于胜者树的优势在于,candidate每次只需要和parent进行比较。ß  
+**败者树**:叶结点是candidate,非叶结点是每次比赛(比较大小)的败者。相对于胜者树的优势在于,candidate每次只需要和parent进行比较。
 ![败者树](https://s.iteblog.com/pic/old/winTree3.jpg)  
 
 
@@ -67,7 +68,7 @@ Total I/O cost: 2N(# of passes)(2是I+O)
 
 
 ## Aggregations
-根据多个tuple得到一个简单的数量result,如AVG，SUM。
+根据多个tuple得到一个简单的数量result,如 AVG，SUM。
 
 Two implementation choices:
 #### Sorting
@@ -76,13 +77,13 @@ Two implementation choices:
 #### Hashing
 如果我们不需要data是有序的呢?例如 GROUP BY 或 DISTINCT ?
 在这样的场景下,我们更倾向于选择Hash，因为Hash只移除了重复的数据,而并不对其排序,而且计算量更少.在DBMS中，我们同样需要考虑data无法 fit in memory 的情况:  
-- Phase#1: Partition
-	使用一个 Hash Function h1 来将tuples划分为位于disk上的partition，当partition溢出时我们将其写入disk的.  
-	假设我们有B个buffers，我们使用B-1个buffers用于partitions,用1个buffer来input data。
+- Phase#1: Partition  
+使用一个 Hash Function h1 来将tuples划分为位于disk上的partition，当partition溢出时我们将其写入disk的.  
+假设我们有B个buffers，我们使用B-1个buffers用于partitions,用1个buffer来input data。
 ![Partition](/img/DataBase/Partition.jpeg)
 
-- Phase#2: ReHash
-	对于disk上的每部分partition,我们将其读入memory(假设每partition fit in memory）,在memory中建立一张基于Hash Function h2的hash table。接下来扫描该 Hash Table的每个bucket,将匹配的tuples bring together.
+- Phase#2: ReHash  
+对于disk上的每部分partition,我们将其读入memory(假设每个partition fit in memory）,在memory中建立一张基于Hash Function h2的hash table。接下来扫描该 Hash Table的每个bucket,将匹配的tuples bring together.
 ![ReHash](/img/DataBase/ReHash.jpeg)
 
 ###### HashSummarization
@@ -91,7 +92,9 @@ Two implementation choices:
 
 
 ###### 算法分析
-使用该算法,我们可以hash多大的table呢？在Phase#1中,可以得到B-1个partitions. 每个Partitions不应当超过B个blocks(因为我们假设每个partition可以fit in memory).
+使用该算法,我们可以hash多大的table呢？  
+在Phase#1中,可以得到B-1个partitions.  
+而每个Partitions不应当超过B个blocks(因为我们假设每个partition可以fit in memory).
 
 Answer: **B·(B-1)**,即一张table，如果占有N页page,那么Buffer Pool中就至少需要sqrt(N)个frame.
 
