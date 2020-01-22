@@ -67,14 +67,33 @@ Total I/O cost: 2N(# of passes)(2是I+O)
 
 
 ## Aggregations
+根据多个tuple得到一个简单的数量result,如AVG，SUM。
 
 Two implementation choices:
 #### Sorting
+![Aggregations Sort](/img/DataBase/AggreSort.jpeg)
 
 #### Hashing
+如果我们不需要data是有序的呢?例如 GROUP BY 或 DISTINCT ?
+在这样的场景下,我们更倾向于选择Hash，因为Hash只移除了重复的数据,而并不对其排序,而且计算量更少.在DBMS中，我们同样需要考虑data无法 fit in memory 的情况:  
+- Phase#1: Partition
+	使用一个 Hash Function h1 来将tuples划分为位于disk上的partition，当partition溢出时我们将其写入disk的.  
+	假设我们有B个buffers，我们使用B-1个buffers用于partitions,用1个buffer来input data。
+![Partition](/img/DataBase/Partition.jpeg)
+
+- Phase#2: ReHash
+	对于disk上的每部分partition,我们将其读入memory(假设每partition fit in memory）,在memory中建立一张基于Hash Function h2的hash table。接下来扫描该 Hash Table的每个bucket,将匹配的tuples bring together.
+![ReHash](/img/DataBase/ReHash.jpeg)
+
+###### HashSummarization
+在ReHash阶段,可以以(GroupKey->RunningVal)的form存储.这样当我们想要insert一个新的tuple时,我们只需要更新RunningVal即可,或者insert一个新的GroupKey->RunningVal。
+![Hash Summarization](/img/DataBase/HashSummarization.jpeg)
 
 
+###### 算法分析
+使用该算法,我们可以hash多大的table呢？在Phase#1中,可以得到B-1个partitions. 每个Partitions不应当超过B个blocks(因为我们假设每个partition可以fit in memory).
 
+Answer: **B·(B-1)**,即一张table，如果占有N页page,那么Buffer Pool中就至少需要sqrt(N)个frame.
 
 
 
