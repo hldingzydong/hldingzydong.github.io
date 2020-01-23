@@ -14,15 +14,15 @@ DBMS的processing model定义了系统是如何执行一次query plan,主要有�
 - Vectorized / Batch Model
 
 #### Iterator Model(Pipeline Model)
-Query plan的每个operator都实现了**Next**函数.在每次调用,operator都会返回一个single tuple或者一个null marker(如果没有想要的tuple)。operator实现了一个loop that calls next on its children to retrieve their tuples and then process them。
+Query plan的每个operator都实现了**Next**函数.在每次调用时,operator都会返回一个single tuple或者一个null marker(如果没有想要的tuple)。operator实现了一个loop that calls next on its children to retrieve their tuples and then process them。
 
 具体实例见[slides](https://15445.courses.cs.cmu.edu/fall2019/slides/12-queryexecution1.pdf)
 
-几乎每个DBMS都使用该Model,一些operators必须block直到children emit all of their tuples， 例如 Joins, Subqueries， Order By.
+几乎每个DBMS都使用该Model,一些operators必须block直到children emit all of their tuples，例如 Joins, Subqueries，Order By.
 
 
 #### Materialization Model
-每个operator对其输入都只处理一次,emit其输出也只一次.operator将其输出具体化为一个single result,DBMS可以给出一些提出来避免scan 太多的tuples.  
+每个operator对其输入都只处理一次,emit其输出也只一次.operator将其输出具体化为一个single result,DBMS可以给出一些提示来避免scan太多的tuples.  
 输出可以是整个tuples(NSM)或者subsets of columns(DSM)。  
 
 具体实例见[slides](https://15445.courses.cs.cmu.edu/fall2019/slides/12-queryexecution1.pdf)
@@ -31,8 +31,9 @@ Query plan的每个operator都实现了**Next**函数.在每次调用,operator�
 
 
 #### Vectorized / Batch Model
-就像Iterator Model, 每个operator都实现了一个Next function。但是每个operator提交a batch of tuples而不是a single tuple。  
-operator的internal loop一次处理多个tuples.batch的size基于hardware或者query properties而变化. 
+很像Iterator Model, 每个operator都实现了一个Next function。但是每个operator提交a batch of tuples而不是a single tuple。  
+operator的internal loop一次处理多个tuples。  
+batch的size基于hardware或者query properties而变化. 
 
 具体实例见[slides](https://15445.courses.cs.cmu.edu/fall2019/slides/12-queryexecution1.pdf)
 
@@ -42,7 +43,7 @@ operator的internal loop一次处理多个tuples.batch的size基于hardware或�
 从root开始,从children “pull” data, tuples总是被函数调用而passed。
 
 - Approach #2: Bottom-to-Top  
-从叶结点开始,将data push至parents。允许对pipelines中caches/registers的紧密控制.
+从叶结点开始,将data push至parents。
 
 
 ## Access Methods
@@ -91,7 +92,7 @@ DBMS pick一个index来找到query需要的tuples.（如何选择哪一个index�
 
 
 #### Multi-Index Scan
-如果有很多个indexed可以被此次query使用,使用每个matching的index计算sets of record ids,基于此次query的predicates(union vs intersect)将这些sets结合起来，retrieve对应的records，对其apply剩下的predicates。
+如果有很多个indexes可以被此次query使用,使用每个matching的index计算sets of record ids,基于此次query的predicates(union vs intersect)将这些sets结合起来，retrieve对应的records，对其apply剩下的predicates。
 
 ###### demo
 ```sql
@@ -146,7 +147,7 @@ worker使用在pool中的任何一个process，仍然依赖于OS scheduler和sha
 一个process有多个worker threads，这样DBMS管理自己的scheduling,有可能使用dispatcher thread。一旦thread crash掉了可能会杀掉整个系统.
 ![Thread Per Worker](/img/DataBase/ThreadPerWorker.jpeg)
 
-使用多线程的架构,会有更少的上下文切换，不需要管理shared memory.但不意味着支持内查询.  
+使用多线程的架构,会有更少的上下文切换，不需要管理shared memory.但不意味着支持intra-query.  
 对于每个query plan, DBMS决定where, when, and how to execute it.  
 - 应该使用多少个tasks？
 - 应该使用多少个CPU cores？
@@ -161,7 +162,7 @@ worker使用在pool中的任何一个process，仍然依赖于OS scheduler和sha
 
 
 - Intra-Query: Execute the operations of a single
-query in parallel.减少了对long-running queries的等待时间.通过executing its operators in parallel提高了单个query的performance.可以讲operators的organization视为生产者/消费者模型,对于每个relational operator,都有parallel algorithms，要么是有多线程access centralized 数据结构,要么是使用partitioning to divide work up.比如:Parallel Grace Hash Join:
+query in parallel.减少了对long-running queries的等待时间.通过executing its operators in parallel提高了单个query的performance.可以将operators的organization视为生产者/消费者模型,对于每个relational operator,都有parallel algorithms，要么是有多线程access centralized 数据结构,要么是使用partitioning to divide work up.比如:Parallel Grace Hash Join:
 ![Parallel Grace Hash Join](/img/DataBase/ParallelGraceHashJoin.jpeg)
 
 #### Intra-Query Parallelism
@@ -170,14 +171,14 @@ query in parallel.减少了对long-running queries的等待时间.通过executin
 具体见[slides](https://15445.courses.cs.cmu.edu/fall2019/slides/13-queryexecution2.pdf)
 
 exchange operator type:  
-- Gather: 将来自多个workers的结果结合到一个output,query plan的root必须总是一个gather exchange.
+- Gather: 将来自多个workers的结果合并到一个output,query plan的root必须总是一个gather exchange.
 - Repartition: 重新组织多个input streams到多个output streams.
 - Distribute: 将一个简单的input stream分为多个output stream。
 ![Intra-Operator](/img/DataBase/IntraOperator.jpeg)
 
 
 ###### Inter-Operator(Vertical)(pipelined parallelism)
-operators是overlapped是为了pipeline data从一个stage到另外一个stage但不需要materialization(具体化)。
+operators是overlapped是为了pipeline data从一个stage到另外一个stage但不需要materialization(具体化)。每个operator就像流水线上的工人一样。
 ![Inter-Operator](/img/DataBase/InterOperator.jpeg)
 
 
@@ -228,7 +229,7 @@ CREATE TABLE foo (
 
 
 ###### Horizontal Partitioning 
-基于一些partitioning的key,我们可以讲一张table的多个tuples分为多个segements:
+基于一些partitioning的key,我们可以将一张table的多个tuples分为多个segements:
 - Hash Partitioning
 - Range Partitioning
 - Predicate Partition
