@@ -116,6 +116,124 @@ DBMS可以将一个WHERE的从句展示为一个**expression tree**.
 ![Expression Evaluation2](/img/DataBase/ExpressionEvaluation2.jpeg)
 
 
+## 如何执行query plan with multiple workers？
+
+
+#### Parallel vs Distributed
+
+|   | Parallel DBMSs | Distributed DBMSs |
+| :-----: | :-----: | :-----: |
+| Resource | physically close to each other | can be far from each other |
+| Resource Communicate | high-speed interconnect | slow(er) interconnect |
+| Communication | cheap and reliable | cost and problems cannot be ignored |
+
+
+## Process Models
+DBMS的process model定义了系统是如何架构的来支持来自多个user的application的concurrent requests。  
+DBMS中的worker是指代表client执行任务然后返回结果。
+
+#### Process per DBMS Worker
+每个worker是一个独立的OS process,依赖于OS的scheduler, 对于global的数据结构采用shared-memory,一个process crash掉了不会使整个系统down掉.
+![Process Per Worker](/img/DataBase/ProcessPerWorker.jpeg)
+
+
+#### Process Pool
+worker使用在pool中的任何一个process，仍然依赖于OS scheduler和shared memory. Bad for CPU cache locality.
+![Process Pool](/img/DataBase/ProcessPool.jpeg)
+
+
+#### Thread per DBMS Worker
+一个process有多个worker threads，这样DBMS管理自己的scheduling,有可能使用dispatcher thread。一旦thread crash掉了可能会杀掉整个系统.
+![Thread Per Worker](/img/DataBase/ThreadPerWorker.jpeg)
+
+使用多线程的架构,会有更少的上下文切换，不需要管理shared memory.但不意味着支持内查询.  
+对于每个query plan, DBMS决定where, when, and how to execute it.  
+- 应该使用多少个tasks？
+- 应该使用多少个CPU cores？
+- 在CPU core上应该执行什么task?
+- 应该在哪里store某个task的output？
+
+
+## Execution Parallelism
+
+#### Inter- VS Intra- Query Parallelism
+- Inter-Query: Different queries are executed concurrently. 提高了吞吐量,减少了延迟等待时间，提高了整体的performance.如果多个query是read-only，那么协调它们很容易,但是如果是多个query同时更新DB呢？我们将在后面讲解.
+
+
+- Intra-Query: Execute the operations of a single
+query in parallel.减少了对long-running queries的等待时间.通过executing its operators in parallel提高了单个query的performance.可以讲operators的organization视为生产者/消费者模型,对于每个relational operator,都有parallel algorithms，要么是有多线程access centralized 数据结构,要么是使用partitioning to divide work up.比如:Parallel Grace Hash Join:
+![Parallel Grace Hash Join](/img/DataBase/ParallelGraceHashJoin.jpeg)
+
+#### Intra-Query Parallelism
+###### Intra-Operator(Horizontal)
+将operators分解为独立的**fragments**,对data的不同subset,施加相同的function.DBMS插入**exchange** operator到query plan中,将来自children operator的结果合并.
+具体见[slides](https://15445.courses.cs.cmu.edu/fall2019/slides/13-queryexecution2.pdf)
+
+exchange operator type:  
+- Gather: 将来自多个workers的结果结合到一个output,query plan的root必须总是一个gather exchange.
+- Repartition: 重新组织多个input streams到多个output streams.
+- Distribute: 将一个简单的input stream分为多个output stream。
+![Intra-Operator](/img/DataBase/IntraOperator.jpeg)
+
+
+###### Inter-Operator(Vertical)(pipelined parallelism)
+operators是overlapped是为了pipeline data从一个stage到另外一个stage但不需要materialization(具体化)。
+![Inter-Operator](/img/DataBase/InterOperator.jpeg)
+
+
+###### Bushy(灌木丛生的、毛密的)
+对inter-operator的扩展，workers同一时间执行来自一次query plan的不同segments的多个operator,仍然需要exchange operators来将不同segments的中间结果结合在一起。
+```sql
+SELECT * FROM A JOIN B JOIN C JOIN Distribute
+```
+如该sql语句中,一个线程执行“A JOIN B”，另一个线程执行“C JOIN D”,最终将其结果combine.
+![Bushy](/img/DataBase/Bushy.jpeg)
+
+
+## I/O Parallelism
+如果disk成为瓶颈的话,使用additional的processes/threads来执行queries不会有太大帮助，如果每个worker读disk的不同的segment反而会使得事情更糟糕.
+
+将DBMS设置在多个存储设备上:
+- 每个DB有多个disks
+- 每个disk对应一个DB
+- 每个disk对应一个relation
+- 将relation分布在多个disk上
+
+#### Multi-Disk Parallelism
+设置OS/硬件来将DBMS的files存储在多个存储设备上:Storage Applications、RAID Configuration。这对DBMS来说是看不见的.
+关于RAID是什么，引自[Wikipedia](https://zh.wikipedia.org/zh/RAID)
+> 独立硬盘冗余阵列（RAID, Redundant Array of Independent Disks），旧称廉价磁盘冗余阵列（Redundant Array of Inexpensive Disks），简称磁盘阵列。利用虚拟化存储技术把多个硬盘组合起来，成为一个或多个硬盘阵列组，目的为提升性能或数据冗余，或是两者同时提升。  
+> 在运作中，取决于 RAID 层级不同，数据会以多种模式分散于各个硬盘，RAID 层级的命名会以 RAID 开头并带数字，例如：RAID 0、RAID 1、RAID 5、RAID 6、RAID 7、RAID 01、RAID 10、RAID 50、RAID 60。  
+> 简单来说，RAID把多个硬盘组合成为一个逻辑硬盘，因此，操作系统只会把它当作一个实体硬盘。RAID常被用在服务器电脑上，并且常使用完全相同的硬盘作为组合。
+
+![Multi-Disk Parallelism](/img/DataBase/MultiDiskParallelism.jpeg)
+
+
+#### DataBase Partitioning
+一些DBMSs允许对每个独立的DB特殊化disk的location(BPM将一页page映射到一个disk location).  
+如果DBMS在一个separate的directory上存储每一个DB,在filesystem的层面上很容易实现。 
+将一个简单的logical table分为被存储/管理的separate的物理segements.  
+理论上讲,partitioning对application是看不见的.application获取logical table时并不关心它是如何被存储的.但是这在分布式DBMSs中不一定是这样的.
+
+###### Vertical Partitioning
+将一张table的attributes存储在a seperate location(如文件，disk volume),为了重建origin record,必须存储tuple的信息.
+```sql
+CREATE TABLE foo ( 
+	attr1 INT,
+	attr2 INT,
+	attr3 INT,
+	attr4 TEXT );
+```
+![Vertical Partitioning](/img/DataBase/VerticalPartitioning.jpeg)
+
+
+###### Horizontal Partitioning 
+基于一些partitioning的key,我们可以讲一张table的多个tuples分为多个segements:
+- Hash Partitioning
+- Range Partitioning
+- Predicate Partition
+![Horizontal Partitioning](/img/DataBase/HorizontalPartitioning.jpeg)
+
 
 
 
