@@ -82,9 +82,12 @@ class Solution {
                         dp[row][col].add(new TreeNode(row + 1));
                     }else{
                         for(int k = row; k <= col; k++) {
-                            List<TreeNode> leftTrees = k-1>= row ? dp[row][k-1] : new ArrayList<>(){{add(null);}};
-                            List<TreeNode> rightTrees = k+1 <= col ? dp[k+1][col] : new ArrayList<>(){{add(null);}};
+                            List<TreeNode> leftTrees = k-1>= row ? dp[row][k-1] : new ArrayList<>();
+                            List<TreeNode> rightTrees = k+1 <= col ? dp[k+1][col] : new ArrayList<>();
                             
+                            if(k-1 < row) leftTrees.add(null);
+                            if(k+1 > col) rightTrees.add(null);
+
                             for(TreeNode leftNode : leftTrees) {
                                 for(TreeNode rightNode : rightTrees) {
                                     TreeNode root = new TreeNode(k+1);
