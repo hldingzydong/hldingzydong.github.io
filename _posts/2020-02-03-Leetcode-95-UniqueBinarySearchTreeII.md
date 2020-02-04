@@ -5,7 +5,7 @@ date:   2020-02-03
 author: hding
 catalog: true
 tags:
-   - recursion
+   - recursion, DP
 ---
 ### Description
 Given an integer n, generate all structurally unique **BST**'s (binary search trees) that store values *1 ... n*.
