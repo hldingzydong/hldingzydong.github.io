@@ -5,7 +5,8 @@ date:   2020-02-04
 author: hding
 catalog: true
 tags:
-   - recursion, DivideAndConquer
+   - recursion
+   - DivideAndConquer
 ---
 ### Description
 Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:

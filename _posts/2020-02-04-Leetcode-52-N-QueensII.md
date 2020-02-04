@@ -5,7 +5,8 @@ date:   2020-02-04
 author: hding
 catalog: true
 tags:
-   - recursion, backtracking
+   - recursion
+   - backtracking
 ---
 ### Description
 The n-queens puzzle is the problem of placing n queens on an n×n chessboard such that no two queens attack each other.

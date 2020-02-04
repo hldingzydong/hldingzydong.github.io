@@ -5,7 +5,8 @@ date:   2020-02-04
 author: hding
 catalog: true
 tags:
-   - recursion, backtracking
+   - recursion
+   - backtracking
 ---
 ### Description
 Write a program to solve a Sudoku puzzle by filling the empty cells.

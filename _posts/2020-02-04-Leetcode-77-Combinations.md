@@ -5,7 +5,8 @@ date:   2020-02-04
 author: hding
 catalog: true
 tags:
-   - recursion, DivideAndConquer
+   - recursion
+   - DivideAndConquer
 ---
 ### Description
 Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.

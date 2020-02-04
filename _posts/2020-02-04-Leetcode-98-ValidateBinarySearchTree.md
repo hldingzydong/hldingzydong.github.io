@@ -5,7 +5,8 @@ date:   2020-02-04
 author: hding
 catalog: true
 tags:
-   - recursion, DivideAndConquer
+   - recursion
+   - DivideAndConquer
 ---
 ### Description
 Given a binary tree, determine if it is a valid binary search tree (BST).
