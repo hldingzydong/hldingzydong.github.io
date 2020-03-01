@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  LeetCode刷题笔记
+title:  LeetCode Remove Duplicate From Various Data Structure
 date:   2020-02-06
 author: hding
 catalog: true
