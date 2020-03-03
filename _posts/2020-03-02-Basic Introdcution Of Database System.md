@@ -121,7 +121,7 @@ EXTRACT(month FROM U.lastLogin)
 
 
  
-# 2.   [Buffer Pool Manager (BPM)](https://15445.courses.cs.cmu.edu/fall2019/notes/05-bufferpool.pdf)
+# [2.   Buffer Pool Manager (BPM)](https://15445.courses.cs.cmu.edu/fall2019/notes/05-bufferpool.pdf)
 ![DiskOrientedDBMS](/img/DataBase/DiskOrientedDBMS.jpeg)
 ### 2.1 Why Need BPM
 According to **spatial locality** and **temporal locality**, BPM could minimize the time cost of getting a page from disk. We build our own BPM and not use OS‘s cache because we could use suitable evict algorithm to evict a page, and we could set the size of Buffer Pool.
