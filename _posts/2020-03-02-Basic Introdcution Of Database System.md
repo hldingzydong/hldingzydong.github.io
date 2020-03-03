@@ -34,7 +34,7 @@ There are three ways to organize pages inside a file.
 - **Heap File Organization**: an unordered collection of pages where tuples are stored in random order. So pages need meta-data to track what pages exist and which one have free space. Here you can see two ways to represent:
 <div align="center">
 	<img src="/img/DataBase/LinkedList.jpeg", height="70%", width="70%"><img src="/img/DataBase/PageDirectory.jpeg", height="70%", width="70%">
-</figure>
+</div>
 
 - Sequential/Sorted File Organization
 - Hashing File Organization
