@@ -32,8 +32,7 @@ The DBMS stores a database as one or more files on disk and OS doesn't know anyt
 ##### 1.2.1 Files Layout
 There are three ways to organize pages inside a file.  
 - **Heap File Organization**: an unordered collection of pages where tuples are stored in random order. So pages need meta-data to track what pages exist and which one have free space. Here you can see two ways to represent:
-![LinkedList](/img/DataBase/LinkedList.jpeg){:height="70%" width="70%"}
-![PageDirectory](/img/DataBase/PageDirectory.jpeg){:height="70%" width="70%"}
+![LinkedList](/img/DataBase/LinkedList.jpeg){:height="70%" width="70%"}![PageDirectory](/img/DataBase/PageDirectory.jpeg){:height="70%" width="70%"}
 
 - Sequential/Sorted File Organization
 - Hashing File Organization
@@ -89,8 +88,7 @@ DBMS uses a unique record identifier(**page_id + offset / slot**) to track indiv
 - VARCHAR / VARBINARY / TEXT / BLOB (Header with length, followed by data bytes)
 	- Large Values
 	  To store values that are larger than a page, the DBMS uses separate **overflow storage pages** / **external file**. But the DBMS cannot manipulate the contents of an external file.
-	  ![LARGE VALUES](/img/DataBase/LargeValues.jpeg){:height="50%" width="50%"}
-	  ![External Value Storage](/img/DataBase/ExternalValueStorage.jpeg){:height="50%" width="50%"}
+	  ![LARGE VALUES](/img/DataBase/LargeValues.jpeg){:height="50%" width="50%"}![External Value Storage](/img/DataBase/ExternalValueStorage.jpeg){:height="50%" width="50%"}
 
 - TIME / DATE / TIMESTAMP (32/64-bit integer of (micro)seconds since Unix epoch)
 
@@ -110,10 +108,12 @@ EXTRACT(month FROM U.lastLogin)
 ```
 
 ##### 1.5.2 NSM vs DSM
-> N-ary Storage Model(NSM aka “row storage”).The DBMS stores all attributes for a single tuple contiguously in a page.
+> N-ary Storage Model(NSM aka “row storage”).The DBMS stores all attributes for a single tuple contiguously in a page.  
+
 ![DisNSM](/img/DataBase/DisNSM.jpeg){:height="50%" width="50%"}
 
-> Decomposition(分解) Storage Model(DSM aka “column store”). The DBMS stores the values of a single attribute for all tuples contiguously in a page.
+> Decomposition(分解) Storage Model(DSM aka “column store”). The DBMS stores the values of a single attribute for all tuples contiguously in a page.  
+
 ![DSM](/img/DataBase/DSM.jpeg){:height="50%" width="50%"}
 
 
