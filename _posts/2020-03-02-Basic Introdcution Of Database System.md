@@ -32,7 +32,10 @@ The DBMS stores a database as one or more files on disk and OS doesn't know anyt
 ##### 1.2.1 Files Layout
 There are three ways to organize pages inside a file.  
 - **Heap File Organization**: an unordered collection of pages where tuples are stored in random order. So pages need meta-data to track what pages exist and which one have free space. Here you can see two ways to represent:
-![LinkedList](/img/DataBase/LinkedList.jpeg){:height="70%" width="70%"}![PageDirectory](/img/DataBase/PageDirectory.jpeg){:height="70%" width="70%"}
+<figure class="half">
+	<img src="/img/DataBase/LinkedList.jpeg", height="70%", width="70%">
+	<img src="/img/DataBase/PageDirectory.jpeg", height="70%", width="70%">
+</figure>
 
 - Sequential/Sorted File Organization
 - Hashing File Organization
@@ -121,9 +124,9 @@ EXTRACT(month FROM U.lastLogin)
 
 
 # 2.   Buffer Pool Manager(BPM)
-## 2.1 Why Need BPM
-## 2.2 Component
-## 2.3 Optimization
+### 2.1 Why Need BPM
+### 2.2 Component
+### 2.3 Optimization
 
 
 
