@@ -19,7 +19,7 @@ Before introducing Database Manage System, there are some basic concepts need to
 
 Now, let's begin our adventure.
 
-# 1.   Storage
+# [1.   Storage](https://15445.courses.cs.cmu.edu/fall2019/notes/03-storage1.pdf)
 The Database Manage System we are talking is a **disk-oriented** System.
 ![DiskOrientedDBMS](/img/DataBase/DiskOrientedDBMS.jpeg)
 
@@ -59,7 +59,7 @@ We don't need to store meta-data about the schema because attribute are typicall
 ##### 1.3.3 Record Ids
 DBMS uses a unique record identifier(**page_id + offset / slot**) to track individual tuples.
 
-### 1.4 Data Representation Inside Tuples
+### [1.4 Data Representation Inside Tuples](https://15445.courses.cs.cmu.edu/fall2019/notes/04-storage2.pdf)
 - INTEGER / BIGINT / SMALLINT / TINYINT (C/C++ Representation)
 - FLOAT / REAL vs NUMERIC / DECIMAL  (IEEE-754 Standard/Fixed-point Decimals)
 	- Variable-precision numberic type that uses the "native" C/C++ types, eg: **FLOAT**,**REAL/DOUBLE**, stored directly as specified by IEEE-754, typically **faster** than arbitary precision numbers but can have **rounding errors**. (使用原生的C/C++类型,不需要具体的精度,非常快,但是会有微小的误差)  
@@ -120,14 +120,31 @@ EXTRACT(month FROM U.lastLogin)
 ![DSM](/img/DataBase/DSM.jpeg){:height="50%" width="50%"}
 
 
-
-# 2.   Buffer Pool Manager(BPM)
+ 
+# 2.   [Buffer Pool Manager (BPM)](https://15445.courses.cs.cmu.edu/fall2019/notes/05-bufferpool.pdf)
+![DiskOrientedDBMS](/img/DataBase/DiskOrientedDBMS.jpeg)
 ### 2.1 Why Need BPM
+According to **spatial locality** and **temporal locality**, BPM could minimize the time cost of getting a page from disk. We build our own BPM and not use OS‘s cache because we could use suitable evict algorithm to evict a page, and we could set the size of Buffer Pool.
+
 ### 2.2 Component
+It is a **memory region** organized as an array of fixed-size pages. An array entry is called a **frame**. There is a **page table**, mapped from page_id to frame_id. For every pages in Buffer Pool, each of them need to contains Dirty Flag and Pin/Reference Counter.  
+**Dirty Flag** is used to identify whether a page is modified after read into memory. When a dirty page is evicted, DBMS needs to write it back to disk.  
+**Pin/Reference Counter** is used to decide whether this page is evicted. When Pin/Reference Counter is 0, apply Replacement Policy to this page.
+![BufferPoolManager](/img/DataBase/BufferPoolManager.jpeg){:height="80%" width="80%"}
+
 ### 2.3 Optimization
+Multiple Buffer Pools, Pre-Fetching, Scan Sharing and Bypass().
 
+### 2.4 Replacement Policy
+##### 2.4.1 Least Recently Used(LRU)
+Maintain a timestamp of when each page was last accessed. When DBMS needs to evict a page, pick the oldest.
 
+##### 2.4.2 Clock
+![Clock](/img/DataBase/Clock.jpeg)
 
+##### 2.4.3 LRU-K
+##### 2.4.4 Localization
+##### 2.4.5 Priority Hints
 
 
 # 3 Index(3)
