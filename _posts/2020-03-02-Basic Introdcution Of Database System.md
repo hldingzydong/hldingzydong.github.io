@@ -19,7 +19,7 @@ Before introducing Database Manage System, there are some basic concepts need to
 
 Now, let's begin our adventure.
 
-# 1   Storage
+# 1.   Storage
 The Database Manage System we are talking is a **disk-oriented** System.
 ![DiskOrientedDBMS](/img/DataBase/DiskOrientedDBMS.jpeg)
 
@@ -61,7 +61,7 @@ DBMS uses a unique record identifier(**page_id + offset / slot**) to track indiv
 ### 1.4 Data Representation Inside Tuples
 - INTEGER / BIGINT / SMALLINT / TINYINT (C/C++ Representation)
 - FLOAT / REAL vs NUMERIC / DECIMAL  (IEEE-754 Standard/Fixed-point Decimals)
-	- Variable-precision numberic type that uses the "native" C/C++ types, eg: **FLOAT**,**REAL/DOUBLE**, stored directly as specified by IEEE-754, typically **faster** than arbitary precision numbers but can have **rounding errors**. (使用原生的C/C++类型,不需要具体的精度,非常快,但是会有微小的误差)
+	- Variable-precision numberic type that uses the "native" C/C++ types, eg: **FLOAT**,**REAL/DOUBLE**, stored directly as specified by IEEE-754, typically **faster** than arbitary precision numbers but can have **rounding errors**. (使用原生的C/C++类型,不需要具体的精度,非常快,但是会有微小的误差)  
 	```c++
 	int main(int argc, char* argv[]) {
 		float x = 0.1;
@@ -95,10 +95,12 @@ DBMS uses a unique record identifier(**page_id + offset / slot**) to track indiv
 ### 1.5 Storage Model
 ##### 1.5.1 OLTP vs OLAP
 > On-line Transaction Processing(OLTP), simple queries that read/update a small amount of data that is related to a single entity in the database.(平时做web后端的对DB的CRUD)
+
 ```sql
 UPDATE useracct SET lastLogin = NOW(), hostname = ? WHERE userID = ?
 ```
 > On-line Analytical Processing(OLAP), complex queries that read large portions of the database spanning multiple entities.(类似于大数据)
+
 ```sql
 SELECT COUNT(U.lastLogin), EXTRACT(month FROM U.lastLogin) AS month
 FROM useracct AS U
@@ -118,47 +120,10 @@ EXTRACT(month FROM U.lastLogin)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 2 Buffer Pool Manager(BPM)
+# 2.   Buffer Pool Manager(BPM)
 ## 2.1 Why Need BPM
 ## 2.2 Component
 ## 2.3 Optimization
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
