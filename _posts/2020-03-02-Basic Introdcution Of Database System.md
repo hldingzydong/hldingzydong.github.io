@@ -27,7 +27,7 @@ The Database Manage System we are talking is a **disk-oriented** System.
 The DBMS stores a database as one or more files on disk and OS doesn't know anything about the contents of these files. The Storage Manager organize the files as a collection of pages.
 
 ### 1.2 Page Storage
-> A page is a fixed-size block of data. It can contain tuples, meta-data, indexes or log records.  
+> A **page** is a fixed-size block of data. It can contain tuples, meta-data, indexes or log records.  
 
 ##### 1.2.1 Files Layout
 There are three ways to organize pages inside a file.  
@@ -95,12 +95,12 @@ DBMS uses a unique record identifier(**page_id + offset / slot**) to track indiv
 
 ### 1.5 Storage Model
 ##### 1.5.1 OLTP vs OLAP
-> On-line Transaction Processing(OLTP), simple queries that read/update a small amount of data that is related to a single entity in the database.(平时做web后端的对DB的CRUD)
+> **On-line Transaction Processing(OLTP)**, simple queries that read/update a small amount of data that is related to a single entity in the database.(平时做web后端的对DB的CRUD)
 
 ```sql
 UPDATE useracct SET lastLogin = NOW(), hostname = ? WHERE userID = ?
 ```
-> On-line Analytical Processing(OLAP), complex queries that read large portions of the database spanning multiple entities.(类似于大数据)
+> **On-line Analytical Processing(OLAP)**, complex queries that read large portions of the database spanning multiple entities.(类似于大数据)
 
 ```sql
 SELECT COUNT(U.lastLogin), EXTRACT(month FROM U.lastLogin) AS month
@@ -111,11 +111,11 @@ EXTRACT(month FROM U.lastLogin)
 ```
 
 ##### 1.5.2 NSM vs DSM
-> N-ary Storage Model(NSM aka “row storage”).The DBMS stores all attributes for a single tuple contiguously in a page.  
+> **N-ary Storage Model(NSM aka “row storage”)**.The DBMS stores all attributes for a single tuple contiguously in a page.  
 
 ![DisNSM](/img/DataBase/DisNSM.jpeg){:height="50%" width="50%"}
 
-> Decomposition(分解) Storage Model(DSM aka “column store”). The DBMS stores the values of a single attribute for all tuples contiguously in a page.  
+> **Decomposition(分解) Storage Model(DSM aka “column store”)**. The DBMS stores the values of a single attribute for all tuples contiguously in a page.  
 
 ![DSM](/img/DataBase/DSM.jpeg){:height="50%" width="50%"}
 
@@ -130,7 +130,7 @@ According to **spatial locality** and **temporal locality**, BPM could minimize 
 It is a **memory region** organized as an array of fixed-size pages. An array entry is called a **frame**. There is a **page table**, mapped from page_id to frame_id. For every pages in Buffer Pool, each of them need to contains Dirty Flag and Pin/Reference Counter.  
 **Dirty Flag** is used to identify whether a page is modified after read into memory. When a dirty page is evicted, DBMS needs to write it back to disk.  
 **Pin/Reference Counter** is used to decide whether this page is evicted. When Pin/Reference Counter is 0, apply Replacement Policy to this page.
-![BufferPoolManager](/img/DataBase/BufferPoolManager.jpeg){:height="80%" width="80%"}
+![BufferPoolManager](/img/DataBase/BufferPoolManager.jpeg){:height="60%" width="60%"}
 
 ### 2.3 Optimization
 Multiple Buffer Pools, Pre-Fetching, Scan Sharing and Bypass().
@@ -140,7 +140,7 @@ Multiple Buffer Pools, Pre-Fetching, Scan Sharing and Bypass().
 Maintain a timestamp of when each page was last accessed. When DBMS needs to evict a page, pick the oldest.
 
 ##### 2.4.2 Clock
-![Clock](/img/DataBase/Clock.jpeg)
+![Clock](/img/DataBase/Clock.jpeg){:height="70%" width="70%"}
 
 ##### 2.4.3 LRU-K
 ##### 2.4.4 Localization
@@ -153,7 +153,57 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 
 # 5 Concurrency Control(4)
 
-# 6 Log And Recovery(2+1)
+# 6 Log And Recovery
+Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
+It have two parts:  
+
+- Actions during normal txn processing to ensure that the DBMS can recover from a failure.  
+- Actions after a failure to recover the database to a state that ensures atomicity, consistency, and durability.
+
+
+### 6.1 Before Crash
+> **Steal**: Whether the DBMS allows an uncommitted txn to overwrite the most recent committed value of an object in **non-volatile** storage. 
+ 
+> **Force**: Whether the DBMS requires that all updates made by a txn are reflected on non-volatile storage **before** the txn is allowed to commit.
+![NoStealForce](/img/DataBase/NoStealForce.jpeg){:height="70%" width="70%"}
+
+##### 6.1.1 No-Steal + Force
+No-Steal means the changes by an uncommited txn were not written to disk, so no need to undo; Force means all changes are written to disk at commit time, so no need to redo.  
+>**Shadow Paging** is maintaining two separate copies of the database: **Master** and **Shadow**. 
+
+**Master** contains only changes from commited txns; **Shadow** is temporary database with changes made from uncommmited txns, so txns only make updates in the shadow copy.  
+When a txn commits, the **root** points atomically switch the shadow to become the new master. So when need to "undo", just remove the shadow pages, leave the master and the root pointer alone.
+![ShadowPaging](/img/DataBase/ShadowPaging.jpeg){:height="70%" width="70%"}
+
+##### 6.1.2 Steal + No-Force
+> **Write-Ahead Log(WAL)** is maintaing a log file in **volatile storage** that contains the changes that txns make to database.   
+
+So after crash, it can perform undo and redo actions to recovery.   
+The most important is "**DBMS must write to disk the log file records that correspond to changes made to a database object before it can flush that object to disk**." When a txn's logs have been written to disk, it can be consider commited.(More details refer to [lab4](https://hldingzydong.github.io/2020/02/29/CMU15-445-Spring2018-Lab4/))
+![WAL](/img/DataBase/WAL.jpeg)
+
+WAL will grow forever and after crash, recovery takes a long time, so DBMS periodically takes a **checkpoint** where it **flushes all buffers**(including all log records currently residing in main memory and all modified blocks) out to disk.
+
+##### 6.1.3 Compare
+![CompareRecoveryPolicy](/img/DataBase/CompareRecoveryPolicy.jpeg){:height="70%" width="70%"}
+Because the crash is rare, DBMS choose No-Fore + Steal.
+
+
+### 6.2 After Crash
+Algorithms for Recovery and Isolation Exploiting Semantics(**ARIES**) algorithm describe the actions aftre a crash to recovery.  
+There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.  
+TODO: LSN
+##### 6.2.1 Analysis
+TODO: ATT & DPT
+##### 6.2.2 Redo
+> **Redo**:The target is re-instating the effects of a **committed** txn for durability. Still redo all txns firstly, through "Undo" can reach the target.
+
+
+
+##### 6.2.3 Undo
+> **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
+
+
 
 # Conclusion
 
