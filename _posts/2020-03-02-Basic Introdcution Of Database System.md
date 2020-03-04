@@ -155,11 +155,11 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 
 # [6.   Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
 Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
-It have two parts:  
-- Actions **during normal txn processing** to ensure that the DBMS can recover from a failure.  
-- Actions **after a failure to recover** the database to a state that ensures atomicity, consistency, and durability.
+It has two parts:  
+> Actions **during normal txn processing** to ensure that the DBMS can recover from a failure.  
+> Actions **after a failure to recover** the database to a state that ensures atomicity, consistency, and durability.
 
-There are two important concepts: Redo and Undo:
+There are two important concepts: Redo and Undo
 > **Redo**:The process of re-instating the effects of a **committed** txn for durability.  
 > **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
 
