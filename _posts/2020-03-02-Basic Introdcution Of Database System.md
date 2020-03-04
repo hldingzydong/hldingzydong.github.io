@@ -165,7 +165,6 @@ There are two important concepts: Redo and Undo
 
 ### 6.1 Before Crash
 > **Steal**: Whether the DBMS allows an uncommitted txn to overwrite the most recent committed value of an object in **non-volatile** storage. 
- 
 > **Force**: Whether the DBMS requires that all updates made by a txn are reflected on non-volatile storage **before** the txn is allowed to commit.
 
 ![NoStealForce](/img/DataBase/NoStealForce.jpeg){:height="70%" width="70%"}
@@ -190,7 +189,7 @@ WAL will grow forever and after crash, recovery takes a long time, so DBMS perio
 
 ##### 6.1.3 Compare
 ![CompareRecoveryPolicy](/img/DataBase/CompareRecoveryPolicy.jpeg){:height="70%" width="70%"}
-Because the crash is rare, DBMS choose No-Fore + Steal.
+Because the crash is rare, DBMS choose No-Force + Steal.
 
 ### [6.2 After Crash](https://15445.courses.cs.cmu.edu/fall2019/slides/21-recovery.pdf)
 ##### 6.2.1 Log Sequence Number(LSN)
