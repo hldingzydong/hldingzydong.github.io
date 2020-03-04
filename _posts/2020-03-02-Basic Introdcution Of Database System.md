@@ -153,12 +153,15 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 
 # 5 Concurrency Control(4)
 
-# [6.   Log And Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
+# [6.   Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
 Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
 It have two parts:  
 - Actions **during normal txn processing** to ensure that the DBMS can recover from a failure.  
 - Actions **after a failure to recover** the database to a state that ensures atomicity, consistency, and durability.
 
+There are two important concepts: Redo and Undo:
+> **Redo**:The process of re-instating the effects of a **committed** txn for durability.  
+> **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
 
 ### 6.1 Before Crash
 > **Steal**: Whether the DBMS allows an uncommitted txn to overwrite the most recent committed value of an object in **non-volatile** storage. 
@@ -171,8 +174,9 @@ It have two parts:
 No-Steal means the changes by an uncommited txn were not written to disk, so no need to undo; Force means all changes are written to disk at commit time, so no need to redo.  
 >**Shadow Paging** is maintaining two separate copies of the database: **Master** and **Shadow**. 
 
-**Master** contains only changes from commited txns; **Shadow** is temporary database with changes made from uncommmited txns, so txns only make updates in the shadow copy.  
-When a txn commits, the **root** points atomically switch the shadow to become the new master. So when need to "undo", just remove the shadow pages, leave the master and the root pointer alone.
+**Master** contains only changes from commited txns.  
+**Shadow** is temporary database with changes made from uncommmited txns, so txns only make updates in the shadow copy.  
+When a txn commits, the **root** points automically switch the shadow to become the new master. So when need to "undo", just remove the shadow pages, leave the master and the root pointer alone.
 ![ShadowPaging](/img/DataBase/ShadowPaging.jpeg){:height="70%" width="70%"}
 
 ##### 6.1.2 Steal + No-Force
@@ -188,7 +192,6 @@ WAL will grow forever and after crash, recovery takes a long time, so DBMS perio
 ![CompareRecoveryPolicy](/img/DataBase/CompareRecoveryPolicy.jpeg){:height="70%" width="70%"}
 Because the crash is rare, DBMS choose No-Fore + Steal.
 
-
 ### [6.2 After Crash](https://15445.courses.cs.cmu.edu/fall2019/slides/21-recovery.pdf)
 ##### 6.2.1 Log Sequence Number(LSN)
 > LSN is a globally unique id of log.
@@ -201,22 +204,41 @@ Because the crash is rare, DBMS choose No-Fore + Steal.
 | **lastLSN** | Txn | **Latest** record of txn Ti |
 | **MasterRecord** | Disk | LSN of **latest** checkpoint | 
 
+Before page x can be written to disk, must flush log firstly, which means **pageLSN(x) <= flushedLSN**.
+
 ##### 6.2.2 Compensation Log Records(CLR)
+How to deal with **ABORTED** txn during undo phase? We need to add **prevLSN** field in log records.
+> prevLSN: the previous LSN for this log.
+
+![prevLSN](/img/DataBase/prevLSN.jpeg){:height="70%" width="70%"}
+
+What's more, we need Compensation Log Records(CLR).
+> A CLR has all the fields of an update log record plus the **undoNext** pointer(the next-to-be-undone LSN), describes the actions taken to undo the actions of a previous update record.  
+
+![CLR](/img/DataBase/CLR.jpeg){:height="70%" width="70%"}
+
+So when we need to deal with **ABORTED** txn, firstly write a **CLR** entry to the log, then restore old value.Remember, CLRs never to be undone.
 
 ##### 6.2.3 ARIES 
 Algorithms for Recovery and Isolation Exploiting Semantics(**ARIES**) describe the actions aftre a crash to recovery.  
 There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.
-###### 6.2.3.1 Analysis
+![ARIES](/img/DataBase/ARIES.jpeg){:height="80%" width="80%"}
+###### 6.2.3.1 Analysis Phases
+> Read WAL from **last checkpoint** to identify dirty pages in the buffer pool and active txns at the time of the crash.
 
+In this phase, we are going to build two tables: DPT(Dirty Page Table) and ATT(Active Transaction Table).  
+**DPT** records which pages in the buffer pool contain changes from uncommited txns, is used **for Redo** Phase, will record pageId, recLSN. During scaning, if we meet a **UPDATE** records and correspond page **P** not in DPT, we add P to DPT and set its **recLSN = (current)LSN**.  
+**ATT** records currently active and unfinished txns **for Undo** Phase, will record txnId, status and lastLSN.   
 
-###### 6.2.3.2 Redo
-> **Redo**:The target is re-instating the effects of a **committed** txn for durability. Still redo all txns firstly, through "Undo" can reach the target.
+###### 6.2.3.2 Redo Phases
+> Repeat **all** actions(even **aborted txns** and **CLRS**) starting from an appropriate point(the log record containing **smallest recLSN**) in the log.
 
+Remember, it is different from **Redo** concept.
 
+###### 6.2.3.3 Undo Phases
+> Reverse the actions of txns that **did not commit** before the crash. Process them in **reverse LSN order** using **lastLSN**, write a **CLR** for every modification.
 
-###### 6.2.3.3 Undo
-> **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
-
+![FullExample](/img/DataBase/FullExample.jpeg)
 
 
 # Conclusion
