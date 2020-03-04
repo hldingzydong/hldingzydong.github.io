@@ -153,18 +153,18 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 
 # 5 Concurrency Control(4)
 
-# 6 Log And Recovery
+# [6.   Log And Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
 Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
 It have two parts:  
-
-- Actions during normal txn processing to ensure that the DBMS can recover from a failure.  
-- Actions after a failure to recover the database to a state that ensures atomicity, consistency, and durability.
+- Actions **during normal txn processing** to ensure that the DBMS can recover from a failure.  
+- Actions **after a failure to recover** the database to a state that ensures atomicity, consistency, and durability.
 
 
 ### 6.1 Before Crash
 > **Steal**: Whether the DBMS allows an uncommitted txn to overwrite the most recent committed value of an object in **non-volatile** storage. 
  
 > **Force**: Whether the DBMS requires that all updates made by a txn are reflected on non-volatile storage **before** the txn is allowed to commit.
+
 ![NoStealForce](/img/DataBase/NoStealForce.jpeg){:height="70%" width="70%"}
 
 ##### 6.1.1 No-Steal + Force
@@ -180,7 +180,7 @@ When a txn commits, the **root** points atomically switch the shadow to become t
 
 So after crash, it can perform undo and redo actions to recovery.   
 The most important is "**DBMS must write to disk the log file records that correspond to changes made to a database object before it can flush that object to disk**." When a txn's logs have been written to disk, it can be consider commited.(More details refer to [lab4](https://hldingzydong.github.io/2020/02/29/CMU15-445-Spring2018-Lab4/))
-![WAL](/img/DataBase/WAL.jpeg)
+![WAL](/img/DataBase/WAL.jpeg){:height="80%" width="80%"}
 
 WAL will grow forever and after crash, recovery takes a long time, so DBMS periodically takes a **checkpoint** where it **flushes all buffers**(including all log records currently residing in main memory and all modified blocks) out to disk.
 
@@ -189,18 +189,32 @@ WAL will grow forever and after crash, recovery takes a long time, so DBMS perio
 Because the crash is rare, DBMS choose No-Fore + Steal.
 
 
-### 6.2 After Crash
-Algorithms for Recovery and Isolation Exploiting Semantics(**ARIES**) algorithm describe the actions aftre a crash to recovery.  
-There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.  
-TODO: LSN
-##### 6.2.1 Analysis
-TODO: ATT & DPT
-##### 6.2.2 Redo
+### [6.2 After Crash](https://15445.courses.cs.cmu.edu/fall2019/slides/21-recovery.pdf)
+##### 6.2.1 Log Sequence Number(LSN)
+> LSN is a globally unique id of log.
+
+| Name | Where | Definition |
+| :-----: | :-----: | :-----: |
+| **flushedLSN** | Memory | **Last** LSN in log on disk |
+| **pageLSN** | Page | **Newest** update to page |
+| **recLSN** | Page | **Oldest** update to page since it was last flushed |
+| **lastLSN** | Txn | **Latest** record of txn Ti |
+| **MasterRecord** | Disk | LSN of **latest** checkpoint | 
+
+##### 6.2.2 Compensation Log Records(CLR)
+
+##### 6.2.3 ARIES 
+Algorithms for Recovery and Isolation Exploiting Semantics(**ARIES**) describe the actions aftre a crash to recovery.  
+There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.
+###### 6.2.3.1 Analysis
+
+
+###### 6.2.3.2 Redo
 > **Redo**:The target is re-instating the effects of a **committed** txn for durability. Still redo all txns firstly, through "Undo" can reach the target.
 
 
 
-##### 6.2.3 Undo
+###### 6.2.3.3 Undo
 > **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
 
 
