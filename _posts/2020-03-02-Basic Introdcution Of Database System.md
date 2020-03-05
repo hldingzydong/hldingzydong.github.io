@@ -116,11 +116,9 @@ EXTRACT(month FROM U.lastLogin)
 ![DisNSM](/img/DataBase/DisNSM.jpeg){:height="50%" width="50%"}
 
 > **Decomposition(分解) Storage Model(DSM aka “column store”)**. The DBMS stores the values of a single attribute for all tuples contiguously in a page.  
-
 ![DSM](/img/DataBase/DSM.jpeg){:height="50%" width="50%"}
 
 
- 
 # [2.   Buffer Pool Manager (BPM)](https://15445.courses.cs.cmu.edu/fall2019/notes/05-bufferpool.pdf)
 ![DiskOrientedDBMS](/img/DataBase/DiskOrientedDBMS.jpeg)
 ### 2.1 Why Need BPM
@@ -142,9 +140,9 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 ##### 2.4.2 Clock
 ![Clock](/img/DataBase/Clock.jpeg){:height="70%" width="70%"}
 
-##### 2.4.3 LRU-K
-##### 2.4.4 Localization
-##### 2.4.5 Priority Hints
+###### 2.4.3 LRU-K
+###### 2.4.4 Localization
+###### 2.4.5 Priority Hints
 
 
 # [3.   Table Index](https://15445.courses.cs.cmu.edu/fall2019/slides/07-trees1.pdf)
@@ -300,10 +298,10 @@ SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
 ![RadixTree](/img/DataBase/RadixTree.jpeg){:height="60%" width="60%"}
 
 ### 3.6 Optimization
-##### 3.6.1 Prefix Compression
-##### 3.6.2 Suffix Truncation(切断)
-##### 3.6.3 Bulk Insert
-##### 3.6.4 Pointer Swizzling
+###### 3.6.1 Prefix Compression
+###### 3.6.2 Suffix Truncation(切断)
+###### 3.6.3 Bulk Insert
+###### 3.6.4 Pointer Swizzling
 
 # 4 Query(3+3)
 
