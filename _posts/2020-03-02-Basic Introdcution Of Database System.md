@@ -216,6 +216,7 @@ Once child is latched, if it is "safe", release all latches on ancestors.
 ###### 3.3.2.5 Leaf Node Level
 Above are "top-down" manner, if we want to move from one leaf to another leaf?
 ![DeadLock](/img/DataBase/DeadLock.jpeg){:height="70%" width="70%"}
+Latches do not support deadlock detection or avoidance. The leaf node sibling latch acquisition protocol must support a "no-wait" mode. The DBMS's data structures must cope with failed latch acquisitions.
 
 ### [3.4 Key](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
 ##### 3.4.1 Duplicate Keys
@@ -226,7 +227,7 @@ Add the tuple's unique record id as part of the key to ensure that all keys are 
 ###### 3.4.1.2 Overflow Leaf Nodes
 Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 ![OverflowLeafNodes](/img/DataBase/OverflowLeafNodes.jpeg){:height="70%" width="70%"}
-Latches do not support deadlock detection or avoidance. The leaf node sibling latch acquisition protocol must support a "no-wait" mode. The DBMS's data structures must cope with failed latch acquisitions.
+
 
 ##### 3.4.2 Variable Length Key  
 
