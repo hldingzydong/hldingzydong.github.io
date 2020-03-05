@@ -272,73 +272,30 @@ CREATE TABLE foo(
     val2 VARCHAR(32) UNIQUE
 );
 ```
-```sql
-CREATE UNIQUE INDEX foo_pkey ON foo(id);
-```
-```sql
-CREATE UNIQUE INDEX foo_val2_key ON foo(val2);
-```
 ##### 3.5.4 Covering Index
 > If all the fields needed to process the query are available in an index, then the DBMS does not need to retrieve the tuple.
 
 ```sql
 CREATE INDEX idx_foo ON foo(a,b);
 ```
-```sql
-SELECT b FROM foo WHERE a = 123;
-```
-
 ##### 3.5.5 Partial Index
 > Create an index on a subset of the entire table. 
 
 ```sql
 CREATE INDEX idx_foo ON foo(a,b) WHERE c = 'WuTang';
 ```
-```sql
-SELECT b FROM foo WHERE a = 123 AND c = 'WuTang';
-```
-
 ##### 3.5.6 Index Include Columns
 > Embed additional columns in indexes to support index-only queries. These extra columns are only stored in the leaf nodes and are not part of the search key.
 
 ```sql
 CREATE INDEX idx_foo ON foo(a,b) INCLUDE (c);
 ```
-```sql
-SELECT b FROM foo WHERE a = 123 AND c = 'WuTang';
-```
-
 ##### 3.5.7 Function/Expression Index
 > An index does not need to store keys in the same way that they appear in their base table.
 
 ```sql
 CREATE INDEX idx_user_login ON users (EXTRACT(dow FROM login));
-CREATE INDEX idx_user_login ON users(login) WHERE EXTRACT(dow FROM login) = 2;
 ```
-```sql
-SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
-```
-
-##### 3.5.8 Trie Index
-> Use a digital representation of keys to examine prefixes oneby-one instead of comparing entire key. 
-
-![TrieIndex](/img/DataBase/TrieIndex.jpeg){:height="30%" width="30%"}
-
-##### 3.5.9 Radix Index
-> Omit all nodes with only a single child.
-
-![RadixTree](/img/DataBase/RadixTree.jpeg){:height="60%" width="60%"}
-
-##### 3.5.10 Inverted Index
-> An inverted index stores a mapping of words to records that contain those words in the target attribute.
-
-| Query Type | Description |
-| :-----: | :-----: |
-| Phrase Search | Find records that contain a list of words in the given order |
-| Proximity Search | Find records where two words occur within n words of each other |
-| Wildcard Search | Find records that contain words that match some pattern(e.g,regular expression) |
-
-
 ### 3.6 Optimization
 ###### 3.6.1 Prefix Compression
 ###### 3.6.2 Suffix Truncation(切断)
@@ -360,7 +317,7 @@ There are two important concepts: Redo and Undo
 > **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
 
 ### 6.1 Before Crash
-> **Steal**: Whether the DBMS allows an uncommitted txn to overwrite the most recent committed value of an object in **non-volatile** storage. 
+> **Steal**: Whether the DBMS allows an uncommitted txn to overwrite the most recent committed value of an object in **non-volatile** storage.  
 > **Force**: Whether the DBMS requires that all updates made by a txn are reflected on non-volatile storage **before** the txn is allowed to commit.
 
 ![NoStealForce](/img/DataBase/NoStealForce.jpeg){:height="70%" width="70%"}
