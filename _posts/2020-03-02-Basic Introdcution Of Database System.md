@@ -8,7 +8,7 @@ tags:
    - database
 ---
 # Overview
-This article briefly introduces the Database Manage System(DBMS), including its Storage, Buffer Pool Manager, Index, Query, Concurrenct Control, Log and Recovery. A Database Manage System is built by combining these components.  
+This article briefly introduces the Database Manage System(DBMS), including its Storage, Buffer Pool Manager, Table Index, Query, Concurrenct Control, Log and Recovery. A Database Manage System is built by combining these components.  
 
 Before introducing Database Manage System, there are some basic concepts need to explain:  
 > A **data model** is collection of concepts for describing the data in a database.  
@@ -147,7 +147,160 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 ##### 2.4.5 Priority Hints
 
 
-# 3 Index(3)
+# [3.   Table Index](https://15445.courses.cs.cmu.edu/fall2019/slides/07-trees1.pdf)
+> A **table index** is a replica of a subset of a table's attributes that are organized and/or sorted for efficient access using a subset of those attributes.
+
+### 3.1 Why We Need Index
+Increase the effecticy of query, but it costs Storage and Maintenance.
+
+### 3.2 Implementation
+> A B+Tree is an M-way search tree with the following properties:  
+> (1) Perfectly balanced (every leaf node is at the same depth)  
+> (2) Every node other than the root, is at least half-full: M/2-1 ≤ #keys ≤ M-1  
+> (3) Every node is comprised of an array of sorted key/value pairs
+
+![BTree](//img/DataBase/BTree.jpeg){:height="80%" width="80%"}
+##### 3.2.1 Node
+###### 3.2.1.1 Inner Node
+Every inner node with k keys has k+1 non-null children. Children are pointers to the child nodes.
+
+###### 3.2.1.2 Leaf Node
+Contains Key and Value, value could be **Record Ids**(A pointer to the location of the tuple that the index entry corresponds to) or **Tuple Data**(the actual contents of the tuple).   
+Once a index stores Tuple Data, the secondary index must store record ids.
+![BTreeNode1](/img/DataBase/BTreeNode1.jpeg){:height="70%" width="70%"}
+![BTreeNode2](/img/DataBase/BTreeNode2.jpeg){:height="70%" width="70%"}
+
+##### [3.2.2 Operation](https://hldingzydong.github.io/2020/02/15/CMU15-445-Spring2018-Lab2/)
+###### 3.2.2.1 Insert
+Find correct leaf node L and put entry into L in sorted order. If L doesn't have enough space, **split** L keys into L and a new node L2.
+
+###### 3.2.2.2 Delete
+Find correct leaf node L and remove the entry. If L is half-full, **borrow** from sibling(adjacent node with same parent as L). If borrow fails, **merge** L and sibling, and delete entry from parent of L.
+
+### [3.3 Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/09-indexconcurrency.pdf)
+##### 3.3.1 Hash Index
+TODO: explain use latch not lock
+
+##### 3.3.2 B+Tree Index
+
+
+
+
+
+
+### [3.4 Key](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
+##### 3.4.1 Duplicate Keys
+###### 3.4.1.1 Append Record Id
+Add the tuple's unique record id as part of the key to ensure that all keys are unique. 
+![AppendRecordId](/img/DataBase/AppendRecordId.jpeg){:height="70%" width="70%"}
+
+###### 3.4.1.2 Overflow Leaf Nodes
+Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
+![OverflowLeafNodes](/img/DataBase/OverflowLeafNodes.jpeg){:height="70%" width="70%"}
+
+##### 3.4.2 Variable Length Key
+| Approach | Description |
+| :-----: | :-----: |
+| Pointers | Store keys as pointers to tuple’s attribute |
+| Variable Length Nodes | Size of each node can vary |
+| Padding(填补) | Pad the key to be max length of the key type |
+| Key Map/Indirection (figure shows) | Embed an array of pointers that map to the key + value list within the node |
+
+![KeyMap](/img/DataBase/KeyMap.jpeg){:height="70%" width="70%"}
+
+##### 3.4.3 Find Key In Leaf Node
+| Approach | Description |
+| :-----: | :-----: |
+| Linear | Scan node keys from beginning to end |
+| Binary | Jump to middle key, pivot left/right depending on comparison |
+| Interpolation (figure shows) | Approximate location of desired key based on known distribution of keys |
+
+![IntraNode](/img/DataBase/IntraNode.jpeg){:height="70%" width="70%"}
+
+### 3.5 Index Type
+##### 3.5.1 Clustered Index
+> The table is stored in the sort order specified by the **primary key**.
+
+##### 3.5.2 Non-Unique Index
+| Approach | Description |
+| :-----: | :-----: |
+| Duplicate Keys | Use the same leaf node layout but store duplicate keys multiple times |
+| Value Lists (figure shows)| Store each key only once and maintain a linked list of unique values |
+
+![ValueLists](/img/DataBase/ValueLists.jpeg){:height="70%" width="70%"}
+
+##### 3.5.3 [Implicit Index](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
+> Enforce integrity but not referential constraints(foreign keys), like **Primary Keys** and **Unique Constraints**.
+
+```sql
+CREATE TABLE foo(
+    id SERIAL PRIMARY KEY,
+    val1 INT NOT NULL,
+    val2 VARCHAR(32) UNIQUE
+);
+```
+```sql
+CREATE UNIQUE INDEX foo_pkey ON foo(id);
+```
+```sql
+CREATE UNIQUE INDEX foo_val2_key ON foo(val2);
+```
+##### 3.5.4 Covering Index
+> If all the fields needed to process the query are available in an index, then the DBMS does not need to retrieve the tuple.
+
+```sql
+CREATE INDEX idx_foo ON foo(a,b);
+```
+```sql
+SELECT b FROM foo WHERE a = 123;
+```
+
+##### 3.5.5 Partial Index
+> Create an index on a subset of the entire table. 
+
+```sql
+CREATE INDEX idx_foo ON foo(a,b) WHERE c = 'WuTang';
+```
+```sql
+SELECT b FROM foo WHERE a = 123 AND c = 'WuTang';
+```
+
+##### 3.5.6 Index Include Columns
+> Embed additional columns in indexes to support index-only queries. These extra columns are only stored in the leaf nodes and are not part of the search key.
+
+```sql
+CREATE INDEX idx_foo ON foo(a,b) INCLUDE (c);
+```
+```sql
+SELECT b FROM foo WHERE a = 123 AND c = 'WuTang';
+```
+
+##### 3.5.7 Function/Expression Index
+> An index does not need to store keys in the same way that they appear in their base table.
+
+```sql
+CREATE INDEX idx_user_login ON users (EXTRACT(dow FROM login));
+CREATE INDEX idx_user_login ON users(login) WHERE EXTRACT(dow FROM login) = 2;
+```
+```sql
+SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
+```
+
+##### 3.5.8 Trie Index
+> Use a digital representation of keys to examine prefixes oneby-one instead of comparing entire key. 
+
+![TrieIndex](/img/DataBase/TrieIndex.jpeg){:height="70%" width="70%"}
+
+##### 3.5.9 Radix Index
+> Omit all nodes with only a single child.
+
+![RadixTree](/img/DataBase/RadixTree.jpeg){:height="80%" width="80%"}
+
+### 3.6 Optimization
+##### 3.6.1 Prefix Compression
+##### 3.6.2 Suffix Truncation(切断)
+##### 3.6.3 Bulk Insert
+##### 3.6.4 Pointer Swizzling
 
 # 4 Query(3+3)
 
