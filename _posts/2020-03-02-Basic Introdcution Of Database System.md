@@ -230,7 +230,7 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 
 ![ValueLists](/img/DataBase/ValueLists.jpeg){:height="70%" width="70%"}
 
-##### 3.5.3 [Implicit Index](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
+##### [3.5.3 Implicit Index](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
 > Enforce integrity but not referential constraints(foreign keys), like **Primary Keys** and **Unique Constraints**.
 
 ```sql
@@ -296,6 +296,16 @@ SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
 > Omit all nodes with only a single child.
 
 ![RadixTree](/img/DataBase/RadixTree.jpeg){:height="60%" width="60%"}
+
+##### 3.5.10 Inverted Index
+> An inverted index stores a mapping of words to records that contain those words in the target attribute.
+
+| Query Type | Description |
+| :-----: | :-----: |
+| Phrase Search | Find records that contain a list of words in the given order |
+| Proximity Search | Find records where two words occur within n words of each other |
+| Wildcard Search | Find records that contain words that match some pattern(e.g,regular expression) |
+
 
 ### 3.6 Optimization
 ###### 3.6.1 Prefix Compression
