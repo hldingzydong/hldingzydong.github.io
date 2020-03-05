@@ -115,7 +115,8 @@ EXTRACT(month FROM U.lastLogin)
 
 ![DisNSM](/img/DataBase/DisNSM.jpeg){:height="50%" width="50%"}
 
-> **Decomposition(分解) Storage Model(DSM aka “column store”)**. The DBMS stores the values of a single attribute for all tuples contiguously in a page.  
+> **Decomposition(分解) Storage Model(DSM aka “column store”)**. The DBMS stores the values of a single attribute for all tuples contiguously in a page.
+
 ![DSM](/img/DataBase/DSM.jpeg){:height="50%" width="50%"}
 
 
@@ -151,14 +152,14 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 ### 3.1 Why We Need Index
 Increase the effecticy of query, but it costs Storage and Maintenance.
 
-### 3.2 Implementation
+### 3.2 B+Tree Implementation
 > A B+Tree is an M-way search tree with the following properties:  
 > (1) Perfectly balanced (every leaf node is at the same depth)  
 > (2) Every node other than the root, is at least half-full: M/2-1 ≤ #keys ≤ M-1  
 > (3) Every node is comprised of an array of sorted key/value pairs
 
 ![BTree](//img/DataBase/BTree.jpeg){:height="80%" width="80%"}
-##### 3.2.1 Node
+##### 3.2.1 Tree Node
 ###### 3.2.1.1 Inner Node
 Every inner node with k keys has k+1 non-null children. Children are pointers to the child nodes.
 
@@ -169,7 +170,7 @@ Once a index stores Tuple Data, the secondary index must store record ids.
 ![BTreeNode2](/img/DataBase/BTreeNode2.jpeg){:height="70%" width="70%"}
 
 ##### [3.2.2 Operation](https://hldingzydong.github.io/2020/02/15/CMU15-445-Spring2018-Lab2/)
-###### 3.2.2.1 Insert
+###### 3.2.2.1 Insert 
 Find correct leaf node L and put entry into L in sorted order. If L doesn't have enough space, **split** L keys into L and a new node L2.
 
 ###### 3.2.2.2 Delete
@@ -177,14 +178,44 @@ Find correct leaf node L and remove the entry. If L is half-full, **borrow** fro
 
 ### [3.3 Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/09-indexconcurrency.pdf)
 ##### 3.3.1 Hash Index
-TODO: explain use latch not lock
+###### 3.3.1.1 Page Latches
+Each page has its own reader-write latch.
+![PageLatches](/img/DataBase/PageLatches.jpeg){:height="70%" width="70%"}
+###### 3.3.1.2 Slot Latches
+Each slot has its own latch.
+![SlotLatches](/img/DataBase/SlotLatches.jpeg){:height="70%" width="70%"}
 
-##### 3.3.2 B+Tree Index
+##### [3.3.2 B+Tree Index](https://hldingzydong.github.io/2020/02/15/CMU15-445-Spring2018-Lab2/)
+We need to protect from two types of problems:  
+> 1. Threads trying to modify the contents of a node at the same time.  
+> 2. One thread traversing the tree while another thread splits/merges nodes.
 
+So there is **Latch Crabbing/Coupling** algorithm.
+> Protocol to allow multiple threads to access/modify B+Tree at the same time.
 
+###### 3.3.2.1 Basic Idea
+> 1. Get latch for parent;  
+> 2. Get latch for child;  
+> 3. Release latch for parent if child is "**safe**".
 
+A "safe" node is one that will not split or merge when updated, which means the one is **not full on insertion**, or **more than haf-full on deletion**.
 
+###### 3.3.2.2 Find
+Start at root and go down;  
+Repeatedly acquire **R** latch on child, then unlatch parent.
 
+###### 3.3.2.3 Insert / Delete
+Start at root and go down, obtaining **W** latches as needed;  
+Once child is latched, if it is "safe", release all latches on ancestors.
+
+###### 3.3.2.4 Better Algorithm
+**Find**: Same as before;  
+**Insert / Delete**: Set latches as if for find, get to leaf and set **W** latch on leaf; If leaf is not "safe", release all latches and restart thread using previous algorithm.  
+**Alysis**: This algorithm optimistically assumes that only leaf node will be modified; if not, R latches set on the first pass to leaf are wasteful.
+
+###### 3.3.2.5 Leaf Node Level
+Above are "top-down" manner, if we want to move from one leaf to another leaf?
+![DeadLock](/img/DataBase/DeadLock.jpeg){:height="70%" width="70%"}
 
 ### [3.4 Key](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
 ##### 3.4.1 Duplicate Keys
@@ -195,6 +226,7 @@ Add the tuple's unique record id as part of the key to ensure that all keys are 
 ###### 3.4.1.2 Overflow Leaf Nodes
 Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 ![OverflowLeafNodes](/img/DataBase/OverflowLeafNodes.jpeg){:height="70%" width="70%"}
+Latches do not support deadlock detection or avoidance. The leaf node sibling latch acquisition protocol must support a "no-wait" mode. The DBMS's data structures must cope with failed latch acquisitions.
 
 ##### 3.4.2 Variable Length Key  
 
