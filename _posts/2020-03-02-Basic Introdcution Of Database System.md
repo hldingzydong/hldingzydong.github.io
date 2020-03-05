@@ -158,7 +158,7 @@ Increase the effecticy of query, but it costs Storage and Maintenance.
 > (2) Every node other than the root, is at least half-full: M/2-1 ≤ #keys ≤ M-1  
 > (3) Every node is comprised of an array of sorted key/value pairs
 
-![BTree](//img/DataBase/BTree.jpeg){:height="80%" width="80%"}
+![BTree](/img/DataBase/BTree.jpeg){:height="80%" width="80%"}
 ##### 3.2.1 Tree Node
 ###### 3.2.1.1 Inner Node
 Every inner node with k keys has k+1 non-null children. Children are pointers to the child nodes.
@@ -211,7 +211,7 @@ Once child is latched, if it is "safe", release all latches on ancestors.
 ###### 3.3.2.4 Better Algorithm
 **Find**: Same as before;  
 **Insert / Delete**: Set latches as if for find, get to leaf and set **W** latch on leaf; If leaf is not "safe", release all latches and restart thread using previous algorithm.  
-**Alysis**: This algorithm optimistically assumes that only leaf node will be modified; if not, R latches set on the first pass to leaf are wasteful.
+**Analysis**: This algorithm optimistically assumes that only leaf node will be modified; if not, R latches set on the first pass to leaf are wasteful.
 
 ###### 3.3.2.5 Leaf Node Level
 Above are "top-down" manner, if we want to move from one leaf to another leaf?
