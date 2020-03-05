@@ -199,6 +199,7 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 ![OverflowLeafNodes](/img/DataBase/OverflowLeafNodes.jpeg){:height="70%" width="70%"}
 
 ##### 3.4.2 Variable Length Key  
+
 | Approach | Description |
 | :-----: | :-----: |
 | Pointers | Store keys as pointers to tuple’s attribute |
@@ -209,6 +210,7 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 ![KeyMap](/img/DataBase/KeyMap.jpeg){:height="70%" width="70%"}
 
 ##### 3.4.3 Find Key In Leaf Node  
+
 | Approach | Description |
 | :-----: | :-----: |
 | Linear | Scan node keys from beginning to end |
@@ -222,6 +224,7 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 > The table is stored in the sort order specified by the **primary key**.
 
 ##### 3.5.2 Non-Unique Index  
+
 | Approach | Description |
 | :-----: | :-----: |
 | Duplicate Keys | Use the same leaf node layout but store duplicate keys multiple times |
@@ -289,7 +292,7 @@ SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
 ##### 3.5.8 Trie Index
 > Use a digital representation of keys to examine prefixes oneby-one instead of comparing entire key. 
 
-![TrieIndex](/img/DataBase/TrieIndex.jpeg){:height="50%" width="50%"}
+![TrieIndex](/img/DataBase/TrieIndex.jpeg){:height="30%" width="30%"}
 
 ##### 3.5.9 Radix Index
 > Omit all nodes with only a single child.
