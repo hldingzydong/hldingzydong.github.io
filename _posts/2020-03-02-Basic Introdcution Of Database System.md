@@ -198,7 +198,7 @@ Add the tuple's unique record id as part of the key to ensure that all keys are 
 Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 ![OverflowLeafNodes](/img/DataBase/OverflowLeafNodes.jpeg){:height="70%" width="70%"}
 
-##### 3.4.2 Variable Length Key
+##### 3.4.2 Variable Length Key  
 | Approach | Description |
 | :-----: | :-----: |
 | Pointers | Store keys as pointers to tuple’s attribute |
@@ -208,20 +208,20 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 
 ![KeyMap](/img/DataBase/KeyMap.jpeg){:height="70%" width="70%"}
 
-##### 3.4.3 Find Key In Leaf Node
+##### 3.4.3 Find Key In Leaf Node  
 | Approach | Description |
 | :-----: | :-----: |
 | Linear | Scan node keys from beginning to end |
 | Binary | Jump to middle key, pivot left/right depending on comparison |
 | Interpolation (figure shows) | Approximate location of desired key based on known distribution of keys |
 
-![IntraNode](/img/DataBase/IntraNode.jpeg){:height="70%" width="70%"}
+![IntraNode](/img/DataBase/IntraNode.jpeg){:height="50%" width="50%"}
 
 ### 3.5 Index Type
 ##### 3.5.1 Clustered Index
 > The table is stored in the sort order specified by the **primary key**.
 
-##### 3.5.2 Non-Unique Index
+##### 3.5.2 Non-Unique Index  
 | Approach | Description |
 | :-----: | :-----: |
 | Duplicate Keys | Use the same leaf node layout but store duplicate keys multiple times |
@@ -289,12 +289,12 @@ SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
 ##### 3.5.8 Trie Index
 > Use a digital representation of keys to examine prefixes oneby-one instead of comparing entire key. 
 
-![TrieIndex](/img/DataBase/TrieIndex.jpeg){:height="70%" width="70%"}
+![TrieIndex](/img/DataBase/TrieIndex.jpeg){:height="50%" width="50%"}
 
 ##### 3.5.9 Radix Index
 > Omit all nodes with only a single child.
 
-![RadixTree](/img/DataBase/RadixTree.jpeg){:height="80%" width="80%"}
+![RadixTree](/img/DataBase/RadixTree.jpeg){:height="60%" width="60%"}
 
 ### 3.6 Optimization
 ##### 3.6.1 Prefix Compression
