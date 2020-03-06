@@ -303,9 +303,243 @@ CREATE INDEX idx_user_login ON users (EXTRACT(dow FROM login));
 ###### 3.6.3 Bulk Insert
 ###### 3.6.4 Pointer Swizzling
 
-# 4 Query(3+3)
+# [4. Query](https://15445.courses.cs.cmu.edu/fall2019/slides/10-sorting.pdf)
+Here is an article [Following a Select Statement Through Postgres Internals](http://patshaughnessy.net/2014/10/13/following-a-select-statement-through-postgres-internals) pretty good.
+![QueryPlan](/img/DataBase/QueryPlan.jpeg){:height="60%" width="60%"}
+### 4.1 Architecture Overview
+![ArchitectureOverview](/img/DataBase/ArchitectureOverview.jpeg){:height="90%" width="90%"}
+
+### 4.2 Access Data Methods
+> An access method is a way that the DBMS can access the data stored in a table
+
+##### 4.2.1 Sequential Scan
+**Descprition**: For each page in the table, retrive it from the buffer pool and iterate over each tuple and check whether to include it.
+```java
+for page in table.pages: 
+	for t in page.tuples:
+		if evalPred(t):
+			// Do Something!
+```
+**Optimizations**: Prefetching, Buffer Pool Bypass, Parallelization, Zone Maps, Late Materialization, Heap Clustering.
+
+##### 4.2.2 Index Scan
+**Descprition**: The DBMS picks an index to find the tuples that the query needs.  
+![IndexScan](/img/DataBase/IndexScan.jpeg){:height="70%" width="70%"}
+
+##### 4.2.3 Multi-Index Scan
+**Descprition**: If there are multiple indexes that the DBMS can use for a query, could compute sets of record ids using each matching index, then combine these sets based on the query's predicates(union vs. intersect), retrieve the records and apply any remaining predicates.
+```sql
+SELECT * FROM students
+WHERE age < 30 AND dept = 'CS' AND country = 'US'
+```
+![MultiIndexScan](/img/DataBase/MultiIndexScan.jpeg){:height="70%" width="70%"}
+
+### 4.3 Opeartion
+##### 4.3.1 Sort
+###### 4.3.1.1 SQL
+```sql
+SELECT * FROM students ORDER BY age;
+```
+###### 4.3.1.2 Impl
+The main problem is the number of waiting for sorted data cannot fit in memory. so we could choose [External Sort](https://zh.wikipedia.org/wiki/%E5%A4%96%E6%8E%92%E5%BA%8F).  
+**Analysis**:
+Because we are in DBMS, sorting spends much time in IO, so we pay more attention to IO. Here is the analysis of **K-Way Merge Sort**.
+![ExternalMergeSort](/img/DataBase/ExternalMergeSort.jpeg){:height="70%" width="70%"}
+
+Also, we could use **B+Tree** for sorting.   
+If the table that must be sorted already has a B+Tree index on the sort attribute(s), then we can retrieve tuples in desired sort order by **traversing the leaf pages of the tree**.  
+What's more, need to consider **Clustered B+Tree** and **Unclustered B+Tree**. Unclustered B+Tree will bring too much **random IO**, it is a bad idea.
+![ClusteredSort](/img/DataBase/ClusteredSort.jpeg){:height="70%" width="70%"}
+![UnclusteredSort](/img/DataBase/UnclusteredSort.jpeg){:height="70%" width="70%"}
+
+##### 4.3.2 Aggregation
+###### 4.3.2.1 SQL
+```sql
+SELECT AVG(gpa), COUNT(login) AS cnt FROM student WHERE login LIKE '%@cs';
+SELECT DISTINCT login FROM student;
+```
+###### 4.3.2.2 Impl
+By **Sorting**:
+![AggreSort](/img/DataBase/AggreSort.jpeg){:height="80%" width="80%"}
+
+
+By **Hashing**(is used for unsorted operation, like **GROUP BY** or **DISTINCT**):
+> (1)  Partition  
+
+Use a hash function **h1** to split tuples into partitions on disk, so all matches live in the same partition. Assume we have **B** buffers, will use **B-1** buffers for partitions and **1** buffer for the input data.
+![Partition](/img/DataBase/Partition.jpeg){:height="70%" width="70%"}
+
+> (2)  ReHash  
+
+Assume that each partition fits in memory, for each partition on disk, read it into memory and build an in-memory hash table base on a second hash function **h2**, then go through each bucket of this hash table to bring together matching tuples.
+![ReHash](/img/DataBase/ReHash.jpeg){:height="70%" width="70%"}
+
+>  Hash Summarization
+
+During the ReHash phase, store pairs of the form (**GroupKey→RunningVal**), when insert a new tuple into the hash table, if find a matching **GroupKey**, just update the **RunningVal** appropriately, else insert a new **GroupKey->RunningVal**.
+![HashSummarization](/img/DataBase/HashSummarization.jpeg){:height="70%" width="70%"}
+
+**Analysis**:
+Beacuse in Phase 1 we have **B-1** "spill partitions", each should be no more than **B** blocks big, so we can hash **B*(B-1)** big table.  
+That means if one table has N pages, so Buffer Pool needs at least **sqrt(N)** frames.
+
+
+##### [4.3.3 Join](https://15445.courses.cs.cmu.edu/fall2019/slides/11-joins.pdf)
+###### 4.3.3.1 SQL
+```sql
+SELECT R.id, S.cdate FROM R JOIN S ON R.id = S.id WHERE S.value > 100;
+```
+###### 4.3.3.2 Why We Need Join
+Avoid unnecessary repetition of information and reconstruct the original tuples without any information loss.
+
+###### 4.3.3.3 Analysis
+> What data does the join operator emit to its parent operator?
+
+**Data**: Copy the values for the attributes in outer and inner tuples into a new output tuple, so subsequent operators in the query plan never need to go back to get more data.
+![JoinOperatorOutputData](/img/DataBase/JoinOperatorOutputData.jpeg){:height="60%" width="60%"}  
+**Record Ids**: Only copy the joins keys along with the record ids of the matching tuples. Ideal for column stores because the DBMS does not copy data that is not need for the query.
+![JoinOperatorOutputRecordIds](/img/DataBase/JoinOperatorOutputRecordIds.jpeg){:height="60%" width="60%"}
+
+> How to determine whether one join algorithm is better than another?
+
+We assume there are **M** pages in table R and **m** tuples in R; **N** pages in S and **n**tuples in S. The cost metric is **# of IOs to compute join**.
+
+###### 4.3.3.4 Impl
+> **Nested Loop Join**
+
+Simple, Use block or Use Index. 
+
+> **Sort-Merge Join**  
+> (1) **Sort**:  use extnernal sort algorithm sort both tables on the join keys;  
+> (2) **Merge**: step through the two sorted tables with cursors and emit matching tuples, but may need to backtrack depending on the join type.
+
+```
+sort R,S on join keys;
+curso rR ← Rsorted, curso rS ← Ssorted;
+while cursorR and cursorS:
+	if cursorR > cursorS: 
+		increment cursorS 
+	if cursorR < cursorS: 
+		increment cursorR
+	elif cursorR and cursorS match: 
+		emit
+		increment cursorS
+```
+
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/11-joins.pdf).  
+**Analysis**:
+![SortMergeJoinCost](/img/DataBase/SortMergeJoinCost.jpeg){:height="60%" width="60%"}
+The worst case for the merging phase is when the join attribute of all of the tuples in **both relations contain the same value**, which costs **(M·N) + (sort cost)**.  
+When **one or both tables are already sorted on join key**, or **output must be sorted on join key**, this algorithm is useful.
+
+> **Hash Join**  
+> (1) **Build**: scan the outer relation and populate a hash table using the hash function **h1** on the join attributes;  
+> (2) **Probe**: scan the inner relation and use **h1** on each tuple to jump to a location in the hash table and find a matching tuple.
+
+```
+build hash table HTR for R; 
+foreach tuple s ∈ S
+	output, if h1(s) ∈ HTR
+```
+ 
+**Table's Key** is the attribute(s) that the query is joining the tables on.  
+**Table's Value** depends on what the operators above the join in the query plan expect as its input. Here shows the two types of value. 
+
+| Type | Advantage | Disadvantage |
+| :-----: | :-----: | :-----: |
+| Full Tuple | Avoid having to retrieve the outer relation's tuple contents on a match | Takes up more space in memory | 
+| Tuple Identifier | Ideal for column stores because the DBMS doesn't fetch data from disk it doesn't need | - |
+
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/11-joins.pdf). 
+
+> **Grace Hash Join**  (whne tables do not fit in memory)  
+> (1) **Build**: Hash both tables on the join attribute into partitions;  
+> (2) **Probe**: Compares tuples in corresponding partitions for each table.
+
+```
+foreach tuple r ∈ bucketR,0: 
+	foreach tuple s ∈ bucketS,0:
+		emit, if match(r, s)
+```
+
+![GraceHashJoin](/img/DataBase/GraceHashJoin.jpeg){:height="90%" width="90%"}
+**Grace Hash Join Analysis**:  
+**Partition** -> Read + Write both tables, 2(M + N) IOs;  
+**Probing** -> Read both tables, (M + N) IOs.  
+So, totally costs **3(M + N)** IOs.
+
+
+### [4.4 Process Model](https://15445.courses.cs.cmu.edu/fall2019/slides/12-queryexecution1.pdf)
+> Process Model defines hwo the system executes a query plan.
+
+##### 4.4.1 Iterator Model
+Each query plan operator implements a **Next** function. On each invocation, the operator returns either **a single tuple** or a **null** marker if there are no more tuples. The operator implements a loop that calls next on its children to retrieve their tuples and then process them.
+
+##### 4.4.2 Materialization Model
+Each operator processes its input all at once and then emits its output all at once. The operator "materializes" its output as a single result, could be either **whole tuples(NSM)** or **subsets of columns(DSM)**. It is better for OLTP workloads because queries only access a small number of tuples at a time.
+
+##### 4.4.3 Vectorized/Batch Model
+Like the Iterator Model where each operator implements a **Next** function in this model. Each operator emits **a batch of tuples** instead of a single tuple. Ideal for OLAP queries because it greatly reduces the number of invocations per operator.
+
+##### 4.4.4 Plan Processing Direction
+**Top-to-Bottom** or **Bottom-to-Top**
+
+### 4.5 Parallel
+##### 4.5.1 Parallel Process Model
+| Approach | Description | Figure |
+| :-----: | :-----: | :-----: |
+| Process Per Worker | Each worker is a separate OS process | ![ProcessPerWorker](/img/DataBase/ProcessPerWorker.jpeg) |
+| Process Pool | A worker uses any process that is free in a pool | ![ProcessPool](/img/DataBase/ProcessPool.jpeg) |
+| Thread Per Worker | Single process with multiple worker threads | ![ThreadPerWorker](/img/DataBase/ThreadPerWorker.jpeg) |
+
+##### 4.5.2 Parallel Execution
+###### 4.5.2.1 Inter-Query
+> Different queries are executed concurrently, which increases throughput & reduces latency.
+
+###### 4.5.2.2 Intra-Query
+> Execute the operations of a single query in parallel, which decreases latency for long-running queries, like *producer/consumer* paradigm.
+
+There are three ways to implement Intra-Query.
+> Intra-Operator(Horizontal)
+
+Decompose operators into independent **fragments** that perform the same function on different subsets of data. The DBMS inserts an **exchange** operator into the query plan to coalesce results from children operators.
+![IntraOperator](/img/DataBase/IntraOperator.jpeg){:height="70%" width="70%"}
+Here are types of exchange operator:
+
+| Type | Description |
+| :-----: | :-----: |
+| Gather | Combine the results from multiple workers into a single output stream |
+| Repartition | Reorganize multiple input streams across multiple output streams |
+| Distribute | Split a single input stream into multiple output streams | 
+
+> Inter-Operator(Vertical)(pipelined parallelism)
+
+Operations are overlapped in order to pipeline data from one stage to the next without materialization.
+![InterOperator](/img/DataBase/InterOperator.jpeg){:height="70%" width="70%"}
+
+> Bushy
+
+Extension of inter-operator parallelism where workers execute multiple operators from different segments of a query plan at the same time.
+```sql
+SELECT * FROM A JOIN B JOIN C JOIN D;
+```
+![Bushy](/img/DataBase/Bushy.jpeg){:height="60%" width="60%"}
+
+##### 4.5.3 I/O Parallism
+
+### 4.6 Expression Rewrite
+### 4.7 Estimate Time
+### 4.8 Optimization
+
+
+
+
 
 # 5 Concurrency Control(4)
+
+
+
+
 
 # [6.   Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
 Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
