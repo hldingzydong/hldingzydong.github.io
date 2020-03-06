@@ -305,7 +305,7 @@ CREATE INDEX idx_user_login ON users (EXTRACT(dow FROM login));
 
 # [4. Query](https://15445.courses.cs.cmu.edu/fall2019/slides/10-sorting.pdf)
 Here is an article [Following a Select Statement Through Postgres Internals](http://patshaughnessy.net/2014/10/13/following-a-select-statement-through-postgres-internals) pretty good.
-![QueryPlan](/img/DataBase/QueryPlan.jpeg){:height="60%" width="60%"}
+![QueryPlan](/img/DataBase/QueryPlan.jpeg){:height="30%" width="30%"}
 ### 4.1 Architecture Overview
 ![ArchitectureOverview](/img/DataBase/ArchitectureOverview.jpeg){:height="90%" width="90%"}
 
@@ -349,8 +349,8 @@ Because we are in DBMS, sorting spends much time in IO, so we pay more attention
 Also, we could use **B+Tree** for sorting.   
 If the table that must be sorted already has a B+Tree index on the sort attribute(s), then we can retrieve tuples in desired sort order by **traversing the leaf pages of the tree**.  
 What's more, need to consider **Clustered B+Tree** and **Unclustered B+Tree**. Unclustered B+Tree will bring too much **random IO**, it is a bad idea.
-![ClusteredSort](/img/DataBase/ClusteredSort.jpeg){:height="70%" width="70%"}
-![UnclusteredSort](/img/DataBase/UnclusteredSort.jpeg){:height="70%" width="70%"}
+![ClusteredSort](/img/DataBase/ClusteredSort.jpeg){:height="60%" width="60%"}
+![UnclusteredSort](/img/DataBase/UnclusteredSort.jpeg){:height="60%" width="60%"}
 
 ##### 4.3.2 Aggregation
 ###### 4.3.2.1 SQL
@@ -396,9 +396,9 @@ Avoid unnecessary repetition of information and reconstruct the original tuples 
 > What data does the join operator emit to its parent operator?
 
 **Data**: Copy the values for the attributes in outer and inner tuples into a new output tuple, so subsequent operators in the query plan never need to go back to get more data.
-![JoinOperatorOutputData](/img/DataBase/JoinOperatorOutputData.jpeg){:height="60%" width="60%"}  
+![JoinOperatorOutputData](/img/DataBase/JoinOperatorOutputData.jpeg){:height="40%" width="40%"}  
 **Record Ids**: Only copy the joins keys along with the record ids of the matching tuples. Ideal for column stores because the DBMS does not copy data that is not need for the query.
-![JoinOperatorOutputRecordIds](/img/DataBase/JoinOperatorOutputRecordIds.jpeg){:height="60%" width="60%"}
+![JoinOperatorOutputRecordIds](/img/DataBase/JoinOperatorOutputRecordIds.jpeg){:height="50%" width="50%"}
 
 > How to determine whether one join algorithm is better than another?
 
@@ -486,6 +486,7 @@ Like the Iterator Model where each operator implements a **Next** function in th
 
 ### 4.5 Parallel
 ##### 4.5.1 Parallel Process Model
+
 | Approach | Description | Figure |
 | :-----: | :-----: | :-----: |
 | Process Per Worker | Each worker is a separate OS process | ![ProcessPerWorker](/img/DataBase/ProcessPerWorker.jpeg) |
@@ -523,7 +524,7 @@ Extension of inter-operator parallelism where workers execute multiple operators
 ```sql
 SELECT * FROM A JOIN B JOIN C JOIN D;
 ```
-![Bushy](/img/DataBase/Bushy.jpeg){:height="60%" width="60%"}
+![Bushy](/img/DataBase/Bushy.jpeg){:height="30%" width="30%"}
 
 ##### 4.5.3 I/O Parallism
 
