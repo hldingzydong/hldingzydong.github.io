@@ -527,6 +527,28 @@ SELECT * FROM A JOIN B JOIN C JOIN D;
 ![Bushy](/img/DataBase/Bushy.jpeg){:height="30%" width="30%"}
 
 ##### 4.5.3 I/O Parallism
+Using additional processes/threads to execute queries in parallel won't help if the **disk is always the main bottleneck**. So we could split the DBMS installation across multiple storage devices.
+
+###### 4.5.3.1 Multi-Disk Parallelism
+Configure OS/hardware to store the DBMS's files across multiple storage devices.
+![MultiDiskParallelism](/img/DataBase/MultiDiskParallelism.jpeg){:height="30%" width="30%"}
+
+###### 4.5.3.2 DataBase Partitioning
+Specify the disk location of each individual database.
+
+> Vertical Partitioning
+
+Store a table’s **attributes in a separate location** (e.g., file, disk volume). Have to store tuple information to reconstruct the original record.
+```sql
+CREATE TABLE foo ( 
+	attr1 INT, attr2 INT, attr3 INT, attr4 TEXT );
+```
+![VerticalPartitioning](/img/DataBase/VerticalPartitioning.jpeg){:height="75%" width="75%"}
+
+> Horizontal Partitioning
+
+Divide the tuples of a table up into disjoint segments based on some partitioning key, like hash partition.
+![HorizontalPartitioning](/img/DataBase/HorizontalPartitioning.jpeg){:height="75%" width="75%"}
 
 ### 4.6 Expression Rewrite
 ### 4.7 Estimate Time
