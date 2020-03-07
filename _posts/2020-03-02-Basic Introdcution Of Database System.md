@@ -633,7 +633,7 @@ The DBMS **achieves concurrency by interleaving the actions** (reads/writes of D
 
 > **Serial Schedule**: A schedule that does not interleave the actions of
 different transactions.  
-> **Serializable Schedule**: A schedule that is equivalent to some serial execution of the transactions.  This is to check whether schedules are correct.
+> **Serializable Schedule**: A schedule that is equivalent to some serial execution of the transactions.  This is to check whether schedules are correct.  
 > **Equivalent Schedules**: No matter what the arithmetic operations are, for any database state, the effect of executing the first schedule is equal to the effect of executing the second schedule.
 
 ##### 5.3.4 Conflict Operations
@@ -690,7 +690,7 @@ When txns **release** locks, lock manager  updates its internal lock-table, whic
 ###### 5.4.1.4 Type
 > (1) **Shared** (S)  
 > (2) **Exclusive** (X)  
-> (3) Intemtion: allows a higher level node to be locked in shared or exclusive mode without having to check all descendent nodes, means locking is being done at a lower level in the tree.  
+> (3) Intention: allows a higher level node to be locked in shared or exclusive mode without having to check all descendent nodes, means locking is being done at a lower level in the tree.  
 > (3.1) **Intention-Shared** (IS): Indicates explicit locking at a lower level with shared locks;  
 > (3.2) **Intention-Exclusive** (IX): Indicates locking at lower level with exclusive or shared locks;  
 > (3.3) **Shared + Intention-Exclusive** (SIX): S + IX at the same time
@@ -718,7 +718,7 @@ Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/17-tw
 
 ##### 5.4.4 Deadlock
 ###### 5.4.4.1 Deadlock Detection
-The DBMS creates a **waits-for** graph to keep track of what locks each txn is waiting to acquire, **nodes** are txns, **edge** from Ti to Tj if Ti is waiting for Tj to release a lock.The system periodically checks for cycles in waitsfor graph and then decides how to break it.
+The DBMS creates a **waits-for** graph to keep track of what locks each txn is waiting to acquire, **nodes** are txns, **edge** from Ti to Tj if Ti is waiting for Tj to release a lock.The system periodically checks for cycles in waits-for graph and then decides how to break it.
 ![Deadlock Detection](/img/DataBase/DeadlockDetection.jpeg){:height="70%" width="70%"}
 
 ###### 5.4.4.2 Deadlock Handling
@@ -728,11 +728,11 @@ Selecting the proper victim depends on a lot of different variables:
 2. By progress (least/most queries executed).  
 3. By the # of items already locked.   
 4. By the # of transactions that we have to rollback with it.   
-5. # of times a transaction has been restarted in the past  
+5. The # of times a transaction has been restarted in the past.  
 
-The victim txn will either **restart or abort(more common)** depending on how it was invoked. The DBMS can decide on how far to rollback the txn's changes: **Compeletely** or **Minimally**.
+The victim txn will either **restart or abort(more common)** depending on how it was invoked. The DBMS can decide on how far to rollback the txn's changes: **Completely** or **Minimally**.
 
-###### 5.4.4.3 Deadlock Preventation
+###### 5.4.4.3 Deadlock Prevention
 > Wait-Die ("Old Waits for Young")
 
 If requesting txn has higher priority than holding txn, then requesting txn waits for holding txn.  
