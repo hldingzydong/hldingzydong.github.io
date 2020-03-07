@@ -577,11 +577,175 @@ The DBMS’s optimizer will use an **internal cost model** to estimate the execu
 To accomplish this, the DBMS stores **internal statistics** about tables, attributes, and indexes in its internal catalog.
 
 
+# [5. Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/16-concurrencycontrol.pdf)
+### 5.1 Motivation
+If we both change the same record in a table at the same time, how to avoid race condition?  
+And we interleave txns to maximize concurrency, to slow disk/network IO, and use Multi-core CPUs.  
+So we need Concurrency Control.
+
+### 5.2 Transaction
+> A transaction is the execution of a sequence of one or more operations (e.g., SQL queries) on a database to perform some higher-level function, it is the basic unit of change in a DBMS.
+
+##### 5.2.1 SQL
+```sql
+BEGIN
+COMMIT
+ABORT
+```
+##### 5.2.2 ACID
+###### 5.2.2.1 Atomicity
+> All actions in the txn happen, or none happen. "all or nothing"
+
+| Approach | Description |
+| :-----: | :-----: |
+| Logging | DBSM logs all actions so that it can undo the actions of aborted transactions |
+| Shadow Paging | DBMS makes copies of pages and txns make changes to copies |
+
+###### 5.2.2.2 Consistency
+> If each txn is consistent and the DB starts consistent, then it ends up consistent. "it looks correct to me"
+
+| Type | Description |
+| :-----: | :-----: |
+| DataBase Consistency | Txns in the future see the effects of txns committed in the past inside of the database |
+| Txn Consistency | If the database is consistent before the transaction starts (running alone), it will also be consistent after |
+
+###### 5.2.2.3 Isolation
+> Execution of one txn is isolated from that of other txns. "as if alone"
+
+###### 5.2.2.4 Durability
+> If a txn commits, its effects persist. "survive failures"
+
+The DBMS can use either **logging** or **shadow paging** to ensure that all changes are durable.
+
+### 5.3 Concurrency Control
+##### 5.3.1 Definition
+> A **concurrency control protocol** is how the DBMS decides the proper interleaving of operations from multiple transactions.
+##### 5.3.2 Types
+This table shows two categories of concurrency control protocol:  
+
+| Type | Description |
+| :-----: | :-----: |
+| Pessimistic | Don’t let problems arise in the first place |
+| Optimistic | Assume conflicts are rare, deal with them after they happen |
+
+##### 5.3.3 Schedule
+The DBMS **achieves concurrency by interleaving the actions** (reads/writes of DB objects) of txns, so we need to interleave txns but still **make it appear as if they ran one-at-a-time**. That means if the schedule is **equivalent to some serial execution**, we could see this schedule is correct.
+
+> **Serial Schedule**: A schedule that does not interleave the actions of
+different transactions.  
+> **Serializable Schedule**: A schedule that is equivalent to some serial execution of the transactions.  This is to check whether schedules are correct.
+> **Equivalent Schedules**: No matter what the arithmetic operations are, for any database state, the effect of executing the first schedule is equal to the effect of executing the second schedule.
+
+##### 5.3.4 Conflict Operations
+Two operations conflict if they are by **different txns** and they are **on the same object & at least one of the them is a write**. So we have three combinations: R-W, W-R, W-W.
+
+###### 5.3.4.1 Read-Write Conflicts (R-W)
+**Unrepeatable Reads**
+![UnrepeatableReads](/img/DataBase/UnrepeatableReads.jpeg){:height="70%" width="70%"}
+
+###### 5.3.4.2 Write-Read Conflicts (W-R)
+Reading Uncommitted Data ("**Dirty Reads**")
+![DirtyReads](/img/DataBase/DirtyReads.jpeg){:height="70%" width="70%"}
+
+###### 5.3.4.3 Write-Write Conflicts (W-W)
+Overwriting Uncommitted Data ("**Lost Updates**")
+![Overwriting](/img/DataBase/Overwriting.jpeg){:height="70%" width="70%"}
 
 
+##### 5.3.5 Conflict Serializable
+> **Conflict Serializable Schedules**: Two schedules are conflict equivalent if they involve the same actions of the same transactions and every pair of conflicting actions is ordered the same way.
 
-# 5 Concurrency Control
+> **Conflict Serializable**: Schedule **S** is conflict serializable if you are able to transform **S** into a serial schedule by **swapping consecutive non-conflicting operations of different transactions**.
 
+[Example refer to slides](https://15445.courses.cs.cmu.edu/fall2019/slides/16-concurrencycontrol.pdf).
+
+Swapping operations is easy when there are only two txns in the schedule. It's cumbersome when there are many txns. Here is a faster algorithm to figure this out other than transposing operations.
+
+###### 5.3.5.1 Dependency Graphs
+One **node** per txn.  
+**Edge** from Ti to Tj if an operation Oi of Ti conflicts with an operation Oj of Tj and Oi appears earlier in the schedule than Oj.  
+A schedule is conflict serializable if its dependency graph is **acyclic**.
+![DependencyGraph](/img/DataBase/DependencyGraph.jpeg){:height="70%" width="70%"}
+
+### [5.4 Two-Phase Locking Concurrency Control (2PL)](https://15445.courses.cs.cmu.edu/fall2019/slides/17-twophaselocking.pdf) 
+##### 5.4.1 Lock
+###### 5.4.1.1 Why Lock Not Latch
+
+|  | Locks | Latches |
+| :-----: | :-----: | :-----: |
+| Separate… | User transactions | Threads | 
+| Protect… | Database Contents | In-Memory Data Structures |
+| Modes… | Shared, Exclusive, Update, Intention | Read, Write |
+| Deadlock | Detection & Resolution | Avoidance |
+| …by… | Waits-for, Timeout, Aborts | Coding Discipline |
+| Kept in… | Lock Manager | Protected Data Structure |
+
+###### 5.4.1.2 Execute With Lock
+When txns **request** locks (or upgrades), lock manager grants or blocks requests.  
+When txns **release** locks, lock manager  updates its internal lock-table, which keeps track of what txns hold what locks and what txns are waiting to acquire any locks. 
+![Execute With Lock](/img/DataBase/ExecuteWithLock.jpeg){:height="70%" width="70%"}
+###### 5.4.1.3 Hierarchy
+![Lock Hierarchy](/img/DataBase/LockHierarchy.jpeg){:height="70%" width="70%"}
+
+###### 5.4.1.4 Type
+> (1) **Shared** (S)  
+> (2) **Exclusive** (X)  
+> (3) Intemtion: allows a higher level node to be locked in shared or exclusive mode without having to check all descendent nodes, means locking is being done at a lower level in the tree.  
+> (3.1) **Intention-Shared** (IS): Indicates explicit locking at a lower level with shared locks;  
+> (3.2) **Intention-Exclusive** (IX): Indicates locking at lower level with exclusive or shared locks;  
+> (3.3) **Shared + Intention-Exclusive** (SIX): S + IX at the same time
+
+![Compatibility Matrix](/img/DataBase/CompatibilityMatrix.jpeg){:height="70%" width="70%"}
+###### 5.4.1.5 Lock Protocol
+To get **S** or **IS** lock on a node, the txn must hold at least **IS** on parent node.  
+To get **X**, **IX**, or **SIX** on a node, must hold at least **IX** on parent node.
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/17-twophaselocking.pdf).
+
+##### 5.4.2 2PL
+> **Two-phase locking (2PL)** is a concurrency control protocol that determines whether a txn can access an object in the database on the fly, which does not need to know all the queries that a txn will execute ahead of time.
+
+###### 5.4.2.1 Growing
+Each txn requests the locks that it needs from the DBMS’s lock manager and the lock manager grants/denies lock requests.
+###### 5.4.2.2 Shrinking
+The txn is allowed to only release locks that it previously acquired. It cannot acquire new locks.
+![2PL](/img/DataBase/2PL.jpeg){:height="70%" width="70%"}
+But it is subject to **cascading aborts**, another word, it may have "dirty reads", so we can choose S2PL.
+![CascadingAborts](/img/DataBase/CascadingAborts.jpeg){:height="70%" width="70%"}
+
+##### 5.4.3 Strict Two-Phase Locking (S2PL)
+![S2PL](/img/DataBase/S2PL.jpeg){:height="70%" width="70%"}
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/17-twophaselocking.pdf).
+
+##### 5.4.4 Deadlock
+###### 5.4.4.1 Deadlock Detection
+The DBMS creates a **waits-for** graph to keep track of what locks each txn is waiting to acquire, **nodes** are txns, **edge** from Ti to Tj if Ti is waiting for Tj to release a lock.The system periodically checks for cycles in waitsfor graph and then decides how to break it.
+![Deadlock Detection](/img/DataBase/DeadlockDetection.jpeg){:height="70%" width="70%"}
+
+###### 5.4.4.2 Deadlock Handling
+When the DBMS detects a deadlock, it will **select a "victim"** txn to rollback to break the cycle.  
+Selecting the proper victim depends on a lot of different variables:  
+1. By age (newest or oldest timestamp).  
+2. By progress (least/most queries executed).  
+3. By the # of items already locked.   
+4. By the # of transactions that we have to rollback with it.   
+5. # of times a transaction has been restarted in the past  
+
+The victim txn will either **restart or abort(more common)** depending on how it was invoked. The DBMS can decide on how far to rollback the txn's changes: **Compeletely** or **Minimally**.
+
+###### 5.4.4.3 Deadlock Preventation
+> Wait-Die ("Old Waits for Young")
+
+If requesting txn has higher priority than holding txn, then requesting txn waits for holding txn.  
+Otherwise requesting txn aborts.
+
+> Wound-Wait ("Young Waits for Old")
+
+If requesting txn has higher priority than holding txn, then holding txn aborts and releases lock.  
+Otherwise requesting txn waits.
+![Deadlock Preventation](/img/DataBase/DeadlockPreventation.jpeg){:height="70%" width="70%"}
+
+### 5.5 Timestamp Ordering Concurrency Control
+### 5.6 Multi-Version Concurrency Control (MVCC)
 
 
 
