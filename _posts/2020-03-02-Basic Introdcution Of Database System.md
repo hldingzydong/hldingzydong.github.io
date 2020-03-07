@@ -745,9 +745,66 @@ Otherwise requesting txn waits.
 ![Deadlock Preventation](/img/DataBase/DeadlockPreventation.jpeg){:height="70%" width="70%"}
 
 ### 5.5 Timestamp Ordering Concurrency Control
-### 5.6 Multi-Version Concurrency Control (MVCC)
 
+### [5.6 Multi-Version Concurrency Control (MVCC)](https://15445.courses.cs.cmu.edu/fall2019/slides/19-multiversioning.pdf)
+##### 5.6.1 Definition
+The DBMS maintains multiple **physical** versions of a single **logical** object in the database.  
+When a txn **writes** to an object, the DBMS creates a new version of that object.  
+When a txn **reads** an object, it reads the newest version that existed when the txn started, it read a consistent snapshot without acquiring locks.  
+They use **timestamps** to determine visibility.
+> Writers don't block readers.  
+> Readers don't block writers.  
 
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/19-multiversioning.pdf).
+
+##### 5.6.2 Version Storage
+The DBMS uses the tuples’ **pointer field** to create a version chain per logical tuple, indexes always point to the "head" of the chain.
+###### 5.6.2.1 Append-Only Storage
+> New versions are appended to the same table space.
+
+![Append-Only Storage](/img/DataBase/Append-OnlyStorage.jpeg){:height="70%" width="70%"}
+
+| Approach | Description | Property |
+| :-----: | :-----: | :-----: |
+| Oldest-to-Newest (O2N) | append new version to end of the chain | Have to traverse chain on look-ups | 
+| Newest-to-Oldest (N2O) | have to update index pointers for every new version | Don’t have to traverse chain on look ups |
+
+###### 5.6.2.2 Time-Travel Storage
+> Old versions are copied to separate table space.
+
+![Time-Travel Storage](/img/DataBase/Time-TravelStorage.jpeg){:height="70%" width="70%"}
+
+###### 5.6.2.3 Delta Storage
+> The original values of the modified attributes are copied into a separate delta record space.
+
+![Delta Storage](/img/DataBase/DeltaStorage.jpeg){:height="70%" width="70%"}
+
+##### 5.6.3 Garbage Collection
+Remove reclaimable physical versions from the database over time, because **no active txn in the DBMS can “see” that version** or **the version was created by an aborted txn**.
+
+###### 5.6.3.1 Tuple-level
+> Find old versions by examining tuples directly.
+
+| Approach | Description |
+| :-----: | :-----: |
+| Background Vacuuming | ![TupleLevelGC](/img/DataBase/TupleLevelGC.jpeg) |
+| Cooperative Cleaning | ![TupleLevelGC2](/img/DataBase/TupleLevelGC2.jpeg) | 
+
+###### 5.6.3.2 Transaction-level
+Txns keep track of their old versions so the DBMS does not have to scan tuples to determine visibility. When a txn completes, the GC can use that to identify what tuples to reclaim. The DBMS determines when all versions created
+by a finished txn are no longer visible.
+
+##### 5.6.4 Index Management
+All **primary key (pkey)** indexes always point to version chain **head**. How often the DBMS has to update the pkey index depends on whether the system creates new versions when a tuple is updated. If a txn updates a pkey attribute(s), then this is treated as a DELETE followed by an INSERT.  
+**Secondary indexes** are more complicated:
+
+| Approach | Description |
+| :-----: | :-----: |
+| Logical Pointers | Use a fixed identifier per tuple that does not change, and requires an extra indirection layer (pkey vs. tuple_id) |
+| Physical Pointers | Use the physical address to the version chain head |
+
+![Index Management](/img/DataBase/IndexManagement.jpeg){:height="70%" width="70%"}
+![Index Management2](/img/DataBase/IndexManagement2.jpeg){:height="70%" width="70%"}
 
 
 # [6.   Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
