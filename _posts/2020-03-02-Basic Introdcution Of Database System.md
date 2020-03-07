@@ -8,7 +8,7 @@ tags:
    - database
 ---
 # Overview
-This article briefly introduces the Database Manage System(DBMS), including its Storage, Buffer Pool Manager, Table Index, Query, Concurrenct Control, Log and Recovery. A Database Manage System is built by combining these components.  
+This article briefly introduces the Database Manage System (DBMS), including its Storage, Buffer Pool Manager, Table Index, Query, Concurrenct Control, Log and Recovery. A Database Manage System is built by combining these components.  
 
 Before introducing Database Manage System, there are some basic concepts need to explain:  
 > A **data model** is collection of concepts for describing the data in a database.  
@@ -40,7 +40,7 @@ There are three ways to organize pages inside a file.
 
 ##### 1.2.2 Pages Meta-data
 Include **Page Size, Checksum, DBMS version, Transaction Visibility, Compression Information**.  
-Some systems(Oracle) require pages to be **self-contained**.
+Some systems (Oracle) require pages to be **self-contained**.
 
 ### 1.3 Tuple Storage
 Assuming inside a page, we only store tuples, let’s discuss how to organize the data stored.
@@ -52,12 +52,12 @@ There are two ways to have pages layout: **slotted pages** and **log records**.
 ![LogStructured](/img/DataBase/LogStructured1.jpeg){:height="70%" width="70%"}
 
 ##### 1.3.2 Tuples Layout
-Each tuple is prefixed with a header that contains meta-data about: **Visibility info(Concurrency Control)**, Bit Map for NULL values.  
+Each tuple is prefixed with a header that contains meta-data about: **Visibility info (Concurrency Control)**, Bit Map for NULL values.  
 We don't need to store meta-data about the schema because attribute are typically stored in the order that we specify them when creating the table.
 ![TupleData](/img/DataBase/TupleData.jpeg)
 
 ##### 1.3.3 Record Ids
-DBMS uses a unique record identifier(**page_id + offset / slot**) to track individual tuples.
+DBMS uses a unique record identifier (**page_id + offset / slot**) to track individual tuples.
 
 ### [1.4 Data Representation Inside Tuples](https://15445.courses.cs.cmu.edu/fall2019/notes/04-storage2.pdf)
 - INTEGER / BIGINT / SMALLINT / TINYINT (C/C++ Representation)
@@ -95,12 +95,12 @@ DBMS uses a unique record identifier(**page_id + offset / slot**) to track indiv
 
 ### 1.5 Storage Model
 ##### 1.5.1 OLTP vs OLAP
-> **On-line Transaction Processing(OLTP)**, simple queries that read/update a small amount of data that is related to a single entity in the database.(平时做web后端的对DB的CRUD)
+> **On-line Transaction Processing (OLTP)**, simple queries that read/update a small amount of data that is related to a single entity in the database. (平时做web后端的对DB的CRUD)
 
 ```sql
 UPDATE useracct SET lastLogin = NOW(), hostname = ? WHERE userID = ?
 ```
-> **On-line Analytical Processing(OLAP)**, complex queries that read large portions of the database spanning multiple entities.(类似于大数据)
+> **On-line Analytical Processing (OLAP)**, complex queries that read large portions of the database spanning multiple entities. (类似于大数据)
 
 ```sql
 SELECT COUNT(U.lastLogin), EXTRACT(month FROM U.lastLogin) AS month
@@ -111,11 +111,11 @@ EXTRACT(month FROM U.lastLogin)
 ```
 
 ##### 1.5.2 NSM vs DSM
-> **N-ary Storage Model(NSM aka “row storage”)**.The DBMS stores all attributes for a single tuple contiguously in a page.  
+> **N-ary Storage Model (NSM aka “row storage”)**.The DBMS stores all attributes for a single tuple contiguously in a page.  
 
 ![DisNSM](/img/DataBase/DisNSM.jpeg){:height="50%" width="50%"}
 
-> **Decomposition(分解) Storage Model(DSM aka “column store”)**. The DBMS stores the values of a single attribute for all tuples contiguously in a page.
+> **Decomposition (分解) Storage Model (DSM aka “column store”)**. The DBMS stores the values of a single attribute for all tuples contiguously in a page.
 
 ![DSM](/img/DataBase/DSM.jpeg){:height="50%" width="50%"}
 
@@ -135,7 +135,7 @@ It is a **memory region** organized as an array of fixed-size pages. An array en
 Multiple Buffer Pools, Pre-Fetching, Scan Sharing and Bypass().
 
 ### 2.4 Replacement Policy
-##### 2.4.1 Least Recently Used(LRU)
+##### 2.4.1 Least Recently Used (LRU)
 Maintain a timestamp of when each page was last accessed. When DBMS needs to evict a page, pick the oldest.
 
 ##### 2.4.2 Clock
@@ -164,7 +164,7 @@ Increase the effecticy of query, but it costs Storage and Maintenance.
 Every inner node with k keys has k+1 non-null children. Children are pointers to the child nodes.
 
 ###### 3.2.1.2 Leaf Node
-Contains Key and Value, value could be **Record Ids**(A pointer to the location of the tuple that the index entry corresponds to) or **Tuple Data**(the actual contents of the tuple).   
+Contains Key and Value, value could be **Record Ids** (A pointer to the location of the tuple that the index entry corresponds to) or **Tuple Data** (the actual contents of the tuple).   
 Once a index stores Tuple Data, the secondary index must store record ids.
 ![BTreeNode1](/img/DataBase/BTreeNode1.jpeg){:height="70%" width="70%"}
 ![BTreeNode2](/img/DataBase/BTreeNode2.jpeg){:height="70%" width="70%"}
@@ -174,7 +174,7 @@ Once a index stores Tuple Data, the secondary index must store record ids.
 Find correct leaf node L and put entry into L in sorted order. If L doesn't have enough space, **split** L keys into L and a new node L2.
 
 ###### 3.2.2.2 Delete
-Find correct leaf node L and remove the entry. If L is half-full, **borrow** from sibling(adjacent node with same parent as L). If borrow fails, **merge** L and sibling, and delete entry from parent of L.
+Find correct leaf node L and remove the entry. If L is half-full, **borrow** from sibling (adjacent node with same parent as L). If borrow fails, **merge** L and sibling, and delete entry from parent of L.
 
 ### [3.3 Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/09-indexconcurrency.pdf)
 ##### 3.3.1 Hash Index
@@ -235,7 +235,7 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 | :-----: | :-----: |
 | Pointers | Store keys as pointers to tuple’s attribute |
 | Variable Length Nodes | Size of each node can vary |
-| Padding(填补) | Pad the key to be max length of the key type |
+| Padding (填补) | Pad the key to be max length of the key type |
 | Key Map/Indirection (figure shows) | Embed an array of pointers that map to the key + value list within the node |
 
 ![KeyMap](/img/DataBase/KeyMap.jpeg){:height="70%" width="70%"}
@@ -264,7 +264,7 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 ![ValueLists](/img/DataBase/ValueLists.jpeg){:height="70%" width="70%"}
 
 ##### [3.5.3 Implicit Index](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
-> Enforce integrity but not referential constraints(foreign keys), like **Primary Keys** and **Unique Constraints**.
+> Enforce integrity but not referential constraints (foreign keys), like **Primary Keys** and **Unique Constraints**.
 
 ```sql
 CREATE TABLE foo(
@@ -299,7 +299,7 @@ CREATE INDEX idx_user_login ON users (EXTRACT(dow FROM login));
 ```
 ### 3.6 Optimization
 ###### 3.6.1 Prefix Compression
-###### 3.6.2 Suffix Truncation(切断)
+###### 3.6.2 Suffix Truncation (切断)
 ###### 3.6.3 Bulk Insert
 ###### 3.6.4 Pointer Swizzling
 
@@ -308,6 +308,7 @@ Here is an article [Following a Select Statement Through Postgres Internals](htt
 ![QueryPlan](/img/DataBase/QueryPlan.jpeg){:height="30%" width="30%"}
 ### 4.1 Architecture Overview
 ![ArchitectureOverview](/img/DataBase/ArchitectureOverview.jpeg){:height="90%" width="90%"}
+The optimizer generates a mapping of a logical algebra expression to the optimal equivalent physical algebra expression. Physical operators define a specific execution strategy using an access path.
 
 ### 4.2 Access Data Methods
 > An access method is a way that the DBMS can access the data stored in a table
@@ -327,7 +328,7 @@ for page in table.pages:
 ![IndexScan](/img/DataBase/IndexScan.jpeg){:height="70%" width="70%"}
 
 ##### 4.2.3 Multi-Index Scan
-**Descprition**: If there are multiple indexes that the DBMS can use for a query, could compute sets of record ids using each matching index, then combine these sets based on the query's predicates(union vs. intersect), retrieve the records and apply any remaining predicates.
+**Descprition**: If there are multiple indexes that the DBMS can use for a query, could compute sets of record ids using each matching index, then combine these sets based on the query's predicates (union vs. intersect), retrieve the records and apply any remaining predicates.
 ```sql
 SELECT * FROM students
 WHERE age < 30 AND dept = 'CS' AND country = 'US'
@@ -341,7 +342,7 @@ WHERE age < 30 AND dept = 'CS' AND country = 'US'
 SELECT * FROM students ORDER BY age;
 ```
 ###### 4.3.1.2 Impl
-The main problem is the number of waiting for sorted data cannot fit in memory. so we could choose [External Sort](https://zh.wikipedia.org/wiki/%E5%A4%96%E6%8E%92%E5%BA%8F).  
+The main problem is the number of waiting for sorted data cannot fit in memory, so we could choose [External Sort](https://zh.wikipedia.org/wiki/%E5%A4%96%E6%8E%92%E5%BA%8F).  
 **Analysis**:
 Because we are in DBMS, sorting spends much time in IO, so we pay more attention to IO. Here is the analysis of **K-Way Merge Sort**.
 ![ExternalMergeSort](/img/DataBase/ExternalMergeSort.jpeg){:height="70%" width="70%"}
@@ -363,7 +364,7 @@ By **Sorting**:
 ![AggreSort](/img/DataBase/AggreSort.jpeg){:height="80%" width="80%"}
 
 
-By **Hashing**(is used for unsorted operation, like **GROUP BY** or **DISTINCT**):
+By **Hashing** (is used for unsorted operation, like **GROUP BY** or **DISTINCT**):
 > (1)  Partition  
 
 Use a hash function **h1** to split tuples into partitions on disk, so all matches live in the same partition. Assume we have **B** buffers, will use **B-1** buffers for partitions and **1** buffer for the input data.
@@ -380,7 +381,7 @@ During the ReHash phase, store pairs of the form (**GroupKey→RunningVal**), wh
 ![HashSummarization](/img/DataBase/HashSummarization.jpeg){:height="70%" width="70%"}
 
 **Analysis**:
-Beacuse in Phase 1 we have **B-1** "spill partitions", each should be no more than **B** blocks big, so we can hash **B*(B-1)** big table.  
+Beacuse in Phase 1 we have **B-1** "spill partitions", each should be no more than **B** blocks big, so we can hash **B * (B-1)** big table.  
 That means if one table has N pages, so Buffer Pool needs at least **sqrt(N)** frames.
 
 
@@ -429,7 +430,7 @@ while cursorR and cursorS:
 Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/11-joins.pdf).  
 **Analysis**:
 ![SortMergeJoinCost](/img/DataBase/SortMergeJoinCost.jpeg){:height="60%" width="60%"}
-The worst case for the merging phase is when the join attribute of all of the tuples in **both relations contain the same value**, which costs **(M·N) + (sort cost)**.  
+The worst case for the merging phase is when the join attribute of all of the tuples in **both relations contain the same value**, which costs **(M · N) + (sort cost)**.  
 When **one or both tables are already sorted on join key**, or **output must be sorted on join key**, this algorithm is useful.
 
 > **Hash Join**  
@@ -476,7 +477,7 @@ So, totally costs **3(M + N)** IOs.
 Each query plan operator implements a **Next** function. On each invocation, the operator returns either **a single tuple** or a **null** marker if there are no more tuples. The operator implements a loop that calls next on its children to retrieve their tuples and then process them.
 
 ##### 4.4.2 Materialization Model
-Each operator processes its input all at once and then emits its output all at once. The operator "materializes" its output as a single result, could be either **whole tuples(NSM)** or **subsets of columns(DSM)**. It is better for OLTP workloads because queries only access a small number of tuples at a time.
+Each operator processes its input all at once and then emits its output all at once. The operator "materializes" its output as a single result, could be either **whole tuples (NSM)** or **subsets of columns (DSM)**. It is better for OLTP workloads because queries only access a small number of tuples at a time.
 
 ##### 4.4.3 Vectorized/Batch Model
 Like the Iterator Model where each operator implements a **Next** function in this model. Each operator emits **a batch of tuples** instead of a single tuple. Ideal for OLAP queries because it greatly reduces the number of invocations per operator.
@@ -501,7 +502,7 @@ Like the Iterator Model where each operator implements a **Next** function in th
 > Execute the operations of a single query in parallel, which decreases latency for long-running queries, like *producer/consumer* paradigm.
 
 There are three ways to implement Intra-Query.
-> Intra-Operator(Horizontal)
+> Intra-Operator (Horizontal)
 
 Decompose operators into independent **fragments** that perform the same function on different subsets of data. The DBMS inserts an **exchange** operator into the query plan to coalesce results from children operators.
 ![IntraOperator](/img/DataBase/IntraOperator.jpeg){:height="70%" width="70%"}
@@ -513,7 +514,7 @@ Here are types of exchange operator:
 | Repartition | Reorganize multiple input streams across multiple output streams |
 | Distribute | Split a single input stream into multiple output streams | 
 
-> Inter-Operator(Vertical)(pipelined parallelism)
+> Inter-Operator (Vertical) (pipelined parallelism)
 
 Operations are overlapped in order to pipeline data from one stage to the next without materialization.
 ![InterOperator](/img/DataBase/InterOperator.jpeg){:height="70%" width="70%"}
@@ -550,15 +551,36 @@ CREATE TABLE foo (
 Divide the tuples of a table up into disjoint segments based on some partitioning key, like hash partition.
 ![HorizontalPartitioning](/img/DataBase/HorizontalPartitioning.jpeg){:height="75%" width="75%"}
 
-### 4.6 Expression Rewrite
-### 4.7 Estimate Time
-### 4.8 Optimization
+### 4.6 Optimization
+##### 4.6.1 Why We Need Optimizer
+SQL is declarative, means that the user tells the DBMS what answer they want, not how to get the answer. Thus, the DBMS needs to translate a SQL statement into an executable query plan. But there are different ways to execute a query (e.g., join algorithms) and there will be differences in performance for these plans. Thus, the DBMS needs a way to pick the “best” plan for a given query.  
+
+Here are two types of optimization strategies:  
+- **Heuristics/Rules:** Rewrite the query to remove inefficiencies. Does not require a cost model.  
+- **Cost-based Search**: Use a cost model to evaluate multiple equivalent plans and pick the one with the smallest cost.
+
+##### 4.6.2 Heuristics / Rules
+Two relational algebra expressions are equivalent if they generate the same set of tuples, so DBMS will rewrite the query plan, this technique called **Query Rewriting**.  
+Here are some examples of Query Rewriting:  
+
+- **Predicate Push-down:** Perform predicate filtering before join to reduce size of join.
+![PredicatePushDown](/img/DataBase/PredicatePushDown.jpeg){:height="75%" width="75%"}
+
+- **Projections Push down**: Perform projections early to create smaller tuples and reduce intermediate results. You can project out all attributes except the ones requested or required (e.g. join attributes).  
+![ProjectionPushDown](/img/DataBase/ProjectionPushDown.jpeg){:height="75%" width="75%"}
+
+- **Expression Simplification**: Exploit the transitive properties of boolean logic to rewrite predicate expressions into a more simple form.
+
+
+##### 4.6.3 Cost-based Search
+The DBMS’s optimizer will use an **internal cost model** to estimate the execution cost for a particular query plan. This provides an estimate to determine whether one plan is better than another **without having to actually run the query** (which would be slow to do for thousands of plans).  
+To accomplish this, the DBMS stores **internal statistics** about tables, attributes, and indexes in its internal catalog.
 
 
 
 
 
-# 5 Concurrency Control(4)
+# 5 Concurrency Control
 
 
 
@@ -590,20 +612,20 @@ When a txn commits, the **root** points automically switch the shadow to become 
 ![ShadowPaging](/img/DataBase/ShadowPaging.jpeg){:height="70%" width="70%"}
 
 ##### 6.1.2 Steal + No-Force
-> **Write-Ahead Log(WAL)** is maintaing a log file in **volatile storage** that contains the changes that txns make to database.   
+> **Write-Ahead Log (WAL)** is maintaing a log file in **volatile storage** that contains the changes that txns make to database.   
 
 So after crash, it can perform undo and redo actions to recovery.   
-The most important is "**DBMS must write to disk the log file records that correspond to changes made to a database object before it can flush that object to disk**." When a txn's logs have been written to disk, it can be consider commited.(More details refer to [lab4](https://hldingzydong.github.io/2020/02/29/CMU15-445-Spring2018-Lab4/))
+The most important is "**DBMS must write to disk the log file records that correspond to changes made to a database object before it can flush that object to disk**." When a txn's logs have been written to disk, it can be consider commited. (More details refer to [lab4](https://hldingzydong.github.io/2020/02/29/CMU15-445-Spring2018-Lab4/))
 ![WAL](/img/DataBase/WAL.jpeg){:height="80%" width="80%"}
 
-WAL will grow forever and after crash, recovery takes a long time, so DBMS periodically takes a **checkpoint** where it **flushes all buffers**(including all log records currently residing in main memory and all modified blocks) out to disk.
+WAL will grow forever and after crash, recovery takes a long time, so DBMS periodically takes a **checkpoint** where it **flushes all buffers** (including all log records currently residing in main memory and all modified blocks) out to disk.
 
 ##### 6.1.3 Compare
 ![CompareRecoveryPolicy](/img/DataBase/CompareRecoveryPolicy.jpeg){:height="70%" width="70%"}
 Because the crash is rare, DBMS choose No-Force + Steal.
 
 ### [6.2 After Crash](https://15445.courses.cs.cmu.edu/fall2019/slides/21-recovery.pdf)
-##### 6.2.1 Log Sequence Number(LSN)
+##### 6.2.1 Log Sequence Number (LSN)
 > LSN is a globally unique id of log.
 
 | Name | Where | Definition |
@@ -616,32 +638,32 @@ Because the crash is rare, DBMS choose No-Force + Steal.
 
 Before page x can be written to disk, must flush log firstly, which means **pageLSN(x) <= flushedLSN**.
 
-##### 6.2.2 Compensation Log Records(CLR)
+##### 6.2.2 Compensation Log Records (CLR)
 How to deal with **ABORTED** txn during undo phase? We need to add **prevLSN** field in log records.
 > prevLSN: the previous LSN for this log.
 
 ![prevLSN](/img/DataBase/prevLSN.jpeg){:height="70%" width="70%"}
 
-What's more, we need Compensation Log Records(CLR).
-> A CLR has all the fields of an update log record plus the **undoNext** pointer(the next-to-be-undone LSN), describes the actions taken to undo the actions of a previous update record.  
+What's more, we need Compensation Log Records (CLR).
+> A CLR has all the fields of an update log record plus the **undoNext** pointer (the next-to-be-undone LSN), describes the actions taken to undo the actions of a previous update record.  
 
 ![CLR](/img/DataBase/CLR.jpeg){:height="70%" width="70%"}
 
 So when we need to deal with **ABORTED** txn, firstly write a **CLR** entry to the log, then restore old value.Remember, CLRs never to be undone.
 
 ##### 6.2.3 ARIES 
-Algorithms for Recovery and Isolation Exploiting Semantics(**ARIES**) describe the actions aftre a crash to recovery.  
+Algorithms for Recovery and Isolation Exploiting Semantics (**ARIES**) describe the actions aftre a crash to recovery.  
 There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.
 ![ARIES](/img/DataBase/ARIES.jpeg){:height="80%" width="80%"}
 ###### 6.2.3.1 Analysis Phases
 > Read WAL from **last checkpoint** to identify dirty pages in the buffer pool and active txns at the time of the crash.
 
-In this phase, we are going to build two tables: DPT(Dirty Page Table) and ATT(Active Transaction Table).  
+In this phase, we are going to build two tables: DPT (Dirty Page Table) and ATT (Active Transaction Table).  
 **DPT** records which pages in the buffer pool contain changes from uncommited txns, is used **for Redo** Phase, will record pageId, recLSN. During scaning, if we meet a **UPDATE** records and correspond page **P** not in DPT, we add P to DPT and set its **recLSN = (current)LSN**.  
 **ATT** records currently active and unfinished txns **for Undo** Phase, will record txnId, status and lastLSN.   
 
 ###### 6.2.3.2 Redo Phases
-> Repeat **all** actions(even **aborted txns** and **CLRS**) starting from an appropriate point(the log record containing **smallest recLSN**) in the log.
+> Repeat **all** actions (even **aborted txns** and **CLRS**) starting from an appropriate point (the log record containing **smallest recLSN**) in the log.
 
 Remember, it is different from **Redo** concept.
 
