@@ -8,7 +8,7 @@ tags:
    - database
 ---
 # Overview
-This article briefly introduces the Database Manage System (DBMS), including its Storage, Buffer Pool Manager, Table Index, Query, Concurrenct Control, Log and Recovery. A Database Manage System is built by combining these components.  
+This article briefly introduces the Database Manage System (DBMS), including its Storage, Buffer Pool Manager, Table Index, Query, Concurrent Control, Log and Recovery. A Database Manage System is built by combining these components.  
 
 Before introducing Database Manage System, there are some basic concepts need to explain:  
 > A **data model** is collection of concepts for describing the data in a database.  
@@ -111,7 +111,7 @@ EXTRACT(month FROM U.lastLogin)
 ```
 
 ##### 1.5.2 NSM vs DSM
-> **N-ary Storage Model (NSM aka “row storage”)**.The DBMS stores all attributes for a single tuple contiguously in a page.  
+> **N-ary Storage Model (NSM aka “row storage”)**. The DBMS stores all attributes for a single tuple contiguously in a page.  
 
 ![DisNSM](/img/DataBase/DisNSM.jpeg){:height="50%" width="50%"}
 
@@ -126,7 +126,7 @@ EXTRACT(month FROM U.lastLogin)
 According to **spatial locality** and **temporal locality**, BPM could minimize the time cost of getting a page from disk. We build our own BPM and not use OS‘s cache because we could use suitable evict algorithm to evict a page, and we could set the size of Buffer Pool.
 
 ### 2.2 Component
-It is a **memory region** organized as an array of fixed-size pages. An array entry is called a **frame**. There is a **page table**, mapped from page_id to frame_id. For every pages in Buffer Pool, each of them need to contains Dirty Flag and Pin/Reference Counter.  
+It is a **memory region** organized as an array of fixed-size pages. An array entry is called a **frame**. There is a **page table**, mapped from page_id to frame_id. For every page in Buffer Pool, each of them need to contain Dirty Flag and Pin/Reference Counter.  
 **Dirty Flag** is used to identify whether a page is modified after read into memory. When a dirty page is evicted, DBMS needs to write it back to disk.  
 **Pin/Reference Counter** is used to decide whether this page is evicted. When Pin/Reference Counter is 0, apply Replacement Policy to this page.
 ![BufferPoolManager](/img/DataBase/BufferPoolManager.jpeg){:height="60%" width="60%"}
@@ -150,7 +150,7 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 > A **table index** is a replica of a subset of a table's attributes that are organized and/or sorted for efficient access using a subset of those attributes.
 
 ### 3.1 Why We Need Index
-Increase the effecticy of query, but it costs Storage and Maintenance.
+Increase the efficiency of query, but it costs Storage and Maintenance.
 
 ### 3.2 B+Tree Implementation
 > A B+Tree is an M-way search tree with the following properties:  
@@ -198,7 +198,7 @@ So there is **Latch Crabbing/Coupling** algorithm.
 > 2. Get latch for child;  
 > 3. Release latch for parent if child is "**safe**".
 
-A "safe" node is one that will not split or merge when updated, which means the one is **not full on insertion**, or **more than haf-full on deletion**.
+A "safe" node is one that will not split or merge when updated, which means the one is **not full on insertion**, or **more than half-full on deletion**.
 
 ###### 3.3.2.2 Find
 Start at root and go down;  
@@ -314,21 +314,21 @@ The optimizer generates a mapping of a logical algebra expression to the optimal
 > An access method is a way that the DBMS can access the data stored in a table
 
 ##### 4.2.1 Sequential Scan
-**Descprition**: For each page in the table, retrive it from the buffer pool and iterate over each tuple and check whether to include it.
+**Description**: For each page in the table, retrieve it from the buffer pool and iterate over each tuple and check whether to include it.
 ```java
 for page in table.pages: 
 	for t in page.tuples:
 		if evalPred(t):
 			// Do Something!
 ```
-**Optimizations**: Prefetching, Buffer Pool Bypass, Parallelization, Zone Maps, Late Materialization, Heap Clustering.
+**Optimizations**: Pre-fetching, Buffer Pool Bypass, Parallelization, Zone Maps, Late Materialization, Heap Clustering.
 
 ##### 4.2.2 Index Scan
-**Descprition**: The DBMS picks an index to find the tuples that the query needs.  
+**Description**: The DBMS picks an index to find the tuples that the query needs.  
 ![IndexScan](/img/DataBase/IndexScan.jpeg){:height="70%" width="70%"}
 
 ##### 4.2.3 Multi-Index Scan
-**Descprition**: If there are multiple indexes that the DBMS can use for a query, could compute sets of record ids using each matching index, then combine these sets based on the query's predicates (union vs. intersect), retrieve the records and apply any remaining predicates.
+**Description**: If there are multiple indexes that the DBMS can use for a query, could compute sets of record ids using each matching index, then combine these sets based on the query's predicates (union vs. intersect), retrieve the records and apply any remaining predicates.
 ```sql
 SELECT * FROM students
 WHERE age < 30 AND dept = 'CS' AND country = 'US'
@@ -381,7 +381,7 @@ During the ReHash phase, store pairs of the form (**GroupKey→RunningVal**), wh
 ![HashSummarization](/img/DataBase/HashSummarization.jpeg){:height="70%" width="70%"}
 
 **Analysis**:
-Beacuse in Phase 1 we have **B-1** "spill partitions", each should be no more than **B** blocks big, so we can hash **B * (B-1)** big table.  
+Because in Phase 1 we have **B-1** "spill partitions", each should be no more than **B** blocks big, so we can hash **B * (B-1)** big table.  
 That means if one table has N pages, so Buffer Pool needs at least **sqrt(N)** frames.
 
 
@@ -398,12 +398,12 @@ Avoid unnecessary repetition of information and reconstruct the original tuples 
 
 **Data**: Copy the values for the attributes in outer and inner tuples into a new output tuple, so subsequent operators in the query plan never need to go back to get more data.
 ![JoinOperatorOutputData](/img/DataBase/JoinOperatorOutputData.jpeg){:height="40%" width="40%"}  
-**Record Ids**: Only copy the joins keys along with the record ids of the matching tuples. Ideal for column stores because the DBMS does not copy data that is not need for the query.
+**Record Ids**: Only copy the joins keys along with the record ids of the matching tuples. Ideal for column stores because the DBMS does not copy data that is not needed for the query.
 ![JoinOperatorOutputRecordIds](/img/DataBase/JoinOperatorOutputRecordIds.jpeg){:height="50%" width="50%"}
 
 > How to determine whether one join algorithm is better than another?
 
-We assume there are **M** pages in table R and **m** tuples in R; **N** pages in S and **n**tuples in S. The cost metric is **# of IOs to compute join**.
+We assume there are **M** pages in table R and **m** tuples in R; **N** pages in S and **n** tuples in S. The cost metric is **# of IOs to compute join**.
 
 ###### 4.3.3.4 Impl
 > **Nested Loop Join**
@@ -411,7 +411,7 @@ We assume there are **M** pages in table R and **m** tuples in R; **N** pages in
 Simple, Use block or Use Index. 
 
 > **Sort-Merge Join**  
-> (1) **Sort**:  use extnernal sort algorithm sort both tables on the join keys;  
+> (1) **Sort**:  use external sort algorithm sort both tables on the join keys;  
 > (2) **Merge**: step through the two sorted tables with cursors and emit matching tuples, but may need to backtrack depending on the join type.
 
 ```
@@ -453,7 +453,7 @@ foreach tuple s ∈ S
 
 Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/11-joins.pdf). 
 
-> **Grace Hash Join**  (whne tables do not fit in memory)  
+> **Grace Hash Join**  (when tables do not fit in memory)  
 > (1) **Build**: Hash both tables on the join attribute into partitions;  
 > (2) **Probe**: Compares tuples in corresponding partitions for each table.
 
@@ -471,7 +471,7 @@ So, totally costs **3(M + N)** IOs.
 
 
 ### [4.4 Process Model](https://15445.courses.cs.cmu.edu/fall2019/slides/12-queryexecution1.pdf)
-> Process Model defines hwo the system executes a query plan.
+> Process Model defines how the system executes a query plan.
 
 ##### 4.4.1 Iterator Model
 Each query plan operator implements a **Next** function. On each invocation, the operator returns either **a single tuple** or a **null** marker if there are no more tuples. The operator implements a loop that calls next on its children to retrieve their tuples and then process them.
@@ -527,7 +527,7 @@ SELECT * FROM A JOIN B JOIN C JOIN D;
 ```
 ![Bushy](/img/DataBase/Bushy.jpeg){:height="30%" width="30%"}
 
-##### 4.5.3 I/O Parallism
+##### 4.5.3 I/O Parallelism
 Using additional processes/threads to execute queries in parallel won't help if the **disk is always the main bottleneck**. So we could split the DBMS installation across multiple storage devices.
 
 ###### 4.5.3.1 Multi-Disk Parallelism
@@ -564,10 +564,10 @@ Two relational algebra expressions are equivalent if they generate the same set 
 Here are some examples of Query Rewriting:  
 
 - **Predicate Push-down:** Perform predicate filtering before join to reduce size of join.
-![PredicatePushDown](/img/DataBase/PredicatePushDown.jpeg){:height="75%" width="75%"}
+![PredicatePushDown](/img/DataBase/PredicatePushDown.jpeg){:height="65%" width="65%"}
 
 - **Projections Push down**: Perform projections early to create smaller tuples and reduce intermediate results. You can project out all attributes except the ones requested or required (e.g. join attributes).  
-![ProjectionPushDown](/img/DataBase/ProjectionPushDown.jpeg){:height="75%" width="75%"}
+![ProjectionPushDown](/img/DataBase/ProjectionPushDown.jpeg){:height="65%" width="65%"}
 
 - **Expression Simplification**: Exploit the transitive properties of boolean logic to rewrite predicate expressions into a more simple form.
 
@@ -608,11 +608,11 @@ No-Steal means the changes by an uncommited txn were not written to disk, so no 
 
 **Master** contains only changes from commited txns.  
 **Shadow** is temporary database with changes made from uncommmited txns, so txns only make updates in the shadow copy.  
-When a txn commits, the **root** points automically switch the shadow to become the new master. So when need to "undo", just remove the shadow pages, leave the master and the root pointer alone.
+When a txn commits, the **root** points automatically switch the shadow to become the new master. So when need to "undo", just remove the shadow pages, leave the master and the root pointer alone.
 ![ShadowPaging](/img/DataBase/ShadowPaging.jpeg){:height="70%" width="70%"}
 
 ##### 6.1.2 Steal + No-Force
-> **Write-Ahead Log (WAL)** is maintaing a log file in **volatile storage** that contains the changes that txns make to database.   
+> **Write-Ahead Log (WAL)** is maintaining a log file in **volatile storage** that contains the changes that txns make to database.   
 
 So after crash, it can perform undo and redo actions to recovery.   
 The most important is "**DBMS must write to disk the log file records that correspond to changes made to a database object before it can flush that object to disk**." When a txn's logs have been written to disk, it can be consider commited. (More details refer to [lab4](https://hldingzydong.github.io/2020/02/29/CMU15-445-Spring2018-Lab4/))
@@ -652,14 +652,14 @@ What's more, we need Compensation Log Records (CLR).
 So when we need to deal with **ABORTED** txn, firstly write a **CLR** entry to the log, then restore old value.Remember, CLRs never to be undone.
 
 ##### 6.2.3 ARIES 
-Algorithms for Recovery and Isolation Exploiting Semantics (**ARIES**) describe the actions aftre a crash to recovery.  
+Algorithms for Recovery and Isolation Exploiting Semantics (**ARIES**) describe the actions after a crash to recovery.  
 There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.
 ![ARIES](/img/DataBase/ARIES.jpeg){:height="80%" width="80%"}
 ###### 6.2.3.1 Analysis Phases
 > Read WAL from **last checkpoint** to identify dirty pages in the buffer pool and active txns at the time of the crash.
 
 In this phase, we are going to build two tables: DPT (Dirty Page Table) and ATT (Active Transaction Table).  
-**DPT** records which pages in the buffer pool contain changes from uncommited txns, is used **for Redo** Phase, will record pageId, recLSN. During scaning, if we meet a **UPDATE** records and correspond page **P** not in DPT, we add P to DPT and set its **recLSN = (current)LSN**.  
+**DPT** records which pages in the buffer pool contain changes from uncommited txns, is used **for Redo** Phase, will record pageId, recLSN. During scanning, if we meet a **UPDATE** records and correspond page **P** not in DPT, we add P to DPT and set its **recLSN = (current)LSN**.  
 **ATT** records currently active and unfinished txns **for Undo** Phase, will record txnId, status and lastLSN.   
 
 ###### 6.2.3.2 Redo Phases
@@ -674,8 +674,7 @@ Remember, it is different from **Redo** concept.
 
 
 # Conclusion
-
-
+In this article, we describe the most important components of DBMS, thanks to [CMU-15-445](https://15445.courses.cs.cmu.edu/fall2019/schedule.html), this course is very great. I hope I will explore more about DBMS in the future.
 
 
 
