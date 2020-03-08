@@ -130,6 +130,7 @@ It is a **memory region** organized as an array of fixed-size pages. An array en
 **Dirty Flag** is used to identify whether a page is modified after read into memory. When a dirty page is evicted, DBMS needs to write it back to disk.  
 **Pin/Reference Counter** is used to decide whether this page can be a evicted candidate. When Pin/Reference Counter is 0, apply Replacement Policy to this page.
 ![BufferPoolManager](/img/DataBase/BufferPoolManager.jpeg){:height="60%" width="60%"}
+More details refer to [lab1](https://hldingzydong.github.io/2020/02/10/CMU15-445-Spring2018-Lab1/).
 
 ### 2.3 Optimization
 Multiple Buffer Pools, Pre-Fetching, Scan Sharing and Bypass().
@@ -175,6 +176,8 @@ Find correct leaf node L and put entry into L in sorted order. If L doesn't have
 
 ###### 3.2.2.2 Delete
 Find correct leaf node L and remove the entry. If L is half-full, **borrow** from sibling (adjacent node with same parent as L). If borrow fails, **merge** L and sibling, and delete entry from parent of L.
+
+More details refer to [lab2](https://hldingzydong.github.io/2020/02/15/CMU15-445-Spring2018-Lab2/).
 
 ### [3.3 Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/09-indexconcurrency.pdf)
 ##### 3.3.1 Hash Index
@@ -314,8 +317,7 @@ SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
 ### 3.6 Optimization
 ###### 3.6.1 Prefix Compression
 ###### 3.6.2 Suffix Truncation (切断)
-###### 3.6.3 Bulk Insert
-###### 3.6.4 Pointer Swizzling
+###### 3.6.3 Bulk (大多数) Insert
 
 # [4. Query](https://15445.courses.cs.cmu.edu/fall2019/slides/10-sorting.pdf)
 Here is an article [Following a Select Statement Through Postgres Internals](http://patshaughnessy.net/2014/10/13/following-a-select-statement-through-postgres-internals) pretty good.
@@ -410,9 +412,9 @@ Avoid unnecessary repetition of information and reconstruct the original tuples 
 ###### 4.3.3.3 Analysis
 > What data does the join operator emit to its parent operator?
 
-**Data**: Copy the values for the attributes in outer and inner tuples into a new output tuple, so subsequent operators in the query plan never need to go back to get more data.
+**Data**: Copy the values for the attributes in outer and inner tuples into a **new output tuple**, so subsequent operators in the query plan never need to go back to get more data.
 ![JoinOperatorOutputData](/img/DataBase/JoinOperatorOutputData.jpeg){:height="40%" width="40%"}  
-**Record Ids**: Only copy the joins keys along with the record ids of the matching tuples. Ideal for column stores because the DBMS does not copy data that is not needed for the query.
+**Record Ids**: Only **copy the joins keys along with the record ids** of the matching tuples. Ideal for column stores because the DBMS does not copy data that is not needed for the query.
 ![JoinOperatorOutputRecordIds](/img/DataBase/JoinOperatorOutputRecordIds.jpeg){:height="50%" width="50%"}
 
 > How to determine whether one join algorithm is better than another?
@@ -518,7 +520,7 @@ Like the Iterator Model where each operator implements a **Next** function in th
 There are three ways to implement Intra-Query.
 > Intra-Operator (Horizontal)
 
-Decompose operators into independent **fragments** that perform the same function on different subsets of data. The DBMS inserts an **exchange** operator into the query plan to coalesce results from children operators.
+Decompose operators into independent **fragments** that perform the same function on different subsets of data. The DBMS inserts an **exchange** operator into the query plan to coalesce (合并) results from children operators.
 ![IntraOperator](/img/DataBase/IntraOperator.jpeg){:height="70%" width="70%"}
 Here are types of exchange operator:
 
@@ -535,7 +537,7 @@ Operations are overlapped in order to pipeline data from one stage to the next w
 
 > Bushy
 
-Extension of inter-operator parallelism where workers execute multiple operators from different segments of a query plan at the same time.
+Extension of inter-operator parallelism where workers execute multiple operators from **different segments of a query** plan at the same time.
 ```sql
 SELECT * FROM A JOIN B JOIN C JOIN D;
 ```
@@ -562,7 +564,7 @@ CREATE TABLE foo (
 
 > Horizontal Partitioning
 
-Divide the tuples of a table up into disjoint segments based on some partitioning key, like hash partition.
+Divide the tuples of a table up into disjoint (解体) segments based on some partitioning key, like hash partition.
 ![HorizontalPartitioning](/img/DataBase/HorizontalPartitioning.jpeg){:height="75%" width="75%"}
 
 ### 4.6 Optimization
@@ -570,7 +572,7 @@ Divide the tuples of a table up into disjoint segments based on some partitionin
 SQL is declarative, means that the user tells the DBMS what answer they want, not how to get the answer. Thus, the DBMS needs to translate a SQL statement into an executable query plan. But there are different ways to execute a query (e.g., join algorithms) and there will be differences in performance for these plans. Thus, the DBMS needs a way to pick the “best” plan for a given query.  
 
 Here are two types of optimization strategies:  
-- **Heuristics/Rules:** Rewrite the query to remove inefficiencies. Does not require a cost model.  
+- **Heuristics (启发)/Rules:** Rewrite the query to remove inefficiencies. Does not require a cost model.  
 - **Cost-based Search**: Use a cost model to evaluate multiple equivalent plans and pick the one with the smallest cost.
 
 ##### 4.6.2 Heuristics / Rules
@@ -594,10 +596,10 @@ To accomplish this, the DBMS stores **internal statistics** about tables, attrib
 # [5. Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/16-concurrencycontrol.pdf)
 ### 5.1 Motivation
 If we both change the same record in a table at the same time, how to avoid race condition?  
-And we interleave txns to maximize concurrency, to slow disk/network IO, and use Multi-core CPUs.  
+And we interleave txns to maximize concurrency, to slow disk/network IO, and use multi-core CPUs.  
 So we need Concurrency Control.
 
-### 5.2 Transaction
+### 5.2 Transaction (Txn)
 > A transaction is the execution of a sequence of one or more operations (e.g., SQL queries) on a database to perform some higher-level function, it is the basic unit of change in a DBMS.
 
 ##### 5.2.1 SQL
@@ -634,6 +636,7 @@ The DBMS can use either **logging** or **shadow paging** to ensure that all chan
 ### 5.3 Concurrency Control
 ##### 5.3.1 Definition
 > A **concurrency control protocol** is how the DBMS decides the proper interleaving of operations from multiple transactions.
+
 ##### 5.3.2 Types
 This table shows two categories of concurrency control protocol:  
 
@@ -673,12 +676,12 @@ Overwriting Uncommitted Data ("**Lost Updates**")
 
 [Example refer to slides](https://15445.courses.cs.cmu.edu/fall2019/slides/16-concurrencycontrol.pdf).
 
-Swapping operations is easy when there are only two txns in the schedule. It's cumbersome when there are many txns. Here is a faster algorithm to figure this out other than transposing operations.
+Swapping operations is easy when there are only two txns in the schedule. It's cumbersome (笨重的) when there are many txns. Here is a faster algorithm to figure this out other than transposing operations.
 
 ###### 5.3.5.1 Dependency Graphs
 One **node** per txn.  
-**Edge** from Ti to Tj if an operation Oi of Ti conflicts with an operation Oj of Tj and Oi appears earlier in the schedule than Oj.  
-A schedule is conflict serializable if its dependency graph is **acyclic**.
+**Edge** from Ti to Tj if an operation **Oi of Ti conflicts with an operation Oj of Tj** and **Oi appears earlier in the schedule than Oj**.  
+A schedule is conflict serializable if its dependency graph is **acyclic** (非循环的).
 ![DependencyGraph](/img/DataBase/DependencyGraph.jpeg){:height="70%" width="70%"}
 
 ### [5.4 Two-Phase Locking Concurrency Control (2PL)](https://15445.courses.cs.cmu.edu/fall2019/slides/17-twophaselocking.pdf) 
@@ -696,7 +699,7 @@ A schedule is conflict serializable if its dependency graph is **acyclic**.
 
 ###### 5.4.1.2 Execute With Lock
 When txns **request** locks (or upgrades), lock manager grants or blocks requests.  
-When txns **release** locks, lock manager  updates its internal lock-table, which keeps track of what txns hold what locks and what txns are waiting to acquire any locks. 
+When txns **release** locks, lock manager  updates its internal lock-table, which keeps track of **what txns hold what locks** and **what txns are waiting to acquire any locks**. 
 ![Execute With Lock](/img/DataBase/ExecuteWithLock.jpeg){:height="70%" width="70%"}
 ###### 5.4.1.3 Hierarchy
 ![Lock Hierarchy](/img/DataBase/LockHierarchy.jpeg){:height="70%" width="70%"}
@@ -704,10 +707,10 @@ When txns **release** locks, lock manager  updates its internal lock-table, whic
 ###### 5.4.1.4 Type
 > (1) **Shared** (S)  
 > (2) **Exclusive** (X)  
-> (3) Intention: allows a higher level node to be locked in shared or exclusive mode without having to check all descendent nodes, means locking is being done at a lower level in the tree.  
-> (3.1) **Intention-Shared** (IS): Indicates explicit locking at a lower level with shared locks;  
-> (3.2) **Intention-Exclusive** (IX): Indicates locking at lower level with exclusive or shared locks;  
-> (3.3) **Shared + Intention-Exclusive** (SIX): S + IX at the same time
+> (3) **Intention**: allows a higher level node to be locked in shared or exclusive mode without having to check all descendent nodes, means locking is being done at a lower level in the tree.  
+>>(3.1) **Intention-Shared** (IS): Indicates explicit locking at a lower level with shared locks;  
+>>(3.2) **Intention-Exclusive** (IX): Indicates locking at lower level with exclusive or shared locks;  
+>>(3.3) **Shared + Intention-Exclusive** (SIX): S + IX at the same time
 
 ![Compatibility Matrix](/img/DataBase/CompatibilityMatrix.jpeg){:height="70%" width="70%"}
 ###### 5.4.1.5 Lock Protocol
@@ -959,7 +962,7 @@ It has two parts:
 > Actions **during normal txn processing** to ensure that the DBMS can recover from a failure.  
 > Actions **after a failure to recover** the database to a state that ensures atomicity, consistency, and durability.
 
-There are two important concepts: Redo and Undo
+There are 2 important concepts: Redo and Undo:
 > **Redo**:The process of re-instating the effects of a **committed** txn for durability.  
 > **Undo**:The process of removing the effects of an **incomplete or aborted** txn.
 
@@ -1011,7 +1014,7 @@ How to deal with **ABORTED** txn during undo phase? We need to add **prevLSN** f
 
 ![prevLSN](/img/DataBase/prevLSN.jpeg){:height="70%" width="70%"}
 
-What's more, we need Compensation Log Records (CLR).
+What's more, we need **Compensation Log Records (CLR)**.
 > A CLR has all the fields of an update log record plus the **undoNext** pointer (the next-to-be-undone LSN), describes the actions taken to undo the actions of a previous update record.  
 
 ![CLR](/img/DataBase/CLR.jpeg){:height="70%" width="70%"}
@@ -1027,13 +1030,13 @@ ARIES is composed of 3 phases: **Analysis, Redo & Undo**.
 > Read WAL from **last checkpoint** to identify dirty pages in the buffer pool and active txns at the time of the crash.
 
 In this phase, we are going to build two tables: DPT (Dirty Page Table) and ATT (Active Transaction Table).  
-**DPT** records which pages in the buffer pool contain changes from uncommited txns, is used **for Redo** Phase, will record pageId, recLSN. During scanning, if we meet a **UPDATE** records and correspond page **P** not in DPT, we add P to DPT and set its **recLSN = (current)LSN**.  
+**DPT** records which pages in the buffer pool contain changes from uncommited txns, is used **for Redo** Phase, will record pageId, recLSN. During scanning, if we meet a **UPDATE** records and correspond page **P** not in DPT, we **add** P to DPT and set its **recLSN = (current)LSN**.  
 **ATT** records currently active and unfinished txns **for Undo** Phase, will record txnId, status and lastLSN.   
 
 ###### 6.2.3.2 Redo Phases
 > Repeat **all** actions (even **aborted txns** and **CLRS**) starting from an appropriate point (the log record containing **smallest recLSN**) in the log.
 
-Remember, it is different from **Redo** concept.
+Remember, it is different from the **Redo** concept.
 
 ###### 6.2.3.3 Undo Phases
 > Reverse the actions of txns that **did not commit** before the crash. Process them in **reverse LSN order** using **lastLSN**, write a **CLR** for every modification.
