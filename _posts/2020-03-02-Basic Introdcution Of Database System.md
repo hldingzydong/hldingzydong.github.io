@@ -614,7 +614,7 @@ ABORT
 
 | Approach | Description |
 | :-----: | :-----: |
-| Logging | DBSM logs all actions so that it can undo the actions of aborted transactions |
+| Logging | DBSM logs all actions so that it can undo the actions of aborted txns |
 | Shadow Paging | DBMS makes copies of pages and txns make changes to copies |
 
 ###### 5.2.2.2 Consistency
@@ -623,7 +623,7 @@ ABORT
 | Type | Description |
 | :-----: | :-----: |
 | DataBase Consistency | Txns in the future see the effects of txns committed in the past inside of the database |
-| Txn Consistency | If the database is consistent before the transaction starts (running alone), it will also be consistent after |
+| Txn Consistency | If the database is consistent before the txn starts (running alone), it will also be consistent after |
 
 ###### 5.2.2.3 Isolation
 > Execution of one txn is isolated from that of other txns. "as if alone"
@@ -635,7 +635,7 @@ The DBMS can use either **logging** or **shadow paging** to ensure that all chan
 
 ### 5.3 Concurrency Control
 ##### 5.3.1 Definition
-> A **concurrency control protocol** is how the DBMS decides the proper interleaving of operations from multiple transactions.
+> A **concurrency control protocol** is how the DBMS decides the proper interleaving of operations from multiple txns.
 
 ##### 5.3.2 Types
 This table shows two categories of concurrency control protocol:  
@@ -649,8 +649,8 @@ This table shows two categories of concurrency control protocol:
 The DBMS **achieves concurrency by interleaving the actions** (reads/writes of DB objects) of txns, so we need to interleave txns but still **make it appear as if they ran one-at-a-time**. That means if the schedule is **equivalent to some serial execution**, we could see this schedule is correct.
 
 > **Serial Schedule**: A schedule that does not interleave the actions of
-different transactions.  
-> **Serializable Schedule**: A schedule that is equivalent to some serial execution of the transactions.  This is to check whether schedules are correct.  
+different txns.  
+> **Serializable Schedule**: A schedule that is equivalent to some serial execution of the txns.  This is to check whether schedules are correct.  
 > **Equivalent Schedules**: No matter what the arithmetic operations are, for any database state, the effect of executing the first schedule is equal to the effect of executing the second schedule.
 
 ##### 5.3.4 Conflict Operations
@@ -670,9 +670,9 @@ Overwriting Uncommitted Data ("**Lost Updates**")
 
 
 ##### 5.3.5 Conflict Serializable
-> **Conflict Serializable Schedules**: Two schedules are conflict equivalent if they involve the same actions of the same transactions and every pair of conflicting actions is ordered the same way.
+> **Conflict Serializable Schedules**: Two schedules are conflict equivalent if they involve the same actions of the same txns and every pair of conflicting actions is ordered the same way.
 
-> **Conflict Serializable**: Schedule **S** is conflict serializable if you are able to transform **S** into a serial schedule by **swapping consecutive non-conflicting operations of different transactions**.
+> **Conflict Serializable**: Schedule **S** is conflict serializable if you are able to transform **S** into a serial schedule by **swapping consecutive non-conflicting operations of different txns**.
 
 [Example refer to slides](https://15445.courses.cs.cmu.edu/fall2019/slides/16-concurrencycontrol.pdf).
 
@@ -708,14 +708,14 @@ When txns **release** locks, lock manager  updates its internal lock-table, whic
 > (1) **Shared** (S)  
 > (2) **Exclusive** (X)  
 > (3) **Intention**: allows a higher level node to be locked in shared or exclusive mode without having to check all descendent nodes, means locking is being done at a lower level in the tree.  
->>(3.1) **Intention-Shared** (IS): Indicates explicit locking at a lower level with shared locks;  
->>(3.2) **Intention-Exclusive** (IX): Indicates locking at lower level with exclusive or shared locks;  
+>>(3.1) **Intention-Shared** (IS): Indicates explicit locking at a lower level with **shared** locks;  
+>>(3.2) **Intention-Exclusive** (IX): Indicates locking at lower level with **exclusive or shared** locks;  
 >>(3.3) **Shared + Intention-Exclusive** (SIX): S + IX at the same time
 
 ![Compatibility Matrix](/img/DataBase/CompatibilityMatrix.jpeg){:height="70%" width="70%"}
 ###### 5.4.1.5 Lock Protocol
 To get **S** or **IS** lock on a node, the txn must hold at least **IS** on parent node.  
-To get **X**, **IX**, or **SIX** on a node, must hold at least **IX** on parent node.
+To get **X**, **IX**, or **SIX** on a node, must hold at least **IX** on parent node.  
 Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/17-twophaselocking.pdf).
 
 ##### 5.4.2 2PL
@@ -734,6 +734,8 @@ But it is subject to **cascading aborts**, another word, it may have "dirty read
 ![S2PL](/img/DataBase/S2PL.jpeg){:height="70%" width="70%"}
 Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/17-twophaselocking.pdf).
 
+More details refer to [lab3](https://hldingzydong.github.io/2020/02/21/CMU15-445-Spring2018-Lab3/).
+
 ##### 5.4.4 Deadlock
 ###### 5.4.4.1 Deadlock Detection
 The DBMS creates a **waits-for** graph to keep track of what locks each txn is waiting to acquire, **nodes** are txns, **edge** from Ti to Tj if Ti is waiting for Tj to release a lock.The system periodically checks for cycles in waits-for graph and then decides how to break it.
@@ -745,8 +747,8 @@ Selecting the proper victim depends on a lot of different variables:
 1. By age (newest or oldest timestamp).  
 2. By progress (least/most queries executed).  
 3. By the # of items already locked.   
-4. By the # of transactions that we have to rollback with it.   
-5. The # of times a transaction has been restarted in the past.  
+4. By the # of txns that we have to rollback with it.   
+5. The # of times a txn has been restarted in the past.  
 
 The victim txn will either **restart or abort(more common)** depending on how it was invoked. The DBMS can decide on how far to rollback the txn's changes: **Completely** or **Minimally**.
 
@@ -826,7 +828,9 @@ Examples refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/18-t
 
 ##### 5.5.3 Optimistic Concurrency Control (OCC)
 Assume that conflicts between txns are **rare** and that most txns are **short-lived**, then forcing txns to wait to acquire locks adds a lot of overhead.A better approach is to optimize for the noconflict case.  
+
 The DBMS creates a private workspace for each txn. Any object read is copied into workspace. Modifications are applied to workspace. When a txn commits, the DBMS compares workspace write set to see whether it conflicts with other txns. If there are no conflicts, the write set is installed into the "global" database.  
+
 OCC is divided into 3 phases (**Read, Validation & Write**):
 ###### 5.5.3.1 Read Phase
 > Track the read/write sets of txns and store their writes in a private workspace. The DBMS copies  every tuple that the txn accesses from the shared database to its workspace ensure repeatable reads.
@@ -834,8 +838,8 @@ OCC is divided into 3 phases (**Read, Validation & Write**):
 ###### 5.5.3.2 Validation Phase
 > When a txn commits, check whether it conflicts with other txns.
 
-The DBMS needs to guarantee only serializable schedules are permitted. Ti
-checks other txns for **RW** and **WW** conflicts and makes sure that all conflicts go one way (from older txns to younger txns). The DBMS maintain global view of all active txns and execute **Validation** and **Write** phase inside a protected critical section.  
+
+The DBMS maintain global view of all active txns and execute **Validation** and **Write** phase inside a protected critical section.  
 When a txn invokes **COMMIT**, the DBMS checks if it conflicts with txns.
 
 | Method | Description |
@@ -851,27 +855,30 @@ If TS(Ti) < TS(Tj ), then one of the following three conditions must hold:
 2. Ti completes before Tj starts its Write phase, and Ti does not write to any object read by Tj;
 3. Ti completes its Read phase before Tj completes its Read phase, and Ti does not write to any object that is either read or written by Tj.
 
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/18-timestampordering.pdf).
+
 ###### 5.5.3.3 Write Phase
 > If validation succeeds, apply private changes to database. Otherwise abort and restart the txn.
 
 **OCC Issues**:   
-- High overhead for copying data locally into the transaction’s private workspace.  
+- High overhead for copying data locally into the txn's private workspace.  
 - Validation/Write phase bottlenecks.  
-- Aborts are potentially more wasteful than in other protocols because they only occur after a transaction has already executed.  
+- Aborts are potentially more wasteful because they only occur after a txn has already executed.  
 - Suffers from timestamp allocation bottleneck.
 
 ##### 5.5.4 Partition-Based T/O
 ###### 5.5.4.1 Why We Need Partition-Based T/O
-When a transaction commits in OCC, the DBMS has check whether there is a conflict with concurrent transactions across the entire database. This is slow if we have a lot of concurrent transactions because the DBMS has to acquire latches to do all of these checks.
+When a txn commits in OCC, the DBMS has check **whether there is a conflict with concurrent txns across the entire database**. This is slow if we have a lot of concurrent txns because the DBMS has to acquire latches to do all of these checks.
 
 ###### 5.5.4.2 How To Do
-Split the database up in disjoint subsets called **horizontal partitions (aka shards)**. Use timestamps to order txns for serial execution at each partition.
-Only check for conflicts between txns that are running in the same partition.  
+Split the database up in disjoint subsets called **horizontal partitions (aka shards)**. Only check for conflicts between txns that are running in the same partition.  
 
 Partitions are protected by a single lock. Txns are assigned timestamps based on when they arrive at the DBMS. Each txn is queued at the partitions it needs before it starts running:  
 - The txn **acquires** a partition’s lock if it has the lowest timestamp in that partition’s queue.  
 - The txn **starts** when it has all of the locks for all the partitions that it will access during execution.  
 - Txns can read/write anything that they want at the partitions that they have locked. If a txn tries to access a partition that it does not have the lock, it is **aborted + restarted**.
+
+Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/18-timestampordering.pdf).
 
 ###### 5.5.4.3 Partition-Based T/O Issues
 Partition-based T/O protocol is **fast** if:  
@@ -928,8 +935,8 @@ The DBMS uses the tuples’ **pointer field** to create a version chain per logi
 
 ![Delta Storage](/img/DataBase/DeltaStorage.jpeg){:height="70%" width="70%"}
 
-##### 5.6.3 Garbage Collection
-Remove reclaimable physical versions from the database over time, because **no active txn in the DBMS can “see” that version** or **the version was created by an aborted txn**.
+##### 5.6.3 Garbage Collection (GC)
+Remove reclaimable (可回收的) physical versions from the database over time, because **no active txn in the DBMS can “see” that version** or **the version was created by an aborted txn**.
 
 ###### 5.6.3.1 Tuple-level
 > Find old versions by examining tuples directly.
@@ -957,7 +964,7 @@ All **primary key (pkey)** indexes always point to version chain **head**. How o
 
 
 # [6.   Recovery](https://15445.courses.cs.cmu.edu/fall2019/slides/20-logging.pdf)
-Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
+	Recovery algorithms are techniques to ensure database consistency, transaction atomicity and durability despite failures.  
 It has two parts:  
 > Actions **during normal txn processing** to ensure that the DBMS can recover from a failure.  
 > Actions **after a failure to recover** the database to a state that ensures atomicity, consistency, and durability.
