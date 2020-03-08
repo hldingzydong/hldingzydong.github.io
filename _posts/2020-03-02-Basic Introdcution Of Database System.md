@@ -364,7 +364,7 @@ By **Sorting**:
 ![AggreSort](/img/DataBase/AggreSort.jpeg){:height="80%" width="80%"}
 
 
-By **Hashing** (is used for unsorted operation, like **GROUP BY** or **DISTINCT**):
+By **Hashing** (is used for unsorted operation, like **GROUP BY** or **DISTINCT**), divided into 2 steps (**Partition & ReHash**):
 > (1)  Partition  
 
 Use a hash function **h1** to split tuples into partitions on disk, so all matches live in the same partition. Assume we have **B** buffers, will use **B-1** buffers for partitions and **1** buffer for the input data.
@@ -704,6 +704,7 @@ Example refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/17-tw
 ##### 5.4.2 2PL
 > **Two-phase locking (2PL)** is a concurrency control protocol that determines whether a txn can access an object in the database on the fly, which does not need to know all the queries that a txn will execute ahead of time.
 
+It is divided into 2 phases (**Growing & Shrinking**):
 ###### 5.4.2.1 Growing
 Each txn requests the locks that it needs from the DBMS’s lock manager and the lock manager grants/denies lock requests.
 ###### 5.4.2.2 Shrinking
@@ -733,6 +734,7 @@ Selecting the proper victim depends on a lot of different variables:
 The victim txn will either **restart or abort(more common)** depending on how it was invoked. The DBMS can decide on how far to rollback the txn's changes: **Completely** or **Minimally**.
 
 ###### 5.4.4.3 Deadlock Prevention
+There are 2 strategies to prevent deadlock:
 > Wait-Die ("Old Waits for Young")
 
 If requesting txn has higher priority than holding txn, then requesting txn waits for holding txn.  
@@ -744,7 +746,137 @@ If requesting txn has higher priority than holding txn, then holding txn aborts 
 Otherwise requesting txn waits.
 ![Deadlock Preventation](/img/DataBase/DeadlockPreventation.jpeg){:height="70%" width="70%"}
 
-### 5.5 Timestamp Ordering Concurrency Control
+### [5.5 Timestamp Ordering Concurrency Control](https://15445.courses.cs.cmu.edu/fall2019/slides/18-timestampordering.pdf)
+##### 5.5.1 Introduction
+DBMS use timestamps to determine the serializability order of txns, if TS(Ti) < TS(Tj), then the DBMS must ensure that the execution schedule is equivalent to a serial schedule where Ti appears before Tj.  
+The timestamp should be unique, fixed and monotonically increasing, could be acquired by System Clock, Logical Counter or Hybrid.
+
+##### 5.5.2 Basic Timestamp Ordering (BASIC T/O)
+> W-TS(X): Write timestamp on X  
+> R-TS(X): Read timestamp on X
+
+The core is **"if txn tries to access an object from the future, it aborts and restarts"**.  
+```
+if(read) {
+    if(TS(Ti) < W-TS(X)) {
+        abort Ti;
+        restart Ti with a newer TS;
+    }else{
+        Ti read X;
+        R-TS(X) = max(R-TS(X), TS(Ti));
+        make a local copy of X to ensure repeatable reads from Ti;
+    }
+}
+```
+```
+if(write) {
+    if(TS(Ti) < R-TS(X) || TS(Ti) < W-TS(X)) {
+        abort Ti;
+        restart Ti with a newer TS;
+    }else{
+        Ti write X;
+        W-TS(X) = TS(Ti);
+        make a local copy of X to ensure repeatable reads from Ti;
+    }
+}
+```
+
+Examples refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/18-timestampordering.pdf).
+
+> Thomas Write Rule
+
+```
+if(TS(Ti) < R-TS(X)) {
+    abort Ti;
+    restart Ti with a newer TS;
+}
+```
+
+```
+if(TS(Ti) < W-TS(X)) {
+    // Thomas Write Rule
+    Ignore the write;
+    Ti continue;
+}else{
+    Ti write X;
+    W-TS(X) = TS(Ti);
+    make a local copy of X to ensure repeatable reads from Ti;
+}
+```
+Examples refer to [slides](https://15445.courses.cs.cmu.edu/fall2019/slides/18-timestampordering.pdf).
+
+**Analysis**: If do not use Thomas Write Rule, will generate a conflict serializable schedule, **no deadlock** because no txn ever wait. But there is possibility of **starvation for long txns** if short txns keep causing conflicts. And there is **high overhead** from copying data to txn's workspace and from updating timestamps.
+
+##### 5.5.3 Optimistic Concurrency Control (OCC)
+Assume that conflicts between txns are **rare** and that most txns are **short-lived**, then forcing txns to wait to acquire locks adds a lot of overhead.A better approach is to optimize for the noconflict case.  
+The DBMS creates a private workspace for each txn. Any object read is copied into workspace. Modifications are applied to workspace. When a txn commits, the DBMS compares workspace write set to see whether it conflicts with other txns. If there are no conflicts, the write set is installed into the "global" database.  
+OCC is divided into 3 phases (**Read, Validation & Write**):
+###### 5.5.3.1 Read Phase
+> Track the read/write sets of txns and store their writes in a private workspace. The DBMS copies  every tuple that the txn accesses from the shared database to its workspace ensure repeatable reads.
+
+###### 5.5.3.2 Validation Phase
+> When a txn commits, check whether it conflicts with other txns.
+
+The DBMS needs to guarantee only serializable schedules are permitted. Ti
+checks other txns for **RW** and **WW** conflicts and makes sure that all conflicts go one way (from older txns to younger txns). The DBMS maintain global view of all active txns and execute **Validation** and **Write** phase inside a protected critical section.  
+When a txn invokes **COMMIT**, the DBMS checks if it conflicts with txns.
+
+| Method | Description |
+| :-----: | :-----: |
+| Backward Validation | ![Backward Validation](/img/DataBase/BackwardValidation.jpeg) |
+| Forward Validation | ![Forward Validation](/img/DataBase/ForwardValidation.jpeg) |
+
+**Remember, the logical timestamp is granted in Validation Phase, physical timestamp is different from logical timestamp. "Who firstly Validate, Who is older"**
+
+If TS(Ti) < TS(Tj ), then one of the following three conditions must hold:
+
+1. Ti completes all three phases before Tj begins;
+2. Ti completes before Tj starts its Write phase, and Ti does not write to any object read by Tj;
+3. Ti completes its Read phase before Tj completes its Read phase, and Ti does not write to any object that is either read or written by Tj.
+
+###### 5.5.3.3 Write Phase
+> If validation succeeds, apply private changes to database. Otherwise abort and restart the txn.
+
+**OCC Issues**:   
+- High overhead for copying data locally into the transaction’s private workspace.  
+- Validation/Write phase bottlenecks.  
+- Aborts are potentially more wasteful than in other protocols because they only occur after a transaction has already executed.  
+- Suffers from timestamp allocation bottleneck.
+
+##### 5.5.4 Partition-Based T/O
+###### 5.5.4.1 Why We Need Partition-Based T/O
+When a transaction commits in OCC, the DBMS has check whether there is a conflict with concurrent transactions across the entire database. This is slow if we have a lot of concurrent transactions because the DBMS has to acquire latches to do all of these checks.
+
+###### 5.5.4.2 How To Do
+Split the database up in disjoint subsets called **horizontal partitions (aka shards)**. Use timestamps to order txns for serial execution at each partition.
+Only check for conflicts between txns that are running in the same partition.  
+
+Partitions are protected by a single lock. Txns are assigned timestamps based on when they arrive at the DBMS. Each txn is queued at the partitions it needs before it starts running:  
+- The txn **acquires** a partition’s lock if it has the lowest timestamp in that partition’s queue.  
+- The txn **starts** when it has all of the locks for all the partitions that it will access during execution.  
+- Txns can read/write anything that they want at the partitions that they have locked. If a txn tries to access a partition that it does not have the lock, it is **aborted + restarted**.
+
+###### 5.5.4.3 Partition-Based T/O Issues
+Partition-based T/O protocol is **fast** if:  
+1. the DBMS knows what partitions the txn needs before it starts  
+2. most (if not all) txns only need to access a single partition
+
+##### 5.5.4 Insert / Delete Tuples
+Recall that so far we have only dealing with txns that read and update data, but  if we have insertions and deletions ?
+![Phantom](/img/DataBase/Phantom.jpeg){:height="70%" width="70%"}
+That happen because we **only lock existing records**. So how to fix it?  
+
+| Approach | Description |
+| :-----: | :-----: |
+| Predicate Locking | Lock records that satisfy a logical predicate, like "status = xxx" |
+| Index Locking | **If there is a dense index** on the status field then the txn can lock index page containing the data with "status = xxx"; **If there are no records with status='lit'**, the txn must lock the index page where such a data entry would be, if it existed. |
+| Locking Without An Index |  Re-execute every scan again when the txn commits and check whether it gets the same result |
+
+
+##### 5.5.5 Isolation Levels
+![Isolation Levels](/img/DataBase/IsolationLevels.jpeg){:height="70%" width="70%"}
+![Isolation Lock](/img/DataBase/IsolationLock.jpeg){:height="70%" width="70%"}
+
 
 ### [5.6 Multi-Version Concurrency Control (MVCC)](https://15445.courses.cs.cmu.edu/fall2019/slides/19-multiversioning.pdf)
 ##### 5.6.1 Definition
@@ -876,6 +1008,7 @@ So when we need to deal with **ABORTED** txn, firstly write a **CLR** entry to t
 Algorithms for Recovery and Isolation Exploiting Semantics (**ARIES**) describe the actions after a crash to recovery.  
 There is a [video](https://www.youtube.com/watch?v=S9nctHdkggk) explain ARIES algorithm quite clearly.
 ![ARIES](/img/DataBase/ARIES.jpeg){:height="80%" width="80%"}
+ARIES is composed of 3 phases: **Analysis, Redo & Undo**.
 ###### 6.2.3.1 Analysis Phases
 > Read WAL from **last checkpoint** to identify dirty pages in the buffer pool and active txns at the time of the crash.
 
