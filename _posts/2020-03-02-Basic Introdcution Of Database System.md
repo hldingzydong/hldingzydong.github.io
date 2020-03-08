@@ -30,7 +30,7 @@ The DBMS stores a database as one or more files on disk and OS doesn't know anyt
 > A **page** is a fixed-size block of data. It can contain tuples, meta-data, indexes or log records.  
 
 ##### 1.2.1 Files Layout
-There are three ways to organize pages inside a file.  
+There are 3 ways to organize pages inside a file.  
 - **Heap File Organization**: an unordered collection of pages where tuples are stored in random order. So pages need meta-data to track what pages exist and which one have free space. Here you can see two ways to represent:
 ![LinkedList](/img/DataBase/LinkedList.jpeg){:height="70%" width="70%"}
 ![PageDirectory](/img/DataBase/PageDirectory.jpeg){:height="70%" width="70%"}
@@ -100,7 +100,7 @@ DBMS uses a unique record identifier (**page_id + offset / slot**) to track indi
 ```sql
 UPDATE useracct SET lastLogin = NOW(), hostname = ? WHERE userID = ?
 ```
-> **On-line Analytical Processing (OLAP)**, complex queries that read large portions of the database spanning multiple entities. (类似于大数据)
+> **On-line Analytical (分析的) Processing (OLAP)**, complex queries that read large portions of the database spanning multiple entities. (类似于大数据)
 
 ```sql
 SELECT COUNT(U.lastLogin), EXTRACT(month FROM U.lastLogin) AS month
@@ -123,12 +123,12 @@ EXTRACT(month FROM U.lastLogin)
 # [2.   Buffer Pool Manager (BPM)](https://15445.courses.cs.cmu.edu/fall2019/notes/05-bufferpool.pdf)
 ![DiskOrientedDBMS](/img/DataBase/DiskOrientedDBMS.jpeg)
 ### 2.1 Why Need BPM
-According to **spatial locality** and **temporal locality**, BPM could minimize the time cost of getting a page from disk. We build our own BPM and not use OS‘s cache because we could use suitable evict algorithm to evict a page, and we could set the size of Buffer Pool.
+According to **spatial locality** and **temporal locality**, BPM could minimize the time cost of getting a page from disk. We build our own BPM and not use OS‘s cache because we could use suitable evict algorithm to evict a page, and we could set the size of Buffer Pool. So we could control it flexible and by ourselves.
 
 ### 2.2 Component
 It is a **memory region** organized as an array of fixed-size pages. An array entry is called a **frame**. There is a **page table**, mapped from page_id to frame_id. For every page in Buffer Pool, each of them need to contain Dirty Flag and Pin/Reference Counter.  
 **Dirty Flag** is used to identify whether a page is modified after read into memory. When a dirty page is evicted, DBMS needs to write it back to disk.  
-**Pin/Reference Counter** is used to decide whether this page is evicted. When Pin/Reference Counter is 0, apply Replacement Policy to this page.
+**Pin/Reference Counter** is used to decide whether this page can be a evicted candidate. When Pin/Reference Counter is 0, apply Replacement Policy to this page.
 ![BufferPoolManager](/img/DataBase/BufferPoolManager.jpeg){:height="60%" width="60%"}
 
 ### 2.3 Optimization
@@ -136,7 +136,7 @@ Multiple Buffer Pools, Pre-Fetching, Scan Sharing and Bypass().
 
 ### 2.4 Replacement Policy
 ##### 2.4.1 Least Recently Used (LRU)
-Maintain a timestamp of when each page was last accessed. When DBMS needs to evict a page, pick the oldest.
+Maintain a timestamp of each page when it was last accessed. When DBMS needs to evict a page, pick the oldest.
 
 ##### 2.4.2 Clock
 ![Clock](/img/DataBase/Clock.jpeg){:height="70%" width="70%"}
@@ -147,7 +147,7 @@ Maintain a timestamp of when each page was last accessed. When DBMS needs to evi
 
 
 # [3.   Table Index](https://15445.courses.cs.cmu.edu/fall2019/slides/07-trees1.pdf)
-> A **table index** is a replica of a subset of a table's attributes that are organized and/or sorted for efficient access using a subset of those attributes.
+> A **table index** is a copy of a subset of a table's attributes that are organized and/or sorted for efficient access using a subset of those attributes.
 
 ### 3.1 Why We Need Index
 Increase the efficiency of query, but it costs Storage and Maintenance.
@@ -216,7 +216,7 @@ Once child is latched, if it is "safe", release all latches on ancestors.
 ###### 3.3.2.5 Leaf Node Level
 Above are "top-down" manner, if we want to move from one leaf to another leaf?
 ![DeadLock](/img/DataBase/DeadLock.jpeg){:height="70%" width="70%"}
-Latches do not support deadlock detection or avoidance. The leaf node sibling latch acquisition protocol must support a "no-wait" mode. The DBMS's data structures must cope with failed latch acquisitions.
+Latches do not support deadlock detection or avoidance. The leaf node sibling latch acquisition protocol must support a "no-wait" mode. The DBMS's data structures must support failed latch acquisitions.
 
 ### [3.4 Key](https://15445.courses.cs.cmu.edu/fall2019/slides/08-trees2.pdf)
 ##### 3.4.1 Duplicate Keys
@@ -246,13 +246,15 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 | :-----: | :-----: |
 | Linear | Scan node keys from beginning to end |
 | Binary | Jump to middle key, pivot left/right depending on comparison |
-| Interpolation (figure shows) | Approximate location of desired key based on known distribution of keys |
+| Approximate (figure shows) | Approximate location of desired key based on known distribution of keys |
 
-![IntraNode](/img/DataBase/IntraNode.jpeg){:height="50%" width="50%"}
+![IntraNode](/img/DataBase/IntraNode.jpeg){:height="40%" width="40%"}
 
 ### 3.5 Index Type
 ##### 3.5.1 Clustered Index
 > The table is stored in the sort order specified by the **primary key**.
+
+![ClusteredSort](/img/DataBase/ClusteredSort.jpeg){:height="60%" width="60%"}
 
 ##### 3.5.2 Non-Unique Index  
 
@@ -268,9 +270,9 @@ Allow leaf nodes to spill into overflow nodes that contain the duplicate keys.
 
 ```sql
 CREATE TABLE foo(
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,  -- CREATE UNIQUE INDEX foo_pkey ON foo(id);
     val1 INT NOT NULL,
-    val2 VARCHAR(32) UNIQUE
+    val2 VARCHAR(32) UNIQUE -- CREATE UNIQUE INDEX foo_val2_key ON foo(val2);
 );
 ```
 ##### 3.5.4 Covering Index
@@ -279,11 +281,17 @@ CREATE TABLE foo(
 ```sql
 CREATE INDEX idx_foo ON foo(a,b);
 ```
+```sql
+SELECT b FROM foo WHERE a = 123;
+```
 ##### 3.5.5 Partial Index
 > Create an index on a subset of the entire table. 
 
 ```sql
-CREATE INDEX idx_foo ON foo(a,b) WHERE c = 'WuTang';
+CREATE INDEX idx_foo ON foo(a,b) WHERE c = 'WuTang'; -- filter is c
+```
+```sql
+SELECT b FROM foo WHERE a = 123 AND c = 'WuTang';
 ```
 ##### 3.5.6 Index Include Columns
 > Embed additional columns in indexes to support index-only queries. These extra columns are only stored in the leaf nodes and are not part of the search key.
@@ -291,11 +299,17 @@ CREATE INDEX idx_foo ON foo(a,b) WHERE c = 'WuTang';
 ```sql
 CREATE INDEX idx_foo ON foo(a,b) INCLUDE (c);
 ```
+```sql
+SELECT b FROM foo WHERE a = 123 AND c = 'WuTang';
+```
 ##### 3.5.7 Function/Expression Index
 > An index does not need to store keys in the same way that they appear in their base table.
 
 ```sql
 CREATE INDEX idx_user_login ON users (EXTRACT(dow FROM login));
+```
+```sql
+SELECT * FROM users WHERE EXTRACT(dow FROM login) = 2;
 ```
 ### 3.6 Optimization
 ###### 3.6.1 Prefix Compression
@@ -874,8 +888,8 @@ That happen because we **only lock existing records**. So how to fix it?
 
 
 ##### 5.5.5 Isolation Levels
-![Isolation Levels](/img/DataBase/IsolationLevels.jpeg){:height="70%" width="70%"}
-![Isolation Lock](/img/DataBase/IsolationLock.jpeg){:height="70%" width="70%"}
+![Isolation Levels](/img/DataBase/IsolationLevels.jpeg){:height="60%" width="60%"}
+![Isolation Lock](/img/DataBase/IsolationLock.jpeg){:height="60%" width="60%"}
 
 
 ### [5.6 Multi-Version Concurrency Control (MVCC)](https://15445.courses.cs.cmu.edu/fall2019/slides/19-multiversioning.pdf)
