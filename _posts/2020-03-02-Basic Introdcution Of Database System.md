@@ -617,7 +617,7 @@ ABORT
 | Logging | DBSM logs all actions so that it can undo the actions of aborted txns |
 | Shadow Paging | DBMS makes copies of pages and txns make changes to copies |
 
-###### 5.2.2.2 Consistency
+###### [5.2.2.2 Consistency](https://en.wikipedia.org/wiki/Consistency_(database_systems))
 > If each txn is consistent and the DB starts consistent, then it ends up consistent. "it looks correct to me"
 
 | Type | Description |
