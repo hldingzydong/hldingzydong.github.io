@@ -47,7 +47,7 @@ def hasPath(s, t):
  - Convert to Unit Weight
  - Dijkstra Algorithm(also suitable for digraph)
  	![Dijkstra Demo](/img/Algorithm/DijkstraDemo.jpeg)
- ```
+```
  def Dijkstra(G, s):
  	dist[s] = 0
  	dist[V_Array - s] = inf
@@ -96,4 +96,4 @@ def Explore_CC(G, v):
 
 ## Is there a cycle in the graph?
 #### Idea - DFS
-Durring DFS, if there is a vertex whose neighbor is marked, then there is a cycle.
+During DFS, if there is a vertex whose neighbor is marked, then there is a cycle.
