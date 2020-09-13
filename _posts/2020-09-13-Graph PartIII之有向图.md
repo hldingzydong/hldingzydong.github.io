@@ -21,13 +21,13 @@ Same as undirected graph
 
 #### Non-Unit Weight
 ###### No-Negative
-Same as undirected graph by using Dijktra Algorithm 
- 
+`Dijktra Algorithm`
+
 Ps: Why need to be non-negative?
 ![Dijktra Algorithm Non-negative](/img/Algorithm/DijktraAlgorithmNon-negative.jpeg)
 
 ###### Including Negative But No Cycle (DAG)
-1. Consider vertices in topological order  
+1. Consider vertices in `topological order`  
 2. Relax all edges pointing from that vertex
 
 Ps: If want to know the longest path in a DAG with negative weight:
@@ -35,9 +35,15 @@ Ps: If want to know the longest path in a DAG with negative weight:
 2. Find shortest path
 3. Negate the shortest path
 
+###### Including Negative With Non-negative Cycles
+Ps: If there is a cycle whose path is negative, then there is no shortest path.
+
+`Bellman-Ford Algorithm`
+
+
 
 #### Practice
-- [743. Network Delay Time](https://leetcode.com/problems/network-delay-time/)
+- For Dijktra Algorithm: [743. Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 
 
@@ -72,6 +78,8 @@ def Explore_GC(G, v):
 2. If there is `back edge` by using prev[v], post[v] and Edges, then this graph has cycle
 3. What is a back edge? If there is a edge from u to v, and prev[v] < prev[u] < post[u] < post[v]
 
+#### Is there a negative cycle ?
+Run `Bellman-Ford Algorithm` and if any vertex *v* updated in phase *v*, there exists a negative cycle.
 
 
 ## [Topological Sort(拓扑排序, Linearization Of Graph)](https://www.bilibili.com/video/BV1rx411W7gV?p=11) 
