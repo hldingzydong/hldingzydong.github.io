@@ -71,3 +71,21 @@ def BFS(G, s):
 
 #### Cycle
 - Is there a cycle in the graph?
+
+
+
+## Challenge
+
+#### Is a graph bipartite ?
+- [785. Is Graph Bipartite?](https://leetcode.com/problems/is-graph-bipartite/)
+- [886. Possible Bipartition](https://leetcode.com/problems/possible-bipartition/)
+
+#### Find a (general) cycle that uses every edge xactly once ?
+Eulerian tour
+
+#### Find a cycle that visits every vertex exactly once ?
+NP-Complete
+
+#### Find two graphs identical except for vertex names ?
+
+#### Lay out a graph in the plane without crossing edges ?

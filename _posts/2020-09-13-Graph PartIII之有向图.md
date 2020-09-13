@@ -11,7 +11,8 @@ tags:
 
 ## Is there a path between *s* and *t* ?
 Same as undirected graph
-
+#### Practice
+- [399. Evaluate Division](https://leetcode.com/problems/evaluate-division/)
 
 
 ## What is the shortest path between *s* and *t* ?
@@ -20,9 +21,23 @@ Same as undirected graph
 
 #### Non-Unit Weight
 ###### No-Negative
-Same as undirected graph
-###### Including Negative
-TODO
+Same as undirected graph by using Dijktra Algorithm 
+ 
+Ps: Why need to be non-negative?
+![Dijktra Algorithm Non-negative](/img/Algorithm/DijktraAlgorithmNon-negative.jpeg)
+
+###### Including Negative But No Cycle (DAG)
+1. Consider vertices in topological order  
+2. Relax all edges pointing from that vertex
+
+Ps: If want to know the longest path in a DAG with negative weight:
+1. Negate all weights  
+2. Find shortest path
+3. Negate the shortest path
+
+
+#### Practice
+- [743. Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 
 
@@ -69,7 +84,7 @@ Run `DFS_GC(G)` then output vertices in `DESC order of post[v]`
 #### Correctness Proof
 Refer to [video 07:15](https://www.bilibili.com/video/BV1rx411W7gV?p=11).
 
-#### Leetcode Practice
+#### Practice
 - [207.Course Schedule](https://leetcode.com/problems/course-schedule/)
 	Hint: Judge DAG
 - [210.Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)

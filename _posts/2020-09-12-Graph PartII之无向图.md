@@ -90,10 +90,12 @@ def Explore_CC(G, v):
 			Explore_CC(G, u)
 ```
 #### Practice
-- [Leetcodo.200.Number of Islands](https://leetcode.com/problems/number-of-islands/)
+- [200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 
 
 ## Is there a cycle in the graph?
 #### Idea - DFS
 During DFS, if there is a vertex whose neighbor is marked, then there is a cycle.
+#### Practice
+- [684. Redundant Connection](https://leetcode.com/problems/redundant-connection/)
