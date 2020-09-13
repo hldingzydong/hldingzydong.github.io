@@ -46,7 +46,8 @@ def hasPath(s, t):
 #### Non-Unit Weight
  - Convert to Unit Weight
  - Dijkstra Algorithm(also suitable for digraph)
- 	![Dijkstra Demo](/img/Algorithm/DijkstraDemo.jpeg)
+ 	![Dijkstra Demo](/img/Algorithm/DijkstraDemo.jpeg)  
+
 ```
  def Dijkstra(G, s):
  	dist[s] = 0
@@ -61,7 +62,7 @@ def hasPath(s, t):
  		for u in v.neightbors():
  			if dist[u] > dist[v] + length(v, u):
  				dist[u] = dist[v] + length(v, u)
- ```
+```
 Key: For vertex in unknow_shortest_vertex, always make sure a vertex which has one step from know_shortest_vertex has the smallest path.
 
 

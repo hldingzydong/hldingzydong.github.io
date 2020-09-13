@@ -23,7 +23,6 @@ def DFS(G):
 
 	for v in V_Array:
 		if !visited[v]:
-			last_vertex[v] = v
 			Explore(G, v)
 ```
 ```
@@ -43,12 +42,10 @@ Runtime: O(n + m)
 ```
 def BFS(G, s):
 	dist[s] = 0						// save distance
-	last_vertex[s] = s 				// save path
 	Queue q = [s]
 
 	for v in V_Array - s:
 		dist[v] = inf
-		last_vertex[v] = null
 
 	while !q.isEmpty():
 		u = q.poll()
@@ -56,7 +53,6 @@ def BFS(G, s):
 			if dist[v] = inf		// in case of infinite loop
 				q.push(v)
 				dist[v] = dist[u] + 1
-				last_vertex[v] = u
 ```
 
 
@@ -80,12 +76,8 @@ def BFS(G, s):
 - [785. Is Graph Bipartite?](https://leetcode.com/problems/is-graph-bipartite/)
 - [886. Possible Bipartition](https://leetcode.com/problems/possible-bipartition/)
 
-#### Find a (general) cycle that uses every edge xactly once ?
+#### Find a (general) cycle that uses every edge exactly once ?
 Eulerian tour
 
 #### Find a cycle that visits every vertex exactly once ?
 NP-Complete
-
-#### Find two graphs identical except for vertex names ?
-
-#### Lay out a graph in the plane without crossing edges ?
