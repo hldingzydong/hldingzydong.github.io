@@ -20,13 +20,15 @@ Same as undirected graph
 Same as undirected graph
 
 #### Non-Unit Weight
-###### No-Negative
+##### No-Negative
 `Dijktra Algorithm`
-
 Ps: Why need to be non-negative?
 ![Dijktra Algorithm Non-negative](/img/Algorithm/DijktraAlgorithmNon-negative.jpeg)
 
-###### Including Negative But No Cycle (DAG)
+###### Practice
+- [743. Network Delay Time](https://leetcode.com/problems/network-delay-time/)
+
+##### Including Negative But No Cycle (DAG)
 1. Consider vertices in `topological order`  
 2. Relax all edges pointing from that vertex
 
@@ -35,15 +37,9 @@ Ps: If want to know the longest path in a DAG with negative weight:
 2. Find shortest path
 3. Negate the shortest path
 
-###### Including Negative With Non-negative Cycles
+##### Including Negative With Non-negative Cycles
 Ps: If there is a cycle whose path is negative, then there is no shortest path.
-
 `Bellman-Ford Algorithm`
-
-
-
-#### Practice
-- For Dijktra Algorithm: [743. Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 
 
