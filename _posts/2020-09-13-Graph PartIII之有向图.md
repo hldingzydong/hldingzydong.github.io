@@ -9,19 +9,20 @@ tags:
 ---
 # Graph
 
-## Is there a path between *s* and *t* ?
+## Q1 - Is there a path between *s* and *t* ?
 Same as undirected graph
-#### Practice
+###### Practice
 - [399. Evaluate Division](https://leetcode.com/problems/evaluate-division/)
 
 
-## What is the shortest path between *s* and *t* ?
+
+## Q2 - What is the shortest path between *s* and *t* ?
 #### Unit Weight
 Same as undirected graph
 
 #### Non-Unit Weight
 ##### No-Negative
-`Dijktra Algorithm`
+`Dijktra Algorithm`  
 Ps: Why need to be non-negative?
 ![Dijktra Algorithm Non-negative](/img/Algorithm/DijktraAlgorithmNon-negative.jpeg)
 
@@ -38,12 +39,12 @@ Ps: If want to know the longest path in a DAG with negative weight:
 3. Negate the shortest path
 
 ##### Including Negative With Non-negative Cycles
-Ps: If there is a cycle whose path is negative, then there is no shortest path.
+Precondition: If there is a cycle whose path is negative, then there is no shortest path.  
 `Bellman-Ford Algorithm`
 
 
 
-## Is there a cycle in the graph? (DAG, Directed Acyclic Grapg, 有向无环图)
+## Q3 - Is there a cycle in the graph? (DAG, Directed Acyclic Grapg, 有向无环图)
 ```
 // GC - global clock
 def DFS_GC(G):
@@ -78,9 +79,10 @@ def Explore_GC(G, v):
 Run `Bellman-Ford Algorithm` and if any vertex *v* updated in phase *v*, there exists a negative cycle.
 
 
-## [Topological Sort(拓扑排序, Linearization Of Graph)](https://www.bilibili.com/video/BV1rx411W7gV?p=11) 
+
+## Q4 - [Topological Sort(拓扑排序, Linearization Of Graph)](https://www.bilibili.com/video/BV1rx411W7gV?p=11) 
 #### Background
-Given a set of task to be completed with `precedence constrains`, in which order should we completed these tasks ? (These tasks must be constructed as a `DAG`)
+Given a set of tasks to be completed with `precedence constrains`, in which order should we completed these tasks ? (These tasks must be constructed as a `DAG`)
 
 #### Procedure
 Run `DFS_GC(G)` then output vertices in `DESC order of post[v]`
@@ -96,7 +98,7 @@ Refer to [video 07:15](https://www.bilibili.com/video/BV1rx411W7gV?p=11).
 
 
 
-## How many components in a graph?
+## Q5 - How many components in a graph?
 #### Strong Connectivity Components(SCC)
 Exist a path from *v* to *u*, and exist a path from *u* to *v*
 #### Idea

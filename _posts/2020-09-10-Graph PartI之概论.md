@@ -14,6 +14,8 @@ tags:
 - Edge Sets
 - Adjacency Lists 
 
+
+
 ## DFS
 We assume that the graph has **n vertexes** and **m edges**.
 ```
@@ -31,9 +33,6 @@ def Explore(G, v):
 	for u in v.neighbors():
 		if !visited[u]:
 			Explore(G, u)
-```
-```
-Runtime: O(n + m)
 ```
 
 
@@ -54,6 +53,7 @@ def BFS(G, s):
 				q.push(v)
 				dist[v] = dist[u] + 1
 ```
+
 
 
 ## Discuss

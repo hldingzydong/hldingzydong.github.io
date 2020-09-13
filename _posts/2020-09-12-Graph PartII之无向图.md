@@ -9,7 +9,7 @@ tags:
 ---
 # Undirected Graph
 
-## Is there a path between *s* and *t* ?
+## Q1 - Is there a path between *s* and *t* ?
 #### Idea - DFS / BFS + edge recorder
 ```
 def DFS(G):
@@ -38,7 +38,7 @@ def hasPath(s, t):
 
 
 
-## What is the shortest path between *s* and *t* ?
+## Q2 - What is the shortest path between *s* and *t* ?
 #### Unit Weight
  - Single Source: BFS
  - Multiple Source: BFS init with multiple sources(push sources into queue)
@@ -67,7 +67,7 @@ Key: For vertex in unknow_shortest_vertex, always make sure a vertex which has o
 
 
 
-## How many components in a graph?
+## Q3 - How many components in a graph?
 #### DFS + counter
 ```
 // CC - connected components
@@ -90,13 +90,13 @@ def Explore_CC(G, v):
 		if !visited[u]:
 			Explore_CC(G, u)
 ```
-#### Practice
+###### Practice
 - [200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 
 
-## Is there a cycle in the graph?
+## Q4 - Is there a cycle in the graph?
 #### Idea - DFS
 During DFS, if there is a vertex whose neighbor is marked, then there is a cycle.
-#### Practice
+###### Practice
 - [684. Redundant Connection](https://leetcode.com/problems/redundant-connection/)
