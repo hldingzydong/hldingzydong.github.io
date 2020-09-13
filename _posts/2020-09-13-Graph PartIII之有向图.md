@@ -7,7 +7,7 @@ catalog: true
 tags:
    - algorithm
 ---
-# Graph
+# Directed Graph
 
 ## Q1 - Is there a path between *s* and *t* ?
 Same as undirected graph
@@ -80,17 +80,17 @@ Run `Bellman-Ford Algorithm` and if any vertex *v* updated in phase *v*, there e
 
 
 
-## Q4 - [Topological Sort(拓扑排序, Linearization Of Graph)](https://www.bilibili.com/video/BV1rx411W7gV?p=11) 
-#### Background
+#### [Topological Sort(拓扑排序, Linearization Of Graph)](https://www.bilibili.com/video/BV1rx411W7gV?p=11) 
+##### Background
 Given a set of tasks to be completed with `precedence constrains`, in which order should we completed these tasks ? (These tasks must be constructed as a `DAG`)
 
-#### Procedure
+##### Procedure
 Run `DFS_GC(G)` then output vertices in `DESC order of post[v]`
 
-#### Correctness Proof
+##### Correctness Proof
 Refer to [video 07:15](https://www.bilibili.com/video/BV1rx411W7gV?p=11).
 
-#### Practice
+##### Practice
 - [207.Course Schedule](https://leetcode.com/problems/course-schedule/)
 	Hint: Judge DAG
 - [210.Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
@@ -98,7 +98,7 @@ Refer to [video 07:15](https://www.bilibili.com/video/BV1rx411W7gV?p=11).
 
 
 
-## Q5 - How many components in a graph?
+## Q4 - How many components in a graph?
 #### Strong Connectivity Components(SCC)
 Exist a path from *v* to *u*, and exist a path from *u* to *v*
 #### Idea
