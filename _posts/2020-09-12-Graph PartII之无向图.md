@@ -47,6 +47,7 @@ def hasPath(s, t):
  - Convert to Unit Weight
  - Dijkstra Algorithm(also suitable for digraph)
  	![Dijkstra Demo](/img/Algorithm/DijkstraDemo.jpeg)  
+
 ```
 def Dijkstra(G, s):
  	dist[s] = 0
@@ -61,7 +62,8 @@ def Dijkstra(G, s):
  		for u in v.neightbors():
  			if dist[u] > dist[v] + length(v, u):
  				dist[u] = dist[v] + length(v, u)
-```  
+```
+
 Key: 对于已经确定了已经有最短path的vertex,将他们作为一个集合(或一个bigger vertex),下一个所要被纳入集合的点总是 one step away的最近的vertex.
 ![Dijkstra Key](/img/Algorithm/DijkstraKey.jpg)
 
