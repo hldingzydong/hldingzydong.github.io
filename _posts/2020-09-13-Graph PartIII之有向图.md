@@ -32,7 +32,7 @@ Ps: Why need to be non-negative?
 ##### Including Negative But No Cycle (DAG)
 1. Consider vertices in `topological order`  
 2. Relax all edges pointing from that vertex
-Key:
+Key: Refer to `Bellman-Ford Algorithm`, by using `topological order` could make sure the only sequence.
 
 Ps: If want to know the longest path in a DAG with negative weight:
 1. Negate all weights  
