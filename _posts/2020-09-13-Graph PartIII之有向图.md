@@ -32,6 +32,7 @@ Ps: Why need to be non-negative?
 ##### Including Negative But No Cycle (DAG)
 1. Consider vertices in `topological order`  
 2. Relax all edges pointing from that vertex
+Key:
 
 Ps: If want to know the longest path in a DAG with negative weight:
 1. Negate all weights  
@@ -41,8 +42,16 @@ Ps: If want to know the longest path in a DAG with negative weight:
 ##### Including Negative With Non-negative Cycles
 Precondition: If there is a cycle whose path is negative, then there is no shortest path.  
 `Bellman-Ford Algorithm`
-
-
+```
+dist[s] = 0
+dist[V - s] = 0
+for i = 1,...,|V|-1:
+	for e in E:
+		relax(e)
+```
+Key:
+![Bellman-Ford Algorithm](/img/Algorithm/Bellman-Ford.jpg)
+![Bellman-Ford Proof](/img/Algorithm/Bellman-FordProof.jpg)
 
 ## Q3 - Is there a cycle in the graph? (DAG, Directed Acyclic Grapg, 有向无环图)
 ```
