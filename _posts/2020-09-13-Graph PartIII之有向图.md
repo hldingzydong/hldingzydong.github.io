@@ -31,7 +31,8 @@ Ps: Why need to be non-negative?
 
 ##### Including Negative But No Cycle (DAG)
 1. Consider vertices in `topological order`  
-2. Relax all edges pointing from that vertex
+2. Relax all edges pointing from that vertex  
+
 Key: Refer to `Bellman-Ford Algorithm`, by using `topological order` could make sure the only sequence.
 
 Ps: If want to know the longest path in a DAG with negative weight:
@@ -123,3 +124,12 @@ def SCC(G):
 			Explore(G, v)
 			scc++
 ```
+
+
+
+## Shortest Path Summary
+| Situation | Algorithm | Complexity |
+| :---: | :---: | :---: |
+| any graph(cycles or not) & length > 0 | Dijkstra Algorithm | O((V + E) * logV) |
+| graph with no negative cycles | Bellman-Ford Algorithm | O(V * E) |
+| DAG | in topological sort relax edges | O(V + E) |
