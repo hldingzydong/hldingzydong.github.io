@@ -11,6 +11,7 @@ tags:
 `Weighted Quick Union with Path Compression`
 ![Union Find](/img/Algorithm/UnionFind.jpg)
 
+
 ## Code
 ```
 def makeSet(x):
@@ -37,8 +38,13 @@ def union(x, y):
 		r[y] += 1
 ```
 
+
 ## Complexity Analysis
-Any sequence of <= m finds, <= n makeSets, unions, takes time O((m + n) * log\*n)
+Any sequence of <= m finds, <= n makeSets, unions, takes time O((m + n) * log\*n).  
+Proof:  
+- [phase1 54:15](https://www.bilibili.com/video/BV1nv411i7AR?p=10)  
+- [phase2 00:00](https://www.bilibili.com/video/BV1D54y1U7aV?p=11)
+
 
 ## Practice
 - [990. Satisfiability of Equality Equations](https://leetcode.com/problems/satisfiability-of-equality-equations/)
