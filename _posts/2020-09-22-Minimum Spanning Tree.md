@@ -10,7 +10,7 @@ tags:
 # Minimum Spanning Tree(MST)
 
 ## Definition
-Input: `un`directed graph G=(V,E), edge with weight(w > 0)
+Input: `un`directed graph G=(V,E), edge with weight(w > 0)  
 Output: tree T in G that minimizes w(T) = sum(w(e)), for e in T.edges & touch all vertices
 ###### Tree
 a connected acyclic graph <-> have V-1 edges
@@ -27,7 +27,7 @@ a connected acyclic graph <-> have V-1 edges
 ```
 def Kruskal():
 	MST = {}
-	sort(E) 						// in increasing order of weight
+	sort(E) 				// in increasing order of weight
 	for e in E:
 		if MST.add(e) has cycle:	// by using Union Find
 			continue
@@ -38,7 +38,7 @@ def Kruskal():
 def Kruskal_UnionFind():
 	MST = {}
 	for v in V:
-		makeSet(v)					// init union sets
+		makeSet(v)			// init union sets
 
 	sort(E)
 	for e in E:  // e = (v1,v2)
@@ -49,7 +49,7 @@ def Kruskal_UnionFind():
 	return MST
 ```
 #### Complexity Analysis
-Refer to `Weighted Quick Union with Path Compression` Complexity Analysis, will have V makesets & unions, 2\*E finds, so complexity is O((V + 2·E)(log\*V)).
+Refer to [`Weighted Quick Union with Path Compression`](https://hldingzydong.github.io/2020/09/21/Union-Find/) Complexity Analysis, will have V makeSets & unions, 2\*E finds, so complexity is O((V + 2·E)(log\*V)).
 
 
 
