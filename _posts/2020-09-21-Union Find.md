@@ -12,7 +12,7 @@ tags:
 ![Union Find](/img/Algorithm/UnionFind.jpg)
 
 
-## Code
+## Pseudocode
 ```
 def makeSet(x):
 	p[x] = x
