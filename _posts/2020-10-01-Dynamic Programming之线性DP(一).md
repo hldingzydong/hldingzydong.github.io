@@ -252,3 +252,44 @@ dp[i][j] = Math.max(
             dp[i-2][j-1] + A[i-1] // pick element `ith` -> dp[i-2][j-1] means choose `j-1` elements from array `i-2` elements because we exclude adjacent element `(i-1)th`
            );
 ```
+
+
+
+## Part IV - Relation Between Three Items
+`Key Words`: Much more item
+#### [873. Length of Longest Fibonacci Subsequence](https://leetcode.com/problems/length-of-longest-fibonacci-subsequence/)
+`Key`: Two positions to represent a state
+```java
+for(int i = 2; i < A.length; i++) {  // a strictly increasing array A
+    int l = 0, r = i-1;
+    while(l < r) {
+        int curr_sum = A[l] + A[r];
+        if(curr_sum < A[i]) {
+            l++;
+        } else if(curr_sum > A[i]) {
+            r--;
+        } else {
+            dp[r][i] = dp[l][r] + 1;  // dp[i][j] means the number of Fibonacci SUbsequence ends with i and j
+            max = Math.max(dp[r][i], max);
+            l++;
+            r--;
+        }
+    }
+}
+```
+#### [1027. Longest Arithmetic Subsequence](https://leetcode.com/problems/longest-arithmetic-subsequence/)
+`Key`: Just like above(873. Length of Longest Fibonacci Subsequence), but use HashMap as memorization
+```java
+// key: d 
+// value: length of subsequence ends with A[j] which B[i+1] - B[i] == d
+HashMap<Integer, Integer>[] dp = new HashMap[n];
+
+for (int j = 0; j < A.length; j++) {
+    dp[j] = new HashMap<>();
+    for (int i = 0; i < j; i++) {
+        int d = A[j] - A[i];
+        dp[j].put(d, dp[i].getOrDefault(d, 1) + 1);
+        res = Math.max(res, dp[j].get(d));
+    }
+}
+```
