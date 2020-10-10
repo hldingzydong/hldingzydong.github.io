@@ -182,12 +182,12 @@ return maxSum > 0 ? Math.max(maxSum, sum - minSum) : maxSum;
 #### [面试题17.24 最大子矩阵](https://leetcode-cn.com/problems/max-submatrix-lcci/)
 `Key`: Convert to 1D array
 
-![Convert](https://pic.leetcode-cn.com/3db064ede3bc148f63d04c48fc8f852bf0e5a3e9d7ddbf58c8d526f201f08075-%E6%8D%95%E8%8E%B7.JPG)
+![Convert](/img/Algorithm/leetcode-363.jpg)
 
 
 
 #### [363. Max Sum of Rectangle No Larger Than K](https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/)
-`Key`: Same as `面试题17.24 最大子矩阵`, but the sum of sub matrix no larger than K, so cannot use #673 solution
+`Key`: Same as `面试题17.24 最大子矩阵`, but the sum of sub matrix no larger than K, so cannot use [673. Number of Longest Increasing Subsequence](https://leetcode.com/problems/number-of-longest-increasing-subsequence/) solution
 
 
 
@@ -238,13 +238,13 @@ for(int i = 0; i < nums.length; i++) {
     A[nums[i]] += nums[i];
 }
         
-return rob(A, 1, A.length-1);
+return rob(A, 0, A.length-1);
 ```
 
 
 #### [1388. Pizza With 3n Slices](https://leetcode.com/problems/pizza-with-3n-slices/)
-`Key#1`: The number of slices picked is fixed, so add it as a state
-`Key#2`: The Pizza is a cycle, so convert it to linear, just like [#213 House Robber II](https://leetcode.com/problems/house-robber-ii/)
+`Key#1`: The number of slices picked is fixed, so add it as a state  
+`Key#2`: The Pizza is a cycle, so convert it to linear, just like [213. House Robber II](https://leetcode.com/problems/house-robber-ii/)
 ```java
 // dp[i][j] is maximum sum which we pick `j` elements from linear array `i` elements
 dp[i][j] = Math.max(
