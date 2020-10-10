@@ -15,12 +15,12 @@ tags:
 
 
 #### From Sorted Array
-26. [easy](https://leetcode.wang/leetCode-26-Remove-Duplicates-from-Sorted-Array.html)  
+26. [26. Remove Duplicates from Sorted Array](https://leetcode.wang/leetCode-26-Remove-Duplicates-from-Sorted-Array.html)  
 ```
 快慢指针(aka“快慢链表”,复用input array的空间降低space complexity)
 ```
 
-80. [II medium](https://leetcode.wang/leetCode-80-Remove-Duplicates-from-Sorted-ArrayII.html)  
+80. [80. Remove Duplicates from Sorted ArrayII](https://leetcode.wang/leetCode-80-Remove-Duplicates-from-Sorted-ArrayII.html)  
 ```
 快慢指针(aka“快慢链表”,复用input array的空间降低space complexity); 
 快慢指针变形,但每次比较的是fast和slow-1;
@@ -30,8 +30,8 @@ tags:
 
 
 #### From Sorted List
-83. [easy](https://leetcode.wang/leetCode-83-Remove-Duplicates-from-Sorted-List.html)
-82. [II medium](https://leetcode.wang/leetCode-82-Remove-Duplicates-from-Sorted-ListII.html)  
+83. [83. Remove Duplicates from Sorted List](https://leetcode.wang/leetCode-83-Remove-Duplicates-from-Sorted-List.html)
+82. [82. Remove Duplicates from Sorted ListII](https://leetcode.wang/leetCode-82-Remove-Duplicates-from-Sorted-ListII.html)  
 ```
 快慢指针(慢指针始终指向distinct的末尾node,快指针遍历整个list,遇到duplicate就delete掉duplicate。为了处理head，有时需要造一个假的头指针)
 递归
@@ -56,29 +56,3 @@ stack(17 ms, 42.9 MB)
 
 #### Summary
 快慢指针，stack，递归，迭代
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
