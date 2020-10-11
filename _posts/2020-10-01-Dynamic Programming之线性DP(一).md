@@ -8,6 +8,7 @@ tags:
    - algorithm
 ---
 # 线性DP
+单串问题, 状态为`dp[i]`, i是位置(Part IV中为dp[i]\[j\], i,j都是位置), 题目列表出自[此处](https://chengzhaoxi.xyz/42296.html).
 
 ## Part I - LIS 
 `Key Words`: Order Subsequence Length
@@ -256,7 +257,6 @@ dp[i][j] = Math.max(
 
 
 ## Part IV - Relation Between Three Items
-`Key Words`: Much more item
 #### [873. Length of Longest Fibonacci Subsequence](https://leetcode.com/problems/length-of-longest-fibonacci-subsequence/)
 `Key`: Two positions to represent a state
 ```java
