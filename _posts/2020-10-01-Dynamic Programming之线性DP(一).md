@@ -8,19 +8,22 @@ tags:
    - algorithm
 ---
 # 线性DP
-单串问题, 状态为`dp[i]`, i是位置(Part IV中为dp[i]\[j\], i,j都是位置), 题目列表出自[此处](https://chengzhaoxi.xyz/42296.html).
+单串问题, 状态为`dp[i]`, i是位置(Part IV中为dp[i]\[j\], i,j都是位置), 题目列表出自[此处](https://chengzhaoxi.xyz/42296.html).  
+
+`无后效性`: 当确定了[0:i]区间内的每个子问题的最优解后,无论[i:-1]区间怎么变化,对[0:i]区间已经求得的结果不造成影响  
+`最优子结构`: dp[i]是基于[0:i]中的某个/多个子问题的最优解得出的
 
 ## Part I - LIS 
 `Key Words`: Order Subsequence Length
+
 #### [300. Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 ###### Analysis
 `Input`: unsorted **Integer** array A  
 `Output`: **length** of **longest increasing** **subsequence**  
+`Key`: 由于求subsequence,应当基于前面某个位置的最优解,求出当前位置的最优解
 
 `Object`: Integer  
-`Compare`: < = >
-
-`Note`: subsequence not continuous  
+`Compare`: < = > 
 
 ###### Solution
 ```java
@@ -139,10 +142,13 @@ for i in cols:
 
 ## Part II - Contious Subarray
 `Key Words`: Contious Sum/Product
+
 #### [53. Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)  
 ###### Analysis
 `Input`: unsorted integer array A  
-`Output`: **contiguous subarray** (containing at least one number) which has the **largest sum** 
+`Output`: **contiguous subarray** (containing at least one number) which has the **largest sum**  
+`Key`:由于求contious,应当是基于前一个位置的最优解,求出当前位置的最优解
+
 ###### Solution
 ```java
 dp_max[i] = Math.max(A[i], dp_max[i-1] + A[i]); // record the maximun sum which ends with A[i]
@@ -194,13 +200,17 @@ return maxSum > 0 ? Math.max(maxSum, sum - minSum) : maxSum;
 
 ## Part III - House Robber
 `Key Words`: No-adjacent Sum
+
 #### [198. House Robber](https://leetcode.com/problems/house-robber/)
 ###### Analysis
 `Input`: unsorted positive integer array A  
-`Output`: **maxSum** of items not **adjacent**
+`Output`: **maxSum** of items not **adjacent**  
+`Key`: 由于在每个位置可选择抢或者不抢,应当需要记录在每个位置抢或者不抢的状态
+
 ###### Solution
 ```java
 // General
+// dp[2][i] - dp[0]/dp[1] 表示是否抢劫该处,i表示位置
 dp[0][i] = Math.max(dp[0][i-1], dp[1][i-1]);    // exclude this item
 dp[1][i] = dp[0][i-1] + nums[i];                // include this item
 

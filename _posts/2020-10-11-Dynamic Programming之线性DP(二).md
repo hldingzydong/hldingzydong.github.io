@@ -9,11 +9,21 @@ tags:
 ---
 # 线性DP
 双串问题, 状态为`dp[i][j]`, i为第一串的位置, j为第二串的位置.
-
+```java
+// Template
+for(int i = 0; i <= s1.length(); i++) {
+    for(int j = 0; j <= s2.length(); j++) {
+        // i为s1的index
+        // j为s2的index
+        dp[i][j].calculate()
+    }
+}
+```
 
 
 ## Part I - LCS
 `Key Words`: Subsequence Two-String Common
+
 #### [1143. Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 ###### Analysis
 `Input`: Two strings (s1 s2)  
