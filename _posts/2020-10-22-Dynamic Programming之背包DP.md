@@ -16,7 +16,7 @@ tags:
 `Feature`: 转换为01背包问题, 选择子集使其之和无限接近总和(sum)的一半,此时剩余的石头的重量(sum - 2\*maxHalfSum)最小
 ```java
 boolean[] dp = new boolean[sum/2+1]; // true代表存在子集使得子集的总重量恰好为i, false则代表不存在
-dp[0] = true;
+dp[0] = true;   // 当 j == stones[i] 时,即只放该物品可填满背包,故为true
 
 int maxHalfSum = 0;
 for(int i = 0; i < stones.length; i++) {
@@ -29,6 +29,7 @@ for(int i = 0; i < stones.length; i++) {
     }
 }
 ```
+
 #### [416. Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
 `Feature`: 01背包,要求恰好装满背包
 ```java
@@ -64,7 +65,7 @@ return dp[amount] == Integer.MAX_VALUE ? -1 : dp[amount];
 ```
 
 #### [518. Coin Change 2](https://leetcode.com/problems/coin-change-2/)
-`Feature`: 同上,但是求方案数
+`Feature`: 同上,但是求方案数,参考[背包九讲中求方案总数](https://www.kancloud.cn/kancloud/pack/70133)
 ```java
 // dp[i][j] - 代表从前i种类型的硬币中pick,使得总和为j的方案数
 // dp[i-1][j] - 代表不选择当前这种类型
@@ -98,4 +99,25 @@ for(int i = 1; i < strs.length; i++) {
         }
     }
 }
+```
+
+## [背包问题问法变化](https://www.kancloud.cn/kancloud/pack/70133)
+#### 完全背包-求方案总数
+```python
+f[0][0] = 1
+f[i][v] = sum{f[i-1][v], f[i][v-c[i]]}
+```
+
+#### 01背包-求最优方案总数
+```python
+for i = 1..N
+   for v = 0..V
+        f[i][v] = max{f[i-1][v],f[i-1][v-c[i]]+w[i]}
+        g[i][v] = 0
+
+        if(f[i][v] == f[i-1][v])
+            inc(g[i][v], g[i-1][v])
+
+        if(f[i][v] == f[i-1][v-c[i]]+w[i])
+            inc(g[i][v], g[i-1][v-c[i]])
 ```
