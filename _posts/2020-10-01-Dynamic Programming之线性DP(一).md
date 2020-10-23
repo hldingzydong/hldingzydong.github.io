@@ -198,6 +198,19 @@ return maxSum > 0 ? Math.max(maxSum, sum - minSum) : maxSum;
 
 
 
+#### [1186. Maximum Subarray Sum with One Deletion](https://leetcode.com/problems/maximum-subarray-sum-with-one-deletion/)
+`Key`: 考虑两种状态:已经删除过和未删除过
+```java
+// 因为i仅依赖于i-1,可优化
+for(int i = 1; i < arr.length; i++) {
+    noDel[i] = Math.max(noDel[i-1] + arr[i], arr[i]);
+    del[i] = Math.max(noDel[i-1], del[i-1] + arr[i]);
+    maxSum = Math.max(maxSum, Math.max(noDel[i], del[i]));
+}
+```
+
+
+
 ## Part III - House Robber
 `Key Words`: No-adjacent Sum
 

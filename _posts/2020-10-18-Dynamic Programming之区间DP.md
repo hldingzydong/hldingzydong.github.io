@@ -162,6 +162,29 @@ for(int len = 2; len <= S.length(); len++) {
 
 
 
+#### [1278. Palindrome Partitioning III](https://leetcode.com/problems/palindrome-partitioning-iii/)
+1. 使用区间DP计算出使区间内的string变成回文所需要的最少的字符替换:changeDp[][] 
+2. 
+```java
+int[][] dp = new int[s.length()+1][k+1];
+for(int i = 1; i <= s.length(); i++) {
+    for(int j = 1; j <= k; j++) {
+        if(i == 1) {
+            dp[i][j] = 0;
+        } else if(j == 1) {
+            dp[i][j] = changeDp[0][i-1];
+        } else {
+            dp[i][j] = Integer.MAX_VALUE;
+            for(int c = i-1; c >= j-1; c--) {
+                dp[i][j] = Math.min(dp[i][j], dp[c][j-1] + changeDp[c][i-1]);
+            }
+        }
+    }
+}
+```
+
+
+
 ## Part II - 区间内的中间点
 `Key`: 在计算区间的最优解时,多一个中间的状态点来决定最优解,因此多一层循环(from 左端点 to 右端点)  
 `Note`: 在code中很多 base case,如 len == 2 可省略,但为了代码可读性则保留
@@ -264,7 +287,6 @@ for(int i = 0; i < nums.length; i++) {
 }
 nums = extendNums;
 ```
-
 ```java
 // step2: caluculate
 for(int len = 3; len <= nums.length; len++) {
