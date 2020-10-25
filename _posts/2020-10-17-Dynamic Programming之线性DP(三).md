@@ -163,3 +163,6 @@ for(int i = row-1; i > -1; i--) {
     }
 }
 ```
+
+#### [1277. Count Square Submatrices with All Ones](https://leetcode.com/problems/count-square-submatrices-with-all-ones/)
+`Feature`: [Solution](https://leetcode.com/problems/count-square-submatrices-with-all-ones/discuss/441306/JavaC%2B%2BPython-DP-solution)
