@@ -45,6 +45,41 @@ for(int i = 0; i < nums.length; i++) {
 return dp[target];
 ```
 
+#### [879. Profitable Schemes](https://leetcode.com/problems/profitable-schemes/)
+`Feature`: 01背包,但是多了一个条件是利润不得低于P,因此多引入了一个状态变量
+```java
+// question method
+int profitableSchemes(int G, int P, int[] group, int[] profit);
+
+int[][][] dp = new int[group.length][G+1][P+1];
+// base case, 只有第一项crime可供选择
+for(int j = 0; j <= G; j++) {
+    for(int k = 0; k <= P; k++) {
+        if(k == 0) {
+            // 因为至少产生0利润,那么只要人数够,可以有两种选择,选或者不选([0], [])，否则只能不选
+            dp[0][j][k] = group[0] <= j ? 2 : 1;
+        } else {
+            // 因为至少要产生k利润,那么只有选([0]),或者没有决策(0)
+            dp[0][j][k] = group[0] <= j && profit[0] >= k ? 1 : 0;
+        }
+    }
+}
+
+// iterate
+for(int i = 1; i < group.length; i++) {
+    for(int j = 0; j <= G; j++) {
+        for(int k = 0; k <= P; k++) {
+            dp[i][j][k] = dp[i-1][j][k]; // 不选
+            if(j >= group[i]) { // 选
+                dp[i][j][k] += dp[i-1][j-group[i]][k-profit[i]];
+            } else {
+                dp[i][j][k] += dp[i-1][j-group[i]][0];
+            }
+        }
+    }
+}
+```
+
 ## [完全背包](https://www.kancloud.cn/kancloud/pack/70126)
 #### [322. Coin Change](https://leetcode.com/problems/coin-change/)
 `Feature`: 完全背包,每个硬币可以选无限次(包括0次)
