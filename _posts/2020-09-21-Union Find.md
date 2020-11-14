@@ -47,6 +47,19 @@ Proof:
 
 
 ## Practice
+#### Array
+- [765. Couples Holding Hands](https://leetcode.com/problems/couples-holding-hands/)
+- [924. Minimize Malware Spread](https://leetcode.com/problems/minimize-malware-spread/)
+- [928. Minimize Malware Spread II](https://leetcode.com/problems/minimize-malware-spread-ii/)
+- [947. Most Stones Removed with Same Row or Column](https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/)
+- [952. Largest Component Size by Common Factor](https://leetcode.com/problems/largest-component-size-by-common-factor/)
 - [990. Satisfiability of Equality Equations](https://leetcode.com/problems/satisfiability-of-equality-equations/)
 - [1202. Smallest String With Swaps](https://leetcode.com/problems/smallest-string-with-swaps/)
 - [1319. Number of Operations to Make Network Connected](https://leetcode.com/problems/number-of-operations-to-make-network-connected/)
+
+#### Map(String-String)
+- [721. Accounts Merge](https://leetcode.com/problems/accounts-merge/)
+- [839. Similar String Groups](https://leetcode.com/problems/similar-string-groups/)
+- [959. Regions Cut By Slashes](https://leetcode.com/problems/regions-cut-by-slashes/)
+
+
