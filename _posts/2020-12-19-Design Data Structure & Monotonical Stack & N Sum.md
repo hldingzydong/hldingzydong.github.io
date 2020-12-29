@@ -36,8 +36,71 @@ tags:
 
 - [1. Two Sum](https://leetcode.com/problems/two-sum/)
 - [15. 3Sum](https://leetcode.com/problems/3sum/)
+```python
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        nums.sort()
+        for i in range(len(nums) - 2):
+            # nums[j] > ... > nums[i] > 0, break
+            if nums[i] > 0:
+                break
+
+            # remove duplicate
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+
+            left = i + 1
+            right = len(nums) - 1
+            while left < right:
+                currSum = nums[i] + nums[left] + nums[right] 
+                if currSum == 0:
+                    res.append([nums[i], nums[left], nums[right]])
+                    left = left + 1
+                    right = right - 1
+                    while left < right and nums[left] == nums[left-1]:
+                        left = left + 1
+                    while left < right and nums[right] == nums[right+1]:
+                        right = right - 1
+                elif currSum < 0:
+                    left = left + 1
+                else:
+                    right = right - 1
+        return res
+```
+
 - [16. 3Sum Closest](https://leetcode.com/problems/3sum-closest/)
+```python
+class Solution:
+    def threeSumClosest(self, nums: List[int], target: int) -> int:
+        nums.sort()
+        minDistance = float('inf')
+        cloestSum = 0
+        for i in range(len(nums) - 2):
+            ## jump over duplicate
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+
+            left = i + 1
+            right = len(nums) - 1
+            while left < right:
+                currSum = nums[i] + nums[left] + nums[right]
+                distance = abs(currSum - target)
+                if distance < minDistance:
+                    minDistance = distance
+                    cloestSum = currSum
+                if currSum == target:
+                    return target
+                elif currSum < target:
+                    left = left + 1
+                else:
+                    right = right - 1
+        return cloestSum
+```
+
 - [18. 4Sum](https://leetcode.com/problems/4sum/)
+`Solution`: 在3Sum上套一层即可
+
 - [167. Two Sum II - Input array is sorted
 ](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 - [454. 4Sum II](https://leetcode.com/problems/4sum-ii/)
