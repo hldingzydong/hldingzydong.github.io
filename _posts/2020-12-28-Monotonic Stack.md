@@ -33,6 +33,7 @@ class Solution:
 ```
 
 - [739. Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
+
 ```python
 class Solution:
     def dailyTemperatures(self, T: List[int]) -> List[int]:
