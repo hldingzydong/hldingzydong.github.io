@@ -13,7 +13,8 @@ tags:
 ![Master Theorem](/img/Algorithm/MasterTheorem.jpg)
 
 ## Practice
+- [215. Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
+- [395. Longest Substring with At Least K Repeating Characters](https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/)
 - [973. K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/)
 	Hint: Quick Select
-- [241. Different Ways to Add Parentheses](https://leetcode.com/problems/different-ways-to-add-parentheses/)
-- [312. Burst Balloons](https://leetcode.com/problems/burst-balloons/)
+

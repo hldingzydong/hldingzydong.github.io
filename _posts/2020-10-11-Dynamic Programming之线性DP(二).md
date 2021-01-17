@@ -131,9 +131,64 @@ for(int i = 0; i <= s1.length(); i++) {
 
 #### [44. Wildcard Matching](https://leetcode.com/problems/wildcard-matching/)
 [Logical Explanation](https://leetcode.com/problems/wildcard-matching/discuss/370736/Detailed-Intuition-From-Brute-force-to-Bottom-up-DP)
+```python
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        if len(s) == 0:
+            if len(p) == 0:
+                return True
+            else:
+                for i in range(len(p)):
+                    if p[i] != '*':
+                        return False
+                return True
+            
+        elif len(p) == 0:
+            return False
+
+        dp = [[False for i in range(len(p) + 1)] for j in range(len(s) + 1)]
+
+        # base cases
+        dp[0][0] = True
+        for i in range(len(p)):
+            if p[i] == '*':
+                dp[0][i+1] = dp[0][i]
+            
+        # iteration
+        for sIndex in range(len(s)):
+            for pIndex in range(len(p)):
+                if p[pIndex] == '?' or p[pIndex] == s[sIndex]:
+                    dp[sIndex+1][pIndex+1] = dp[sIndex][pIndex]
+                elif p[pIndex] == '*': # match empty || match single char || match ("aaaaa", "a*")
+                    dp[sIndex+1][pIndex+1] = dp[sIndex+1][pIndex] or dp[sIndex][pIndex] or dp[sIndex][pIndex+1]
+        return dp[len(s)][len(p)]
+```
+
 
 #### [10. Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/)
 [Logical Explanation](https://leetcode.com/problems/regular-expression-matching/discuss/5651/Easy-DP-Java-Solution-with-detailed-Explanation)
+```python
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        dp = [[False for i in range(len(p) + 1)] for j in range(len(s) + 1)]
+        dp[0][0] = True
+        for j in range(1, len(p) + 1):
+            if p[j - 1] == '*':
+                dp[0][j] = dp[0][j - 2]
+
+        for i in range(1, len(s) + 1):
+            for j in range(1, len(p) + 1):
+                currCharMatch = s[i - 1] == p[j - 1] or p[j - 1] == '.'
+                if currCharMatch:
+                    dp[i][j] = dp[i - 1][j - 1]
+                elif p[j - 1] == '*':
+                    prevCharMatch = s[i - 1] == p[j - 2] or p[j - 2] == '.'
+                    matchEmpty = dp[i][j - 2]
+                    matchOnce = dp[i][j - 1] if prevCharMatch else False
+                    matchMulti = dp[i - 1][j] if prevCharMatch else False
+                    dp[i][j] = matchEmpty or matchOnce or matchMulti
+        return dp[len(s)][len(p)]
+```
 
 
 ## Part III - Others

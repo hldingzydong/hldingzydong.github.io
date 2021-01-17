@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  Design Data Structure & Monotonical Stack & N Sum
+title:  Design Data Structure & N Sum
 date:   2020-12-19
 author: hding
 catalog: true
@@ -21,14 +21,6 @@ tags:
 - [676. Implement Magic Dictionary](https://leetcode.com/problems/implement-magic-dictionary/)
 - [895. Maximum Frequency Stack](https://leetcode.com/problems/maximum-frequency-stack/)
 - [981. Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/)
-
-
-
-# Monotonical Stack
-
-- [316. Remove Duplicate Letters](https://leetcode.com/problems/remove-duplicate-letters/)
-- [402. Remove K Digits](https://leetcode.com/problems/remove-k-digits/)
-- [456. 132 Pattern](https://leetcode.com/problems/132-pattern/)
 
 
 
