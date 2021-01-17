@@ -99,6 +99,34 @@ for(int i = 1; i <= amount; i++) {
 return dp[amount] == Integer.MAX_VALUE ? -1 : dp[amount];
 ```
 
+#### [377. Combination Sum IV](https://leetcode.com/problems/combination-sum-iv/)
+`Feature`: 同上,可选无数次
+```java
+class Solution {
+    public int combinationSum4(int[] nums, int target) {
+        Arrays.sort(nums);
+        
+        int[] dp = new int[target+1];
+        dp[0] = 1;
+        for(int i = 1; i < dp.length; i++) {
+            for(int j = 0; j < nums.length; j++) {
+                if(nums[j] > i) {
+                    break;
+                }
+                dp[i] = dp[i] + dp[i - nums[j]];
+            }
+        }
+        return dp[target];
+    }
+}
+```
+
+###### Follow-up
+Q: What if negative numbers are allowed in the given array?  
+A: The problem with negative numbers is that now the combinations could be potentially of infinite length. Think about `nums = [-1, 1]` and `target = 1`. We can have all sequences of arbitrary length that follow the patterns `-1, 1, -1, 1, ..., -1, 1, 1` and `1, -1, 1, -1, ..., 1, -1, 1` (there are also others, of course, just to give an example). So we should limit the length of the combination sequence, so as to give a bound to the problem.
+
+
+
 #### [518. Coin Change 2](https://leetcode.com/problems/coin-change-2/)
 `Feature`: 同上,但是求方案数,参考[背包九讲中求方案总数](https://www.kancloud.cn/kancloud/pack/70133)
 ```java
