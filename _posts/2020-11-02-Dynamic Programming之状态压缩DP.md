@@ -269,3 +269,8 @@ for(int i = 1; i <= HAT_NUM; i++) {
     }
 }
 ```
+
+
+
+#### [698. Partition to K Equal Sum Subsets](https://leetcode.com/problems/partition-to-k-equal-sum-subsets/)
+#### [1349. Maximum Students Taking Exam](https://leetcode.com/problems/maximum-students-taking-exam/)

@@ -81,6 +81,38 @@ for(int i = 1; i < group.length; i++) {
 ```
 
 ## [完全背包](https://www.kancloud.cn/kancloud/pack/70126)
+#### [279. Perfect Squares](https://leetcode.com/problems/perfect-squares/)
+`Feature`: 完全背包, 每个candidate可以选无限次(包括0次)
+```java
+class Solution {
+    public int numSquares(int n) {
+        int floor = (int)Math.sqrt(n);
+        if(floor * floor == n) {
+            return 1;
+        }
+        int[] squares = new int[floor+1];
+        for(int i = 0; i < squares.length; i++) {
+            squares[i] = i * i;
+        }
+
+        int[] dp = new int[n+1];
+        Arrays.fill(dp, Integer.MAX_VALUE);
+        dp[0] = 0;
+        dp[1] = 1;
+        for(int i = 2; i <= n; i++) {
+            for(int j = 1; j <= floor; j++) {
+                if(squares[j] > i) {
+                    break;
+                } else {
+                    dp[i] = Math.min(dp[i], 1 + dp[i - squares[j]]);
+                }
+            }
+        }
+        return dp[n];
+    }
+}
+```
+
 #### [322. Coin Change](https://leetcode.com/problems/coin-change/)
 `Feature`: 完全背包,每个硬币可以选无限次(包括0次)
 ```java

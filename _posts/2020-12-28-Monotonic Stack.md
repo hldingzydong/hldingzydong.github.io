@@ -153,6 +153,7 @@ class Solution:
 ```
 
 - [316. Remove Duplicate Letters](https://leetcode.com/problems/remove-duplicate-letters/)
+- [321. Create Maximum Number](https://leetcode.com/problems/create-maximum-number/)
 - [402. Remove K Digits](https://leetcode.com/problems/remove-k-digits/)
 - [456. 132 Pattern](https://leetcode.com/problems/132-pattern/)
 ```python
