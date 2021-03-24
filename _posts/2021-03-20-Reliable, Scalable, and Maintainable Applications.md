@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  DDIA读书笔记<Reliable, Scalable, and Maintainable Applications>
+title:  Reliable, Scalable, and Maintainable Applications
 date:   2021-03-20
 author: hding
 catalog: true
