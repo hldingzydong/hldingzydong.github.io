@@ -20,7 +20,7 @@ tags:
 > `Maintainability`  
 > Over time, many different people will work on the system (engineering and operations, both maintaining current behavior and adapting the system to new use cases), and they should all be able to work on it productively.
 
-接下来,我们将深究这三个特性更为精确的定义,以及如何实现这三个特性.
+接下来,我们将探究这三个特性更为精确的定义,以及如何实现这三个特性.
 
 
 
@@ -93,7 +93,7 @@ tags:
 
 #### Describing Load
 当我们讨论系统的Scalability时,第一要明确,`对于当前的系统,其load是什么`.  
-比如对于一个web server来说,它的load可能是每秒的请求,对于DB来讲,可能是读写比例,对于cache来讲,可能是cache命中率.  
+比如对于一个web server来说,它的load可能是每秒的请求; 对于DB来讲,可能是读写比例; 对于cache来讲,可能是cache命中率.  
 只有明确系统的load之后,才可去观测其在不同的load下的performance.
 
 #### Describing Performance
@@ -128,7 +128,7 @@ tags:
 > `head-of-line blocking`  
 > As a server can only process a small number of things in parallel (limited, for example, by its number of CPU cores), it only takes a small number of slow requests to hold up the processing of subsequent requests.  
 
-因此当我们测试系统的load的时候,作为测试的client应答保持一直发送请求,而不是完成一个请求的发送与接收后再发送下一个请求.
+因此当我们测试系统的load的时候,作为测试的client应当保持一直发送请求,而不是完成一个请求的发送与接收后再发送下一个请求.
 
 
 #### Approaches for Coping with Load
