@@ -19,8 +19,8 @@ Data Model非常重要,因为它:
 3. SWE who built database software decided on a way of representing that JSON/XML/relational/graph data in terms of bytes in memory, on disk, or on a network.    
 4. HWE have figured out how to represent bytes in terms of electrical currents, pulses of light, magnetic fields, and more.
 
-甚至在其中某一层,可以更加细分,比如某个API的实现基于另外一个底层的API.但是每层模型的idea是一致的:`通过提供简洁的Data Model/API,隐藏了该层的复杂性,实现了对该层的抽象`.  
-因此,Data Model十分重要,我们需要根据合适的业务场景,来决定采用哪一种Data Model.在本篇章中我们将介绍`Relational Model`,`Document Model`和`Graph-Like Model`.
+甚至在其中某一层,可以更加细分,比如某个API的实现基于另外一个底层的API.但是每层模型的idea是一致的:`通过提供简洁的Data Model/API,来隐藏该层的复杂性,并实现对该层的抽象`.  
+因此,Data Model十分重要,我们需要根据当前的业务场景,来决定采用哪一种更合适的Data Model.在本篇章中我们将介绍`Relational Model`,`Document Model`和`Graph-Like Model`.
 
 ## Relational Model VS Document Model
 
@@ -35,7 +35,7 @@ Data Model非常重要,因为它:
 ![Representing a LinkedIn profile using a relational schema. Photo of Bill Gates courtesy of Wikimedia Commons, Ricardo Stuckert, Agência Brasil.](https://learning.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/assets/ddia_0201.png)
 
 ##### `Phase1`
-可以看到,一份简历中包含last_name,first_name,教育经历,工作经历,个人总结和联系方式.因为一个人只会在简历上有一个last_name和一个first_name,那么使用一张表(Relational Model)来记录并表示是没有问题的,那么对于其他项呢,比如教育经历,一个人可能含有很多教育经历(`one-to-many`),那么用Relational Model如何表示呢?这里给出了三种solution:
+可以看到,一份简历中包含last_name,first_name,教育经历,工作经历,个人总结和联系方式这些项.因为一个人的简历上只会有一个last_name和一个first_name,那么使用一张表(即Relational Model)来表示是没有问题的.那对于其他项呢,比如教育经历,一个人可能有很多教育经历(`one-to-many`),那么用Relational Model如何表示呢?这里给出了三种solution:
 
 1. Put positions, education, and contact information in `separate tables`, with a foreign key reference to the users table, as figure shows.  
 2. Later versions of the SQL standard added `support for structured datatypes and XML data`; this allowed multi-valued data to be stored within a single row, with support for querying and indexing inside those documents.  
@@ -49,10 +49,10 @@ Data Model非常重要,因为它:
 比如采用JSON representation来存储:
 ```json
 {  
-  "user_id":     251,  
-  "first_name":  "Bill",  
+  "user_id":     251,    
+  "first_name":  "Bill",   
   "last_name":   "Gates",  
-  "summary":     "Co-chair of the Bill & Melinda Gates... Active blogger.",  
+  "summary":     "Co-chair of the Bill & Melinda Gates... Active blogger.",   
   "region_id":   "us:91",  
   "industry_id": 131,  
   "photo_url":   "/p/7/000/253/05b/308dd6e.jpg",  
@@ -75,7 +75,7 @@ Note: JSON的表示如同树一样.
 
 
 ##### `Phase2`
-在比尔盖茨的简历中,我们可以看到在用Relational Model表示所在地(region_id="Greater Seattle Area")和所在行业(industry_id="Philanthropy")时,我们并没有将其作为string/text放在user表中,而是分别单独建立一张表(regions/industries table),而在user表中存放的是对应region/industry的ID.这样做有何好处?  
+在上图中,可以看到在用Relational Model表示所在地(region_id="Greater Seattle Area")和所在行业(industry_id="Philanthropy")时,并没有将其作为string/text放在user表中,而是分别单独建立一张表(regions/industries table),而在user表中存放的是对应region/industry的`ID`.这样做有何好处?  
 Note: 这里隐含了`many-to-one`的关系(很多人可能住在同一个地方).
 
 - `Consistent style` and `spelling across profiles`
@@ -85,13 +85,13 @@ Note: 这里隐含了`many-to-one`的关系(很多人可能住在同一个地方
 - `Better search`  
 
 同时隐含了`duplication`的问题.  
-- 假设不使用ID,那么存储的数据(industry_id="Philanthropy")只能被人类认识.因此,当使用string/text来存储时,所有使用字段的地方,都是对人类有意义的信息的duplication,假设有一天我们要对某个信息进行更改,比如更换某个region的名字,那么在所有使用它的地方都要进行更改,这将带来write的开销,而且容易造成不一致性(有的table更新成新的名字,有的table没有).   
+- 当不使用ID来存储时,那么存储的数据(比如industry_id="Philanthropy")只能被人类认识.因此,当使用string/text来存储时,所有使用对应的field的地方,都是对人类有意义的信息的duplication.假设有一天我们要对某个field进行update,比如更换某个region的名字,那在所有使用它的地方都要update,这将带来write的开销,而且容易造成不一致性(有的table的field被update成新的名字,而有的table没有).   
 
-- 当我们使用ID来存储时,ID是机器认识的,因为人类不认识它,它从不需要改变.当我们要更换某个region的名字时,只需要修改一处即可.  
+- 当使用ID来存储时,ID是机器认识的,但因为人类不认识它,所以它不需要update.比如当需要update某个region的名字时,只需update一处即可(即update这张额外的ID-string/text表).  
 
-但是,当进行query时,需要join两张表.  
-在Phase1中,我们认为Document Model最适合用来表示简历.但是Document Model不适合甚至不支持进行join,因此若使用Document Model,则需要在application的code中进行join.  
-除此之外,随着我们的模型逐渐完善,有可能对模型提出了其他的需求,比如需要将教育经历中的学校作为一个Entity,或者将工作经历中的公司作为一个Entity.如图LinkedIn上的简历所示:
+但是,`当进行query时,需要join两张表`.  
+在Phase1中,我们认为Document Model最适合用来表示简历.但是Document Model不适合甚至有时不支持进行join,因此若使用Document Model,则有时需要在application的code中进行join.  
+除此之外,随着我们的模型逐渐完善,(FA)有可能对模型提出了其他的需求,比如需要将教育经历中的学校作为一个Entity,或者将工作经历中的公司作为一个Entity.如图LinkedIn上的简历所示:
 ![The company name is not just a string, but a link to a company entity. Screenshot of linkedin.com.](https://learning.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/assets/ddia_0203.png)
 
 这就引入了`many-to-many`的关系.可以进一步将简历抽象为如图所示:
@@ -100,11 +100,11 @@ Note: 这里隐含了`many-to-one`的关系(很多人可能住在同一个地方
 
 
 ##### `Phase3`
-- 为了解决`many-to-many`的关系,又提出了Network Model.在Document Model的树形结构中,每个record仅有一个parent.而在Network Model中,允许record拥有多个parent.这样就实现了`many-to-one`和`many-to-many`的关系.因此,在Network Model中的query,其实本质上是对图的遍历.但是,这样的模型使得query和update变得复杂,并且不灵活.一旦我们更改了access path,那么我们必须查看之前写的query(遍历)并且重写使得其能够apply新的路径.  
+- 为解决`many-to-many`的关系,研究者又提出了`Network Model`.在Document Model的树形结构中,每个record仅有一个parent.而在Network Model中,允许每个record拥有多个parent.这样就实现了`many-to-one`和`many-to-many`的关系.因此,在Network Model中的query,其本质是对图的遍历.但是,这样的模型使得query和update变得复杂,而且不灵活.一旦我们update了access path,那必须查看之前写的query(遍历)并且重写使得其能够apply新的路径.  
 
-- 那么`many-to-many`在Relational Model中是怎么解决的呢?Relational Model只需要正常创建表并且存放数据即可.当进行query时,只需要declare即可,具体如何进行query由数据库内核中的query optimizer完成.  
+- 那么`many-to-many`在Relational Model中是怎么解决的呢?Relational Model只需要正常创建表并且存放数据即可.当进行query时,只需要declare即可,具体如何query由数据库内核中的query optimizer完成.  
 
-- 而现如今的Document Model中,通过`document reference`也解决了`many-to-one`和`many-to-many`的问题,如同Relational Model中的`foreign key`一样.
+- 现如今的Document Model中,通过`document reference`也解决了`many-to-one`和`many-to-many`的问题,如同Relational Model中的`foreign key`一样.
 
 
 
@@ -123,13 +123,13 @@ Document Model的scheme更具有灵活性,不如称Document Model的scheme为sch
 > `scheme-on-write`  
 > The traditional approach of relational databases, where the schema is explicit and the database ensures all written data conforms to it.
 
-当我们需要更新对data的format进行change的时候,scheme的灵活性显得尤为重要.不如让我们举个例子,假设我们现在要从简历中的name分出来first_name,那么对于Document Model,我们只需要在应用层中,读取old的data时进行如下操作即可:
+当需要对data的format进行change的时候,scheme的灵活性显得尤为重要.举个例子,假设现在要从简历中的name分出来first_name,那对于Document Model,只需在应用层中,读取old的data时进行如下操作即可:
 ```javascript
 if (user && user.name && !user.first_name) {
     user.first_name = user.name.split(" ")[0];
 }
 ```
-而对于Relational Model呢?我们需要对表结构进行更改:
+而对于Relational Model呢?需要对表结构进行更改:
 ```sql
 ALTER TABLE users ADD COLUMN first_name text;
 UPDATE users SET first_name = split_part(name, ' ', 1);      -- PostgreSQL
@@ -141,9 +141,9 @@ UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 - There are many different types of objects, and it is not practicable to put each type of object in its own table.  
 - The structure of the data is determined by external systems over which you have no control and which may change at any time.  
 
-`第三个问题`,是Data的Locality.  
-对于Document Model,每一项Document往往都是被存储为一个continuous的string,encoded为JSON,XML或BINARY的变种.如果application经常需要访问整个Document,比如用它去渲染一个web page,那么Document的Locality将会有更好的performance.而Relational Model中,将其分为了多个表,那么对于多个表的查询将需要对disk的更多查询,将消耗更多时间.  
-不过这一点仅仅在需要Document的大部分Data时才更有优势.当application只access一小部分数据时,那么retrieve整个Document就显得浪费.而更新Document时,往往需要对整个Document进行重写,只有当update并不改变其size时,才有可能实现in place的替换.基于此,推荐将Document尽可能往小存储,并且尽量避免会增加Document的size的write操作.
+`第三个问题`,是Data的`Locality`.  
+对于Document Model,每一项Document往往被存储为一个continuous的string,encoded为JSON,XML或BINARY的变种.如果application经常需要访问整个Document,比如用它去渲染一个web page,那么Document的Locality将为其带来更好的performance.而在Relational Model中,将其分为了多个表,那对于多个表的查询将是对disk的更多次access,消耗更多的时间.  
+不过这一点仅仅在需要对Document的大部分Data访问时才更有优势.当application只access一小部分数据时,那么retrieve整个Document就显得浪费.而更新Document时,往往需要对整个Document进行重写,只有当update并不改变其size时,才有可能实现in place的替换.基于此,推荐将Document尽可能往小的size存储,并且尽量避免会增加Document的size的write操作.
 
 
 ## Query Language For Data

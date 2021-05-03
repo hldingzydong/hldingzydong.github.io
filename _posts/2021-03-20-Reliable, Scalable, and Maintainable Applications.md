@@ -47,7 +47,7 @@ Reliability的系统应当具有如下几个特点/表现:
 常见的Hardware Faults包括但不仅限于:
 - Hard disks crash
 - RAM becomes faulty
-- The power grid has a blackout
+- The power grid has a blackout (停电)
 - Someone unplugs the wrong network cable  
 
 根据统计表明,Hard disks平均failure的时间是10-50年.因此,若一个存储集群含有10,000的disks,大概平均每天会crash一个.  
@@ -94,7 +94,7 @@ Reliability的系统应当具有如下几个特点/表现:
 #### Describing Load
 当讨论系统的Scalability时,第一要明确,`对于当前的系统,其load是什么`.  
 比如对于一个web server,它的load可能是每秒的请求; 对于DB,可能是读写比例; 对于cache,可能是cache命中率.  
-只有在明确了系统的load之后,才可去观测其在不同的load下的performance.
+只有在明确了系统的load之后,才可去观测其在不同程度的load下的performance.
 
 #### Describing Performance
 在明确load之后,可以用两种方式来观测其性能:
@@ -116,13 +116,13 @@ Reliability的系统应当具有如下几个特点/表现:
 假设我们现在选取response time作为观测当前系统性能的指标,但是response time不是一个单一的数值,而是分布的一系列数值.如图:
 ![Illustrating mean and percentiles: response times for a sample of 100 requests to a service](https://learning.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/assets/ddia_0104.png)
 
-对于这样一系列分布的性能指标,相比于取平均,更适合使用`percentiles`来描述.因为percentiles可以体现有多少的用户经历了什么样的response time.常用的有p50,p95,p99,p999(99.9%).
+对于这样一系列分布的性能指标,相比于取平均,往往更适合使用`percentiles`来描述.因为percentiles可以体现有多少的用户经历了什么样的response time.常用的有p50,p95,p99,p999(99.9%).
 
 > `p50`  
 > Response time thresholds at which 50% of requests are faster than that particular threshold.
 
 对于高百分比的percentiles,又叫做`tail latencies`.  
-一方面它很重要,因为它所对应的response time大往往意味着有更多的数据要被处理,即更重要的客户(对于Amazon这类电商来讲,可能是购买了很多商品的客户);另一方面来讲,优化这些高的percentiles很困难,因为他们非常容易被不受系统控制的事情影响,而为优化所带来的收益很小.  
+一方面它很重要,因为它所对应的response time大往往意味着有更多的数据要被处理,即更重要的客户(对于Amazon这类电商来讲,可能是购买了很多商品的客户);另一方面来讲,优化这些高的percentiles很困难,因为他们非常容易被不受系统控制的事情影响,而为优化它们所带来的收益很小.  
 产生tail latencies的一个重要原因是`queue delay`,也叫`head-of-line blocking`.
 
 > `head-of-line blocking`  
