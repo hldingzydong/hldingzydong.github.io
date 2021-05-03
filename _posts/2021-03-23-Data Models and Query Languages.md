@@ -12,7 +12,7 @@ Data Model非常重要,因为它:
 
 > Not only on how the software is written, but also on how we think about the problem that we are solving
 
-编程的本质,是建模,如网络模型(OSI七层模型),数据库模型,Web应用模型等等.而如同搭建高楼一样,模型是一层层搭建而起,一个从顶至底的general的模型是:
+编程的本质是建模,如网络模型(OSI七层模型),数据库模型,Web应用模型等等.如同搭建高楼一样,模型是一层层搭建而起,一个从顶至底的general的模型是:
 
 1. An application developer look at the real world (in which there are people, organizations, goods, actions, money flows, sensors, etc.) and model it in terms of objects or data structures, and APIs that manipulate those data structures.  
 2. When need to store those data structures, SWE express them in terms of a general-purpose data model, such as JSON or XML documents, tables in a relational database, or a graph model.  
@@ -31,7 +31,7 @@ Data Model非常重要,因为它:
 - Frustration with the `restrictiveness of relational schemas`, and a desire for a more dynamic and expressive data model
 
 #### Go through one example
-让我们通过一个例子来体会Relational Model和Document Model.如图所示,我们想要去表示比尔盖茨的简历:
+让我们通过一个例子来体会Relational Model和Document Model.如图,我们想要表示比尔盖茨的简历:
 ![Representing a LinkedIn profile using a relational schema. Photo of Bill Gates courtesy of Wikimedia Commons, Ricardo Stuckert, Agência Brasil.](https://learning.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/assets/ddia_0201.png)
 
 ##### `Phase1`
