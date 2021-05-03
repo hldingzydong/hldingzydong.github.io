@@ -20,7 +20,7 @@ Data Model非常重要,因为它:
 4. HWE have figured out how to represent bytes in terms of electrical currents, pulses of light, magnetic fields, and more.
 
 甚至在其中某一层,可以更加细分,比如某个API的实现基于另外一个底层的API.但是每层模型的idea是一致的:`通过提供简洁的Data Model/API,来隐藏该层的复杂性,并实现对该层的抽象`.  
-因此,Data Model十分重要,我们需要根据当前的业务场景,来决定采用哪一种更合适的Data Model.在本篇章中我们将介绍`Relational Model`,`Document Model`和`Graph-Like Model`.
+因此,Data Model十分重要,我们需要根据当前的业务场景,来决定采用哪一种(合适的)Data Model.在本篇章中我们将介绍`Relational Model`,`Document Model`和`Graph-Like Model`.
 
 ## Relational Model VS Document Model
 
@@ -70,12 +70,11 @@ Data Model非常重要,因为它:
   }  
 }
 ```
-Note: JSON的表示如同树一样.
 
 
 
 ##### `Phase2`
-在上图中,可以看到在用Relational Model表示所在地(region_id="Greater Seattle Area")和所在行业(industry_id="Philanthropy")时,并没有将其作为string/text放在user表中,而是分别单独建立一张表(regions/industries table),而在user表中存放的是对应region/industry的`ID`.这样做有何好处?  
+在上图中,可以看到在用Relational Model表示所在地(region_id="Greater Seattle Area")和所在行业(industry_id="Philanthropy")时,并没有将其作为string/text放在user表中,而是分别单独建立一张表(regions/industries table),在user表中存放的是对应region/industry的`ID`.这样做有何好处?  
 Note: 这里隐含了`many-to-one`的关系(很多人可能住在同一个地方).
 
 - `Consistent style` and `spelling across profiles`
@@ -104,15 +103,15 @@ Note: 这里隐含了`many-to-one`的关系(很多人可能住在同一个地方
 
 - 那么`many-to-many`在Relational Model中是怎么解决的呢?Relational Model只需要正常创建表并且存放数据即可.当进行query时,只需要declare即可,具体如何query由数据库内核中的query optimizer完成.  
 
-- 现如今的Document Model中,通过`document reference`也解决了`many-to-one`和`many-to-many`的问题,如同Relational Model中的`foreign key`一样.
+- 现如今的Document Model中,通过`document reference`也解决了`many-to-one`和`many-to-many`的问题(如同Relational Model中的`foreign key`一样).
 
 
 
 #### Relational Model VS Document Model
-简单概括一下,`Document Model`的scheme更加灵活,同时因为locality而获得了更好的performance,而且有时更贴近于某些application所使用的数据结构.`Relational Model`对join,many-to-one和many-to-many提供了更好的支持.  
+简单概括一下,`Document Model`的scheme更加灵活,同时因为locality具有更好的performance,并且有时更贴近于某些application所使用的data structure.`Relational Model`对join,many-to-one和many-to-many提供了更好的支持.  
 
 `第一个问题`,哪一种Data Model更适用于application呢?  
-答案是取决于application本身的特点,比如data structure中的data之间的关系.  
+答案是取决于application本身的特点,比如application所使用的data structure的data之间的关系.  
 
 `第二个问题`,哪一种Data Model的Scheme更灵活?  
 Document Model的scheme更具有灵活性,不如称Document Model的scheme为scheme-on-read:
@@ -142,10 +141,47 @@ UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 - The structure of the data is determined by external systems over which you have no control and which may change at any time.  
 
 `第三个问题`,是Data的`Locality`.  
-对于Document Model,每一项Document往往被存储为一个continuous的string,encoded为JSON,XML或BINARY的变种.如果application经常需要访问整个Document,比如用它去渲染一个web page,那么Document的Locality将为其带来更好的performance.而在Relational Model中,将其分为了多个表,那对于多个表的查询将是对disk的更多次access,消耗更多的时间.  
-不过这一点仅仅在需要对Document的大部分Data访问时才更有优势.当application只access一小部分数据时,那么retrieve整个Document就显得浪费.而更新Document时,往往需要对整个Document进行重写,只有当update并不改变其size时,才有可能实现in place的替换.基于此,推荐将Document尽可能往小的size存储,并且尽量避免会增加Document的size的write操作.
+对于Document Model,每一项Document往往被存储为一个continuous的string,被encode为JSON,XML或BINARY的变种.如果application经常需要访问整个Document,比如用它去渲染一个web page,那么Document的Locality将为其带来更好的performance.而在Relational Model中,将其分为了多个表,那对于多个表的查询将是对disk的更多access,这会消耗更多的时间.  
+不过这一点`仅仅在需要对Document的大部分Data访问时才更有优势`.当application只access一小部分数据时,那retrieve整个Document就显得浪费.而更新Document时,往往需要对整个Document进行重写,只有当update并不改变其size时,才有可能实现in place的替换.基于此,`推荐将Document尽可能往小的size存储,并且尽量避免会增加Document的size的write操作`.
 
 
 ## Query Language For Data
 
 ## Graph-Like Data Models
+
+## Practice
+### Mongo DB - Document Model
+##### [Step1 - Setup using Docker](https://hub.docker.com/_/mongo)
+- 从Docker hub拉取latest的mongoDB image
+```
+docker pull mongo   
+```
+- run拉取的image
+```
+docker run --name {name for container} -p 27017:27017 -d mongo:{tag}
+```
+将本机27017端口映射到container内部的27017端口,使得后续可通过本机27017端口对container内的mongoDB进行访问.
+- 进入container内部run command
+```
+docker exec -it {name for container} bash
+``` 
+
+##### [Step2 - Quick start](https://docs.mongodb.com/manual/tutorial/getting-started/)
+##### [Step3 - Java access MongoDB](https://www.mongodb.com/java)
+
+
+
+### Neo4j DB - Graph Model
+###### [Step1 - Setup using Docker](https://hub.docker.com/_/neo4j)
+- 从Docker hub拉取latest的neo4j image  
+```
+docker pull neo4j
+```  
+
+- run拉取的image
+```
+docker run --publish=7474:7474 --publish=7687:7687 neo4j
+```
+Detail请参考Docker hub中的 [How to use this image](https://hub.docker.com/_/neo4j).
+
+###### [Step2 - Quick start](https://towardsdatascience.com/getting-started-with-neo4j-in-10-minutes-94788d99cc2b)
