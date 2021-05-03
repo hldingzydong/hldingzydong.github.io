@@ -146,8 +146,71 @@ UPDATE users SET first_name = substring_index(name, ' ', 1);      -- MySQL
 
 
 ## Query Language For Data
+#### Declarative vs Imperative
+- Declarative`更精确`,且`更易使用`   
+- Declarative`隐藏了DB引擎的实现细节`,可能获取更好的performance.比如,Imperative中的loop对order有着要求,而Declarative却并不需要order,交由DB内核的optimizer实现  
+- Declarative可实现`parallel execution`(Imperative难以实现是因为它强制指令必须以特定的order执行)
+
+#### MapReduce Querying
+MapReduce介于Declarative与Imperative之间,Developer只需要在map()和reduce()中写imperative的code,而无需关心其他的细节.目前被一些NoSQL的DB支持,如MongoDB和CouchDB.  
+关于MapReduce更detail的介绍请refer谷歌的"*MapReduce: Simplified Data Processing on Large Clusters*".
 
 ## Graph-Like Data Models
+当application中有很多`many-to-many`的relation时,采用Graph-Like Data Model更合适.比如`Social graphs`,`The web graph`和`Road or rail networks`.  
+在graph中的vertex可以是不同的type,比如在`Social graphs`中,vertex可以是人,也可以是地点,评论等等.  
+这一部分将讨论两种Graph-Like Data Model,分别是`Property Graphs model`(如Neo4j,Titan,and InfiniteGraph)和`Triple-Stores model`(如Datomic,AllegroGraph),也将讨论三种对于Graph-Like Data Model的query language,分别是`Cypher`,`SPARQL`和`Datalog`.  
+一个简单的Graph-Like Data Model如图所示:
+![example for Graph-Like Data Model](https://learning.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/assets/ddia_0205.png)
+
+#### Property Graphs and Cypher
+在Property Graphs中,每个vertex由以下组成:
+- A unique identifier  
+- A set of outgoing edges  
+- A set of incoming edges  
+- A collection of properties (key-value pairs)  
+
+每条edge由以下组成:
+- A unique identifier  
+- The vertex at which the edge starts (the *tail vertex*)  
+- The vertex at which the edge ends (the *head vertex*)  
+- A label to describe the kind of relationship between the two vertices  
+- A collection of properties (key-value pairs)  
+
+如下SQL语句(Relation Model)可构建Property Graphs,使用一张vertex表和一张edge表来表示:
+```sql
+CREATE TABLE vertices (
+    vertex_id   integer PRIMARY KEY,
+    properties  json
+);
+```  
+```sql
+CREATE TABLE edges (
+    edge_id     integer PRIMARY KEY,
+    tail_vertex integer REFERENCES vertices (vertex_id),
+    head_vertex integer REFERENCES vertices (vertex_id),
+    label       text,
+    properties  json
+);
+```  
+```sql
+CREATE INDEX edges_tails ON edges (tail_vertex);
+CREATE INDEX edges_heads ON edges (head_vertex);
+```
+Note: 为每条edge存储其tail_vertex和head_vertex,当需要查询vertex的incoming or outgoing edges时,可以通过查询edge表的tail_vertex和head_vertex获得.  
+关于此model,有以下三个方面需说明:
+1. Any vertex can have an edge connecting it with any other vertex. There is no schema that restricts which kinds of things can or cannot be associated.  
+2. Given any vertex, you can efficiently find both its incoming and its outgoing edges, and thus *traverse* the graph.  
+3. By using different labels for different kinds of relationships, you can store several different kinds of information in a single graph, while still maintaining a clean data model.  
+
+由此可看出Graph-Like Data Model具有很好的`flexibility`,并且可以表达一些在Relation Model中难以表达的relation,如:
+- different kinds of regional structures in different countries (France has *départements* and *régions*, whereas the US has *counties* and *states*)  
+- quirks of history such as a country within a country (ignoring for now the intricacies of sovereign states and nations)  
+- varying granularity of data (Lucy’s current residence is specified as a city, whereas her place of birth is specified only at the level of a state)
+
+此外,还具有很好的`evolvability`,当需要在application中增加feature时,很容易扩展Graph-Like Data Model(只需要增加vertex和edge).
+
+#### Triple-Stores and SPARQL
+#### Foundation: Datalog
 
 ## Practice
 ### Mongo DB - Document Model
