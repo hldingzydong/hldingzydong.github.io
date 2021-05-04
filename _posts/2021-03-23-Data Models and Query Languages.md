@@ -159,7 +159,7 @@ MapReduce介于Declarative与Imperative之间,Developer只需要在map()和reduc
 当application中有很多`many-to-many`的relation时,采用Graph-Like Data Model更合适.比如`Social graphs`,`The web graph`和`Road or rail networks`.  
 在graph中的vertex可以是不同的type,比如在`Social graphs`中,vertex可以是人,也可以是地点,评论等等.  
 这一部分将讨论两种Graph-Like Data Model,分别是`Property Graphs model`(如Neo4j,Titan,and InfiniteGraph)和`Triple-Stores model`(如Datomic,AllegroGraph),也将讨论三种对于Graph-Like Data Model的query language,分别是`Cypher`,`SPARQL`和`Datalog`.  
-一个简单的Graph-Like Data Model如图所示:
+一个简单的Graph-Like Data Model如图所示,后续对query language的举例皆是基于该graph:
 ![example for Graph-Like Data Model](https://learning.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/assets/ddia_0205.png)
 
 #### Property Graphs and Cypher
@@ -176,7 +176,7 @@ MapReduce介于Declarative与Imperative之间,Developer只需要在map()和reduc
 - A label to describe the kind of relationship between the two vertices  
 - A collection of properties (key-value pairs)  
 
-如下SQL语句(Relation Model)可构建Property Graphs,使用一张vertex表和一张edge表来表示:
+使用如下SQL语句(Relation Model)可构建Property Graphs,由一张vertex表和一张edge表来表示:
 ```sql
 CREATE TABLE vertices (
     vertex_id   integer PRIMARY KEY,
@@ -196,7 +196,7 @@ CREATE TABLE edges (
 CREATE INDEX edges_tails ON edges (tail_vertex);
 CREATE INDEX edges_heads ON edges (head_vertex);
 ```
-Note: 为每条edge存储其tail_vertex和head_vertex,当需要查询vertex的incoming or outgoing edges时,可以通过查询edge表的tail_vertex和head_vertex获得.  
+Note: 为每条edge存储其tail_vertex和head_vertex,当需要查询vertex的incoming or outgoing edges时,可通过查询edge表的tail_vertex和head_vertex获得.  
 关于此model,有以下三个方面需说明:
 1. Any vertex can have an edge connecting it with any other vertex. There is no schema that restricts which kinds of things can or cannot be associated.  
 2. Given any vertex, you can efficiently find both its incoming and its outgoing edges, and thus *traverse* the graph.  
@@ -209,8 +209,94 @@ Note: 为每条edge存储其tail_vertex和head_vertex,当需要查询vertex的in
 
 此外,还具有很好的`evolvability`,当需要在application中增加feature时,很容易扩展Graph-Like Data Model(只需要增加vertex和edge).
 
+接下来将讨论对Property Graphs的查询语言:`Cypher`.
+
+> Cypher is a declarative query language for property graphs, created for the Neo4j graph database.  
+
+以下是实现上图中简单的Graph-Like Data Model的例子的Cypher语句:
+```
+CREATE
+  (NAmerica:Location {name:'North America', type:'continent'}),
+  (USA:Location      {name:'United States', type:'country'  }),
+  (Idaho:Location    {name:'Idaho',         type:'state'    }),
+  (Lucy:Person       {name:'Lucy' }),
+  (Idaho) -[:WITHIN]->  (USA)  -[:WITHIN]-> (NAmerica),
+  (Lucy)  -[:BORN_IN]-> (Idaho)
+
+```
+当需要*find people who emigrated from the US to Europe*,可以使用Cypher进行match:
+```
+MATCH
+  (person) -[:BORN_IN]->  () -[:WITHIN*0..]-> (us:Location {name:'United States'}),
+  (person) -[:LIVES_IN]-> () -[:WITHIN*0..]-> (eu:Location {name:'Europe'})
+RETURN person.name
+```
+Note:`(person) -[:BORN_IN]-> ()`匹配用label为`BORN_IN`的edge所连接的两个vertex,并且将edge的tail_vertex绑定到变量person,不绑定head_vertex.  
+对于该match可以这样解释:
+1. *person* has an outgoing *BORN_IN* edge to some vertex. From that vertex, you can follow a chain of outgoing *WITHIN* edges until eventually you reach a vertex of type *Location*, whose *name* property is equal to "*United States*".  
+2. That same *person* vertex also has an outgoing *LIVES_IN* edge. Following that edge, and then a chain of outgoing *WITHIN* edges, you eventually reach a vertex of type *Location*, whose *name* property is equal to "*Europe*".  
+3. For each such *person* vertex(match 1 & 2), return the *name* property.
+
+
 #### Triple-Stores and SPARQL
+在Triple-Stores中,所有的信息都以`(subject, predicate, object)`这样的形式存储.subject是graph中的vertex,而object可以是两种类型:
+1. `Primitive datatype`, such as a string or a number.此时,该形式表示的是subject(vertex)的property,如(lucy,age,33).  
+2. `Another vertex` in the graph.此时,该形式表示的是一条edge,subject是tail_vertex,object是head_vertex,如(lucy,marriedTo,alain).
+
+接下来将讨论对Triple-Stores的查询语言:`SPARQL`.
+
+> SPARQL is a query language for triple-stores using the [RDF data model](https://www.zhihu.com/question/28706033/answer/41818511).
+
+以下是实现上图中简单的Graph-Like Data Model的例子中*find people who emigrated from the US to Europe*的SPARQL语句:
+```
+PREFIX : <urn:example:>
+
+SELECT ?personName WHERE {
+  ?person :name ?personName.
+  ?person :bornIn  / :within* / :name "United States".
+  ?person :livesIn / :within* / :name "Europe".
+}
+```  
+将Cypher和SPARQL进行对比,可以看到它们的结构非常相似(因为Cypher借鉴于SPARQL):
+```
+(person) -[:BORN_IN]-> () -[:WITHIN*0..]-> (location)   # Cypher
+
+?person :bornIn / :within* ?location.                   # SPARQL
+```
+但因为RDF Data Model并不区分property和edge,都是采用predicate,因此可以用同样的syntax来匹配property:
+```
+(usa {name:'United States'})   # Cypher
+
+?usa :name "United States".    # SPARQL
+```
+
 #### Foundation: Datalog
+Datalog比Cypher和SPARQL更加古老,现在已经不常用,但是它非常重要,因为它为其他语言提供了基石.它现在被Datomic和Cascalog(a Datalog implementation for querying large datasets in Hadoop)使用.  
+Datalog的data model和SPARQL非常相似,但是它不采用`(subject, predicate, object)`,而使用`predicate(subject, object)`,如下所示:
+```
+name(namerica, 'North America').
+type(namerica, continent).
+```
+
+以下是实现上图中简单的Graph-Like Data Model的例子中*find people who emigrated from the US to Europe*的Datalog语句:
+```
+within_recursive(Location, Name) :- name(Location, Name).     /* Rule 1 */
+
+within_recursive(Location, Name) :- within(Location, Via),    /* Rule 2 */
+                                    within_recursive(Via, Name).
+
+migrated(Name, BornIn, LivingIn) :- name(Person, Name),       /* Rule 3 */
+                                    born_in(Person, BornLoc),
+                                    within_recursive(BornLoc, BornIn),
+                                    lives_in(Person, LivingLoc),
+                                    within_recursive(LivingLoc, LivingIn).
+
+?- migrated(Who, 'United States', 'Europe').
+```
+Datalog通过定义新的rule来引进新的predicate,如*within_recursive*和*migrated*.这些rule不被存储,而是由其他rules derived,并且可以call它们自己(因此可递归)或者其他rules.  
+当系统对`:-`的右边语句找到match时,可以apply该rule到系统中,即将该rule(`:-`的左边)加入到系统中.
+
+
 
 ## Practice
 ### Mongo DB - Document Model
